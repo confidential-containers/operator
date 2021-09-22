@@ -1,0 +1,24 @@
+# permissions for end users to edit confidentialcontainersruntimes.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: confidentialcontainersruntime-editor-role
+rules:
+- apiGroups:
+  - confidentialcontainers.org
+  resources:
+  - confidentialcontainersruntimes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - confidentialcontainers.org
+  resources:
+  - confidentialcontainersruntimes/status
+  verbs:
+  - get

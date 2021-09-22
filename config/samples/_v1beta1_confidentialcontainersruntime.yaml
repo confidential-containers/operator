@@ -1,0 +1,7 @@
+apiVersion: confidentialcontainers.org/v1beta1
+kind: ConfidentialContainersRuntime
+metadata:
+  name: confidentialcontainersruntime-sample
+spec:
+  # Add fields here
+  sourceImage: quay.io/kata-containers/kata-deploy:latest
