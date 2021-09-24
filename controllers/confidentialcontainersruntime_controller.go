@@ -50,6 +50,9 @@ type ConfidentialContainersRuntimeReconciler struct {
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes/finalizers,verbs=update
+//+kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch
+//+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;delete;update;patch
+//+kubebuilder:rbac:groups="",resources=nodes,verbs=get;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -303,7 +306,7 @@ func (r *ConfidentialContainersRuntimeReconciler) processDaemonset(operation Dae
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      dsName,
-			Namespace: "kata-operator",
+			Namespace: "confidential-containers-system",
 		},
 		Spec: appsv1.DaemonSetSpec{
 			Selector: &metav1.LabelSelector{
@@ -323,7 +326,7 @@ func (r *ConfidentialContainersRuntimeReconciler) processDaemonset(operation Dae
 					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
-					ServiceAccountName: "kata-operator",
+					ServiceAccountName: "kata-label-node",
 					NodeSelector:       nodeSelector,
 					Containers: []corev1.Container{
 						{
