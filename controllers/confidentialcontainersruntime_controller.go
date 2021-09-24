@@ -19,7 +19,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"github.com/confidential-containers-operator/api/v1beta1"
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -45,7 +44,7 @@ type ConfidentialContainersRuntimeReconciler struct {
 	client.Client
 	Scheme                        *runtime.Scheme
 	Log                           logr.Logger
-	confidentialContainersRuntime *v1beta1.ConfidentialContainersRuntime
+	confidentialContainersRuntime *confidentialcontainersorgv1beta1.ConfidentialContainersRuntime
 }
 
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes,verbs=get;list;watch;create;update;patch;delete
@@ -62,13 +61,12 @@ type ConfidentialContainersRuntimeReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.9.2/pkg/reconcile
 func (r *ConfidentialContainersRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
-
+	r.Log = log.FromContext(ctx)
 	_ = r.Log.WithValues("confidentialcontainersruntime", req.NamespacedName)
 	r.Log.Info("Reconciling ConfidentialContainersRuntime in Kubernetes Cluster")
 
 	// Fetch the ConfidentialContainersRuntime instance
-	r.confidentialContainersRuntime = &v1beta1.ConfidentialContainersRuntime{}
+	r.confidentialContainersRuntime = &confidentialcontainersorgv1beta1.ConfidentialContainersRuntime{}
 	err := r.Client.Get(context.TODO(), req.NamespacedName, r.confidentialContainersRuntime)
 	if err != nil {
 		if errors.IsNotFound(err) {

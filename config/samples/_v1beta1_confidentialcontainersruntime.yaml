@@ -4,4 +4,5 @@ metadata:
   name: confidentialcontainersruntime-sample
 spec:
   # Add fields here
-  sourceImage: quay.io/kata-containers/kata-deploy:latest
+  config:
+    sourceImage: quay.io/kata-containers/kata-deploy:latest
