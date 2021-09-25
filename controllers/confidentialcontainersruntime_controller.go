@@ -126,11 +126,6 @@ func (r *ConfidentialContainersRuntimeReconciler) processConfidentialContainersR
 				fmt.Errorf("PayloadImage must be specified to download the runtime binaries")
 		}
 
-		if r.confidentialContainersRuntime.Status.ConfidentialContainersRuntimeImage == "" {
-			// TODO - placeholder. This will change in future.
-			r.confidentialContainersRuntime.Status.ConfidentialContainersRuntimeImage = r.confidentialContainersRuntime.Spec.Config.PayloadImage
-		}
-
 		r.confidentialContainersRuntime.Status.RuntimeName = r.confidentialContainersRuntime.Spec.RuntimeName
 
 		err = r.Client.Status().Update(context.TODO(), r.confidentialContainersRuntime)
@@ -333,7 +328,7 @@ func (r *ConfidentialContainersRuntimeReconciler) processDaemonset(operation Dae
 					Containers: []corev1.Container{
 						{
 							Name:            "kata-install-pod",
-							Image:           r.confidentialContainersRuntime.Status.ConfidentialContainersRuntimeImage,
+							Image:           r.confidentialContainersRuntime.Spec.Config.PayloadImage,
 							ImagePullPolicy: "Always",
 							Lifecycle: &corev1.Lifecycle{
 								PreStop: &corev1.Handler{

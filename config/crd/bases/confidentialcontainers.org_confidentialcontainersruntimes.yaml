@@ -153,10 +153,6 @@ spec:
             description: ConfidentialContainersRuntimeStatus defines the observed
               state of ConfidentialContainersRuntime
             properties:
-              confidentialContainersRuntimeImage:
-                description: ConfidentialContainersRuntimeImage is the image used
-                  for delivering kata binaries
-                type: string
               installationStatus:
                 description: InstallationStatus reflects the status of the ongoing
                   runtime installation
@@ -295,7 +291,6 @@ spec:
                   upgrade
                 type: object
             required:
-            - confidentialContainersRuntimeImage
             - runtimeClass
             - runtimeName
             - totalNodesCount

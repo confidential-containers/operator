@@ -63,9 +63,6 @@ type ConfidentialContainersRuntimeStatus struct {
 	// RuntimeClass is the name of the runtime class as used in container runtime configuration
 	RuntimeClass string `json:"runtimeClass"`
 
-	// ConfidentialContainersRuntimeImage is the image used for delivering kata binaries
-	ConfidentialContainersRuntimeImage string `json:"confidentialContainersRuntimeImage"`
-
 	// ConfidentialContainers Runtime Name
 	RuntimeName CCRuntimeName `json:"runtimeName"`
 
