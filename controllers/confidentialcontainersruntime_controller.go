@@ -326,7 +326,7 @@ func (r *ConfidentialContainersRuntimeReconciler) processDaemonset(operation Dae
 					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
-					ServiceAccountName: "kata-label-node",
+					ServiceAccountName: "confidential-containers-controller-manager",
 					NodeSelector:       nodeSelector,
 					Containers: []corev1.Container{
 						{
