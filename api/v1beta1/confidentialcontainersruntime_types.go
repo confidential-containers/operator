@@ -17,6 +17,7 @@ limitations under the License.
 package v1beta1
 
 import (
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -34,6 +35,17 @@ type ConfidentialContainersRuntimeSpec struct {
 	// +optional
 	Config ConfidentialContainersInstallConfig `json:"config"`
 }
+
+// +kubebuilder:validation:Enum=bundle;osnative
+type CCInstallType string
+
+const (
+	// Use container image with all installation artifacts
+	BundleInstallType CCInstallType = "bundle"
+
+	// Use native OS packages (rpm/deb)
+	OsNativeInstallType CCInstallType = "osnative"
+)
 
 // ConfidentialContainersRuntimeStatus defines the observed state of ConfidentialContainersRuntime
 type ConfidentialContainersRuntimeStatus struct {
@@ -82,8 +94,44 @@ type ConfidentialContainersRuntimeList struct {
 
 // ConfidentialContainersInstallConfig is a placeholder struct
 type ConfidentialContainersInstallConfig struct {
-	// SourceImage is the name of the kata-deploy image
-	SourceImage string `json:"sourceImage"`
+
+	// This indicates whether to use native OS packaging (rpm/deb) or Container image
+	// Default is bundle (container image)
+	InstallType CCInstallType `json:"installType"`
+
+	// This specifies the location of the container image with all artifacts (CC runtime binaries, initrd, kernel, config etc)
+	// when using "bundle" installType
+	PayloadImage string `json:"payloadImage"`
+
+	// This specifies the registry secret to pull of the container images
+	// +optional
+	ImagePullSecret *corev1.LocalObjectReference `json:"ImagePullSecret,omitempty"`
+
+	// +optional
+	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty"`
+
+	// This specifies the repo location to be used when using rpm/deb packages
+	// Some examples
+	//   add-apt-repository 'deb [arch=amd64] https://repo.confidential-containers.org/apt/ubuntu’
+	//   add-apt-repository ppa:confidential-containers/cc-bundle
+	//   dnf install -y https://repo.confidential-containers.org/yum/centos/cc-bundle-repo.rpm
+	// +optional
+	OsNativeRepo string `json:"osNativeRepo,omitempty"`
+
+	// This specifies the location of the container image containing the CC runtime binaries
+	// If both payloadImage and runtimeImage are specified, then runtimeImage content will override the equivalent one in payloadImage
+	// +optional
+	RuntimeImage string `json:"runtimeImage,omitempty"`
+
+	// This specifies the location of the container image containing the guest kernel
+	// If both bundleImage and guestKernelImage are specified, then guestKernelImage content will override the equivalent one in payloadImage
+	// +optional
+	GuestKernelImage string `json:"guestKernelImage,omitempty"`
+
+	// This specifies the location of the container image containing the guest initrd
+	// If both bundleImage and guestInitrdImage are specified, then guestInitrdImage content will override the equivalent one in payloadImage
+	// +optional
+	GuestInitrdImage string `json:"guestInitrdImage,omitempty"`
 }
 
 // ConfidentialContainersInstallationStatus reflects the status of the ongoing kata installation

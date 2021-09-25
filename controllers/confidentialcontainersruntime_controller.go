@@ -121,14 +121,14 @@ func (r *ConfidentialContainersRuntimeReconciler) processKataConfigInstallReques
 				fmt.Errorf("no suitable worker nodes found for runtime installation. Please make sure to label the nodes with labels specified in ConfidentialContainersNodeSelector")
 		}
 
-		if r.confidentialContainersRuntime.Spec.Config.SourceImage == "" {
+		if r.confidentialContainersRuntime.Spec.Config.PayloadImage == "" {
 			return ctrl.Result{Requeue: true, RequeueAfter: 15 * time.Second},
-				fmt.Errorf("SourceImage must be specified to download the runtime binaries")
+				fmt.Errorf("PayloadImage must be specified to download the runtime binaries")
 		}
 
 		if r.confidentialContainersRuntime.Status.ConfidentialContainersRuntimeImage == "" {
 			// TODO - placeholder. This will change in future.
-			r.confidentialContainersRuntime.Status.ConfidentialContainersRuntimeImage = r.confidentialContainersRuntime.Spec.Config.SourceImage
+			r.confidentialContainersRuntime.Status.ConfidentialContainersRuntimeImage = r.confidentialContainersRuntime.Spec.Config.PayloadImage
 		}
 
 		err = r.Client.Status().Update(context.TODO(), r.confidentialContainersRuntime)
