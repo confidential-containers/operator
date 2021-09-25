@@ -2,7 +2,9 @@ apiVersion: confidentialcontainers.org/v1beta1
 kind: ConfidentialContainersRuntime
 metadata:
   name: confidentialcontainersruntime-sample
+  namespace: confidential-containers-system
 spec:
   # Add fields here
   config:
-    sourceImage: quay.io/kata-containers/kata-deploy:latest
+    installType: bundle
+    payloadImage: quay.io/kata-containers/kata-deploy:latest
