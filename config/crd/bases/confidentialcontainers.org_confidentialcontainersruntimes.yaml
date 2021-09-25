@@ -141,6 +141,13 @@ spec:
                 - installType
                 - payloadImage
                 type: object
+              runtimeName:
+                enum:
+                - kata
+                type: string
+            required:
+            - config
+            - runtimeName
             type: object
           status:
             description: ConfidentialContainersRuntimeStatus defines the observed
@@ -215,6 +222,11 @@ spec:
                 description: RuntimeClass is the name of the runtime class as used
                   in container runtime configuration
                 type: string
+              runtimeName:
+                description: ConfidentialContainers Runtime Name
+                enum:
+                - kata
+                type: string
               totalNodesCount:
                 description: TotalNodesCounts is the total number of worker nodes
                   targeted by this CR
@@ -285,6 +297,7 @@ spec:
             required:
             - confidentialContainersRuntimeImage
             - runtimeClass
+            - runtimeName
             - totalNodesCount
             type: object
         type: object

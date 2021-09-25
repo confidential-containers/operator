@@ -85,17 +85,17 @@ func (r *ConfidentialContainersRuntimeReconciler) Reconcile(ctx context.Context,
 	// Check if the ConfidentialContainersRuntime instance is marked to be deleted, which is
 	// indicated by the deletion timestamp being set.
 	if r.confidentialContainersRuntime.GetDeletionTimestamp() != nil {
-		return r.processKataConfigDeleteRequest()
+		return r.processConfidentialContainersRuntimeDeleteRequest()
 	}
 
-	return r.processKataConfigInstallRequest()
+	return r.processConfidentialContainersRuntimeInstallRequest()
 }
 
-func (r *ConfidentialContainersRuntimeReconciler) processKataConfigDeleteRequest() (ctrl.Result, error) {
+func (r *ConfidentialContainersRuntimeReconciler) processConfidentialContainersRuntimeDeleteRequest() (ctrl.Result, error) {
 	return ctrl.Result{}, nil
 }
 
-func (r *ConfidentialContainersRuntimeReconciler) processKataConfigInstallRequest() (ctrl.Result, error) {
+func (r *ConfidentialContainersRuntimeReconciler) processConfidentialContainersRuntimeInstallRequest() (ctrl.Result, error) {
 	if r.confidentialContainersRuntime.Status.TotalNodesCount == 0 {
 
 		nodesList := &corev1.NodeList{}
@@ -131,6 +131,8 @@ func (r *ConfidentialContainersRuntimeReconciler) processKataConfigInstallReques
 			r.confidentialContainersRuntime.Status.ConfidentialContainersRuntimeImage = r.confidentialContainersRuntime.Spec.Config.PayloadImage
 		}
 
+		r.confidentialContainersRuntime.Status.RuntimeName = r.confidentialContainersRuntime.Spec.RuntimeName
+
 		err = r.Client.Status().Update(context.TODO(), r.confidentialContainersRuntime)
 		if err != nil {
 			return ctrl.Result{}, err
@@ -157,7 +159,7 @@ func (r *ConfidentialContainersRuntimeReconciler) processKataConfigInstallReques
 			return ctrl.Result{}, err
 		}
 
-		return r.monitorKataConfigInstallation()
+		return r.monitorConfidentialContainersRuntimeInstallation()
 	}
 
 	// Add finalizer for this CR
@@ -170,7 +172,7 @@ func (r *ConfidentialContainersRuntimeReconciler) processKataConfigInstallReques
 	return ctrl.Result{}, nil
 }
 
-func (r *ConfidentialContainersRuntimeReconciler) monitorKataConfigInstallation() (ctrl.Result, error) {
+func (r *ConfidentialContainersRuntimeReconciler) monitorConfidentialContainersRuntimeInstallation() (ctrl.Result, error) {
 	// If the installation of the binaries is successful on all nodes, proceed with creating the runtime classes
 	if r.confidentialContainersRuntime.Status.TotalNodesCount > 0 && r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount == r.confidentialContainersRuntime.Status.TotalNodesCount {
 		rs, err := r.setRuntimeClass()

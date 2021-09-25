@@ -5,6 +5,7 @@ metadata:
   namespace: confidential-containers-system
 spec:
   # Add fields here
+  runtimeName: kata
   config:
     installType: bundle
     payloadImage: quay.io/kata-containers/kata-deploy:latest

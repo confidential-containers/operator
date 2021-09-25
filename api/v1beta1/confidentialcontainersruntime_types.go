@@ -24,6 +24,16 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+// +kubebuilder:validation:Enum=kata
+type CCRuntimeName string
+
+const (
+	// Kata
+	KataCCRuntime CCRuntimeName = "kata"
+
+	// Other CC Runtime
+)
+
 // ConfidentialContainersRuntimeSpec defines the desired state of ConfidentialContainersRuntime
 type ConfidentialContainersRuntimeSpec struct {
 	// KataConfigPoolSelector is used to filer the worker nodes
@@ -32,7 +42,8 @@ type ConfidentialContainersRuntimeSpec struct {
 	// +nullable
 	ConfidentialContainersNodeSelector *metav1.LabelSelector `json:"condidentialContainersNodeSelector"`
 
-	// +optional
+	RuntimeName CCRuntimeName `json:"runtimeName"`
+
 	Config ConfidentialContainersInstallConfig `json:"config"`
 }
 
@@ -54,6 +65,9 @@ type ConfidentialContainersRuntimeStatus struct {
 
 	// ConfidentialContainersRuntimeImage is the image used for delivering kata binaries
 	ConfidentialContainersRuntimeImage string `json:"confidentialContainersRuntimeImage"`
+
+	// ConfidentialContainers Runtime Name
+	RuntimeName CCRuntimeName `json:"runtimeName"`
 
 	// TotalNodesCounts is the total number of worker nodes targeted by this CR
 	TotalNodesCount int `json:"totalNodesCount"`
