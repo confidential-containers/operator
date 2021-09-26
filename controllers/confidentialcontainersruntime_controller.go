@@ -50,9 +50,8 @@ type ConfidentialContainersRuntimeReconciler struct {
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes/finalizers,verbs=update
-//+kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch
+//+kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch;patch
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;delete;update;patch
-//+kubebuilder:rbac:groups="",resources=nodes,verbs=get;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -208,7 +207,9 @@ func (r *ConfidentialContainersRuntimeReconciler) monitorConfidentialContainersR
 	for _, node := range nodesList.Items {
 		if !contains(r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList, node.Name) {
 			for k, v := range node.GetLabels() {
-				if k == "confidentialcontainers.org/runtime" && v == "true" {
+				//kata-deploy labels with katacontainers.io/kata-runtime:"true"
+				//TODO use generic label like confidentialcontainers.org/runtime:"true"
+				if k == "katacontainers.io/kata-runtime" && v == "true" {
 					r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList = append(r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList, node.Name)
 					r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount++
 
@@ -219,7 +220,7 @@ func (r *ConfidentialContainersRuntimeReconciler) monitorConfidentialContainersR
 				}
 			}
 		}
-		if r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount == r.confidentialContainersRuntime.Status.TotalNodesCount {
+		if r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount != r.confidentialContainersRuntime.Status.TotalNodesCount {
 			return ctrl.Result{Requeue: true}, nil
 		}
 	}

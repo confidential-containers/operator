@@ -7,13 +7,6 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - ""
-  resources:
-  - nodes
-  verbs:
-  - get
-  - patch
-- apiGroups:
   - apps
   resources:
   - daemonsets
@@ -58,4 +51,5 @@ rules:
   verbs:
   - get
   - list
+  - patch
   - watch
