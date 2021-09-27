@@ -39,8 +39,9 @@ spec:
               of ConfidentialContainersRuntime
             properties:
               condidentialContainersNodeSelector:
-                description: KataConfigPoolSelector is used to filer the worker nodes
-                  if not specified, all worker nodes are selected
+                description: ConfidentialContainersNodeSelector is used to select
+                  the worker nodes to deploy the runtime if not specified, all worker
+                  nodes are selected
                 nullable: true
                 properties:
                   matchExpressions:
@@ -159,30 +160,30 @@ spec:
                 properties:
                   completed:
                     description: Completed reflects the status of nodes that have
-                      completed kata installation
+                      completed the installation
                     properties:
                       completedNodesCount:
                         description: CompletedNodesCount reflects the number of nodes
-                          that have completed kata operation
+                          that have completed install operation
                         type: integer
                       completedNodesList:
                         description: CompletedNodesList reflects the list of nodes
-                          that have completed kata operation
+                          that have completed install operation
                         items:
                           type: string
                         type: array
                     type: object
                   failed:
                     description: Failed reflects the status of nodes that have failed
-                      kata installation
+                      installation
                     properties:
                       failedNodesCount:
                         description: FailedNodesCount reflects the number of nodes
-                          that have failed kata operation
+                          that have failed installation
                         type: integer
                       failedNodesList:
                         description: FailedNodesList reflects the list of nodes that
-                          have failed kata operation
+                          have failed installation
                         items:
                           description: FailedNodeStatus holds the name and the error
                             message of the failed node
@@ -202,7 +203,7 @@ spec:
                     type: object
                   inProgress:
                     description: InProgress reflects the status of nodes that are
-                      in the process of kata installation
+                      in the process of installation
                     properties:
                       binariesInstallNodesList:
                         items:
@@ -210,7 +211,7 @@ spec:
                         type: array
                       inProgressNodesCount:
                         description: InProgressNodesCount reflects the number of nodes
-                          that are in the process of kata installation
+                          that are in the process of installation
                         type: integer
                     type: object
                 type: object
@@ -233,30 +234,30 @@ spec:
                 properties:
                   completed:
                     description: Completed reflects the status of nodes that have
-                      completed kata uninstallation
+                      completed the uninstallation operation
                     properties:
                       completedNodesCount:
                         description: CompletedNodesCount reflects the number of nodes
-                          that have completed kata operation
+                          that have completed install operation
                         type: integer
                       completedNodesList:
                         description: CompletedNodesList reflects the list of nodes
-                          that have completed kata operation
+                          that have completed install operation
                         items:
                           type: string
                         type: array
                     type: object
                   failed:
                     description: Failed reflects the status of nodes that have failed
-                      kata uninstallation
+                      uninstallation
                     properties:
                       failedNodesCount:
                         description: FailedNodesCount reflects the number of nodes
-                          that have failed kata operation
+                          that have failed installation
                         type: integer
                       failedNodesList:
                         description: FailedNodesList reflects the list of nodes that
-                          have failed kata operation
+                          have failed installation
                         items:
                           description: FailedNodeStatus holds the name and the error
                             message of the failed node
@@ -276,13 +277,15 @@ spec:
                     type: object
                   inProgress:
                     description: InProgress reflects the status of nodes that are
-                      in the process of kata uninstallation
+                      in the process of uninstallation
                     properties:
                       binariesUninstallNodesList:
                         items:
                           type: string
                         type: array
                       inProgressNodesCount:
+                        description: InProgressNodesCount reflects the number of nodes
+                          that are in the process of uninstallation
                         type: integer
                     type: object
                 type: object

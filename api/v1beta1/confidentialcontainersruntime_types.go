@@ -36,7 +36,7 @@ const (
 
 // ConfidentialContainersRuntimeSpec defines the desired state of ConfidentialContainersRuntime
 type ConfidentialContainersRuntimeSpec struct {
-	// KataConfigPoolSelector is used to filer the worker nodes
+	// ConfidentialContainersNodeSelector is used to select the worker nodes to deploy the runtime
 	// if not specified, all worker nodes are selected
 	// +optional
 	// +nullable
@@ -146,66 +146,73 @@ type ConfidentialContainersInstallConfig struct {
 	GuestInitrdImage string `json:"guestInitrdImage,omitempty"`
 }
 
-// ConfidentialContainersInstallationStatus reflects the status of the ongoing kata installation
+// ConfidentialContainersInstallationStatus reflects the status of the ongoing confidential containers runtime installation
 type ConfidentialContainersInstallationStatus struct {
-	// InProgress reflects the status of nodes that are in the process of kata installation
+	// InProgress reflects the status of nodes that are in the process of installation
 	InProgress ConfidentialContainersInstallationInProgressStatus `json:"inProgress,omitempty"`
 
-	// Completed reflects the status of nodes that have completed kata installation
+	// Completed reflects the status of nodes that have completed the installation
 	Completed ConfidentialContainerCompletedStatus `json:"completed,omitempty"`
 
-	// Failed reflects the status of nodes that have failed kata installation
+	// Failed reflects the status of nodes that have failed installation
 	Failed ConfidentialContainersFailedNodeStatus `json:"failed,omitempty"`
 }
 
-// ConfidentialContainersInstallationInProgressStatus reflects the status of nodes that are in the process of kata installation
+// ConfidentialContainersInstallationInProgressStatus reflects the status of nodes that are in the process of installing
+// the confidential containers runtime
 type ConfidentialContainersInstallationInProgressStatus struct {
-	// InProgressNodesCount reflects the number of nodes that are in the process of kata installation
+	// InProgressNodesCount reflects the number of nodes that are in the process of installation
 	InProgressNodesCount int `json:"inProgressNodesCount,omitempty"`
 	// +optional
 	BinariesInstalledNodesList []string `json:"binariesInstallNodesList,omitempty"`
 }
 
-// ConfidentialContainerCompletedStatus reflects the status of nodes that have completed kata operation
+// ConfidentialContainerCompletedStatus reflects the status of nodes that have completed the installation of
+// the confidential containers runtime
 type ConfidentialContainerCompletedStatus struct {
-	// CompletedNodesCount reflects the number of nodes that have completed kata operation
+	// CompletedNodesCount reflects the number of nodes that have completed install operation
 	CompletedNodesCount int `json:"completedNodesCount,omitempty"`
 
-	// CompletedNodesList reflects the list of nodes that have completed kata operation
+	// CompletedNodesList reflects the list of nodes that have completed install operation
 	// +optional
 	CompletedNodesList []string `json:"completedNodesList,omitempty"`
 }
 
-// ConfidentialContainersFailedNodeStatus reflects the status of nodes that have failed kata operation
+// ConfidentialContainersFailedNodeStatus reflects the status of nodes that have failed installation of
+// the confidential containers runtime
 type ConfidentialContainersFailedNodeStatus struct {
-	// FailedNodesCount reflects the number of nodes that have failed kata operation
+	// FailedNodesCount reflects the number of nodes that have failed installation
 	FailedNodesCount int `json:"failedNodesCount,omitempty"`
 
-	// FailedNodesList reflects the list of nodes that have failed kata operation
+	// FailedNodesList reflects the list of nodes that have failed installation
 	// +optional
 	FailedNodesList []FailedNodeStatus `json:"failedNodesList,omitempty"`
 }
 
-// ConfidentialContainersUnInstallationStatus reflects the status of the ongoing kata uninstallation
+// ConfidentialContainersUnInstallationStatus reflects the status of the ongoing uninstallation of
+// the confidential containers runtime
 type ConfidentialContainersUnInstallationStatus struct {
-	// InProgress reflects the status of nodes that are in the process of kata uninstallation
+	// InProgress reflects the status of nodes that are in the process of uninstallation
 	InProgress ConfidentialContainersUnInstallationInProgressStatus `json:"inProgress,omitempty"`
 
-	// Completed reflects the status of nodes that have completed kata uninstallation
+	// Completed reflects the status of nodes that have completed the uninstallation operation
 	Completed ConfidentialContainerCompletedStatus `json:"completed,omitempty"`
 
-	// Failed reflects the status of nodes that have failed kata uninstallation
+	// Failed reflects the status of nodes that have failed uninstallation
 	Failed ConfidentialContainersFailedNodeStatus `json:"failed,omitempty"`
 }
 
-// ConfidentialContainersUnInstallationInProgressStatus reflects the status of nodes that are in the process of kata installation
+// ConfidentialContainersUnInstallationInProgressStatus reflects the status of nodes that are in the process of uninstalling
+// the confidential containers runtime
 type ConfidentialContainersUnInstallationInProgressStatus struct {
+	// InProgressNodesCount reflects the number of nodes that are in the process of uninstallation
 	InProgressNodesCount int `json:"inProgressNodesCount,omitempty"`
 	// +optional
 	BinariesUnInstalledNodesList []string `json:"binariesUninstallNodesList,omitempty"`
 }
 
-// ConfidentialContainersUpgradeStatus reflects the status of the ongoing kata upgrade
+// ConfidentialContainersUpgradeStatus reflects the status of the ongoing upgrade of
+// the confidential containers runtime
 type ConfidentialContainersUpgradeStatus struct {
 }
 

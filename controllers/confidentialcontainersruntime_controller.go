@@ -284,7 +284,7 @@ func (r *ConfidentialContainersRuntimeReconciler) processDaemonset(operation Dae
 	var runAsUser int64 = 0
 	hostPt := corev1.HostPathType("DirectoryOrCreate")
 
-	dsName := "kata-operator-daemon-" + string(operation)
+	dsName := "cc-operator-daemon-" + string(operation)
 	labels := map[string]string{
 		"name": dsName,
 	}
@@ -329,7 +329,7 @@ func (r *ConfidentialContainersRuntimeReconciler) processDaemonset(operation Dae
 					NodeSelector:       nodeSelector,
 					Containers: []corev1.Container{
 						{
-							Name:            "kata-install-pod",
+							Name:            "cc-runtime-install-pod",
 							Image:           r.confidentialContainersRuntime.Spec.Config.PayloadImage,
 							ImagePullPolicy: "Always",
 							Lifecycle: &corev1.Lifecycle{
