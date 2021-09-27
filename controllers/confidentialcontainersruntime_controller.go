@@ -52,6 +52,7 @@ type ConfidentialContainersRuntimeReconciler struct {
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes/finalizers,verbs=update
 //+kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch;patch
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;delete;update;patch
+//+kubebuilder:rbac:groups=node.k8s.io,resources=runtimeclasses,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -235,7 +236,7 @@ func (r *ConfidentialContainersRuntimeReconciler) setRuntimeClass() (ctrl.Result
 		rc := func() *nodeapi.RuntimeClass {
 			rc := &nodeapi.RuntimeClass{
 				TypeMeta: metav1.TypeMeta{
-					APIVersion: "node.k8s.io/v1beta1",
+					APIVersion: "node.k8s.io/v1",
 					Kind:       "RuntimeClass",
 				},
 				ObjectMeta: metav1.ObjectMeta{
