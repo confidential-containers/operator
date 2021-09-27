@@ -84,6 +84,7 @@ type ConfidentialContainersRuntimeStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:path=confidentialcontainersruntimes,scope=Cluster
 
 // ConfidentialContainersRuntime is the Schema for the confidentialcontainersruntimes API
 type ConfidentialContainersRuntime struct {

@@ -9,7 +9,6 @@ repo: github.com/confidential-containers/confidential-containers-operator
 resources:
 - api:
     crdVersion: v1beta1
-    namespaced: true
   controller: true
   domain: confidentialcontainers.org
   kind: ConfidentialContainersRuntime
