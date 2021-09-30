@@ -1,4 +1,5 @@
-# Hacking confidential-containers-operator
+# Introduction
+An operator to deploy confidential containers runtime (and required configs) on a Kubernetes cluster
 
 ## Prerequisites
 - Golang (1.16.x)
