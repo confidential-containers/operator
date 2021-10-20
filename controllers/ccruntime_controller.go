@@ -36,7 +36,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	ccv1beta1 "github.com/confidential-containers/confidential-containers-operator/api/v1beta1"
+	ccv1beta1 "github.com/confidential-containers/operator/api/v1beta1"
 )
 
 // CcRuntimeReconciler reconciles a CcRuntime object

@@ -30,7 +30,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	ccv1beta1 "github.com/confidential-containers/confidential-containers-operator/api/v1beta1"
+	ccv1beta1 "github.com/confidential-containers/operator/api/v1beta1"
 	//+kubebuilder:scaffold:imports
 )
 

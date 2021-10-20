@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	ccv1beta1 "github.com/confidential-containers/confidential-containers-operator/api/v1beta1"
-	"github.com/confidential-containers/confidential-containers-operator/controllers"
+	ccv1beta1 "github.com/confidential-containers/operator/api/v1beta1"
+	"github.com/confidential-containers/operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
