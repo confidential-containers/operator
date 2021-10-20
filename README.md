@@ -27,21 +27,40 @@ make docker-push
 
 ## Deploying Operator
 
-Ensure KUBECONFIG points to target Kubernetes cluster
+Ensure KUBECONFIG points to target Kubernetes cluster and IMG var is set
 ```
-make install && make deploy IMG=quay.io/user/cc-operator
+make install && make deploy
 ```
 
-## Create Custome Resource (CR)
+## Create Custom Resource (CR)
 ```
 kubectl create -f config/samples/ccruntime.yaml
 ```
 
 ## Uninstalling Operator
 
-Ensure KUBECONFIG points to target Kubernetes cluster
+Ensure KUBECONFIG points to target Kubernetes cluster and IMG var is set
 ```
-make uninstall && make undeploy IMG=quay.io/user/cc-operator
+make uninstall && make undeploy
 ```
 
+## Runtime bundle
+
+The operator by default uses the `quay.io/kata-containers/kata-deploy-cc:v0` image
+as the payload.
+You can change it when creating the CR by changing the `payloadImage` config.
+The following yaml shows an example where `v2` version of the image is used
+```
+apiVersion: confidentialcontainers.org/v1beta1
+kind: CcRuntime
+metadata:
+  name: ccruntime-sample
+  namespace: confidential-containers-system
+spec:
+  # Add fields here
+  runtimeName: kata
+  config:
+    installType: bundle
+    payloadImage: quay.io/kata-containers/kata-deploy-cc:v2
+```
 
