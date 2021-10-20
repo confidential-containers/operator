@@ -36,20 +36,20 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	confidentialcontainersorgv1beta1 "github.com/confidential-containers/confidential-containers-operator/api/v1beta1"
+	ccv1beta1 "github.com/confidential-containers/confidential-containers-operator/api/v1beta1"
 )
 
-// ConfidentialContainersRuntimeReconciler reconciles a ConfidentialContainersRuntime object
-type ConfidentialContainersRuntimeReconciler struct {
+// CcRuntimeReconciler reconciles a CcRuntime object
+type CcRuntimeReconciler struct {
 	client.Client
-	Scheme                        *runtime.Scheme
-	Log                           logr.Logger
-	confidentialContainersRuntime *confidentialcontainersorgv1beta1.ConfidentialContainersRuntime
+	Scheme    *runtime.Scheme
+	Log       logr.Logger
+	ccRuntime *ccv1beta1.CcRuntime
 }
 
-//+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=confidentialcontainers.org,resources=confidentialcontainersruntimes/finalizers,verbs=update
+//+kubebuilder:rbac:groups=confidentialcontainers.org,resources=ccruntimes,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=confidentialcontainers.org,resources=ccruntimes/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=confidentialcontainers.org,resources=ccruntimes/finalizers,verbs=update
 //+kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch;patch
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;delete;update;patch
 //+kubebuilder:rbac:groups=node.k8s.io,resources=runtimeclasses,verbs=get;list;watch;create;update;patch;delete
@@ -57,20 +57,20 @@ type ConfidentialContainersRuntimeReconciler struct {
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the ConfidentialContainersRuntime object against the actual cluster state, and then
+// the CcRuntime object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.9.2/pkg/reconcile
-func (r *ConfidentialContainersRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *CcRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	r.Log = log.FromContext(ctx)
-	_ = r.Log.WithValues("confidentialcontainersruntime", req.NamespacedName)
-	r.Log.Info("Reconciling ConfidentialContainersRuntime in Kubernetes Cluster")
+	_ = r.Log.WithValues("ccruntime", req.NamespacedName)
+	r.Log.Info("Reconciling CcRuntime in Kubernetes Cluster")
 
-	// Fetch the ConfidentialContainersRuntime instance
-	r.confidentialContainersRuntime = &confidentialcontainersorgv1beta1.ConfidentialContainersRuntime{}
-	err := r.Client.Get(context.TODO(), req.NamespacedName, r.confidentialContainersRuntime)
+	// Fetch the CcRuntime instance
+	r.ccRuntime = &ccv1beta1.CcRuntime{}
+	err := r.Client.Get(context.TODO(), req.NamespacedName, r.ccRuntime)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
@@ -82,64 +82,64 @@ func (r *ConfidentialContainersRuntimeReconciler) Reconcile(ctx context.Context,
 		return ctrl.Result{}, err
 	}
 
-	// Check if the ConfidentialContainersRuntime instance is marked to be deleted, which is
+	// Check if the CcRuntime instance is marked to be deleted, which is
 	// indicated by the deletion timestamp being set.
-	if r.confidentialContainersRuntime.GetDeletionTimestamp() != nil {
-		return r.processConfidentialContainersRuntimeDeleteRequest()
+	if r.ccRuntime.GetDeletionTimestamp() != nil {
+		return r.processCcRuntimeDeleteRequest()
 	}
 
-	return r.processConfidentialContainersRuntimeInstallRequest()
+	return r.processCcRuntimeInstallRequest()
 }
 
-func (r *ConfidentialContainersRuntimeReconciler) processConfidentialContainersRuntimeDeleteRequest() (ctrl.Result, error) {
+func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, error) {
 	return ctrl.Result{}, nil
 }
 
-func (r *ConfidentialContainersRuntimeReconciler) processConfidentialContainersRuntimeInstallRequest() (ctrl.Result, error) {
-	if r.confidentialContainersRuntime.Status.TotalNodesCount == 0 {
+func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, error) {
+	if r.ccRuntime.Status.TotalNodesCount == 0 {
 
 		nodesList := &corev1.NodeList{}
 
-		if r.confidentialContainersRuntime.Spec.ConfidentialContainersNodeSelector == nil {
-			r.confidentialContainersRuntime.Spec.ConfidentialContainersNodeSelector = &metav1.LabelSelector{
+		if r.ccRuntime.Spec.CcNodeSelector == nil {
+			r.ccRuntime.Spec.CcNodeSelector = &metav1.LabelSelector{
 				MatchLabels: map[string]string{"node-role.kubernetes.io/worker": ""},
 			}
 		}
 
 		listOpts := []client.ListOption{
-			client.MatchingLabels(r.confidentialContainersRuntime.Spec.ConfidentialContainersNodeSelector.MatchLabels),
+			client.MatchingLabels(r.ccRuntime.Spec.CcNodeSelector.MatchLabels),
 		}
 
 		err := r.Client.List(context.TODO(), nodesList, listOpts...)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
-		r.confidentialContainersRuntime.Status.TotalNodesCount = len(nodesList.Items)
+		r.ccRuntime.Status.TotalNodesCount = len(nodesList.Items)
 
-		if r.confidentialContainersRuntime.Status.TotalNodesCount == 0 {
+		if r.ccRuntime.Status.TotalNodesCount == 0 {
 			return ctrl.Result{Requeue: true, RequeueAfter: 15 * time.Second},
-				fmt.Errorf("no suitable worker nodes found for runtime installation. Please make sure to label the nodes with labels specified in ConfidentialContainersNodeSelector")
+				fmt.Errorf("no suitable worker nodes found for runtime installation. Please make sure to label the nodes with labels specified in CcNodeSelector")
 		}
 
-		if r.confidentialContainersRuntime.Spec.Config.PayloadImage == "" {
+		if r.ccRuntime.Spec.Config.PayloadImage == "" {
 			return ctrl.Result{Requeue: true, RequeueAfter: 15 * time.Second},
 				fmt.Errorf("PayloadImage must be specified to download the runtime binaries")
 		}
 
-		r.confidentialContainersRuntime.Status.RuntimeName = r.confidentialContainersRuntime.Spec.RuntimeName
+		r.ccRuntime.Status.RuntimeName = r.ccRuntime.Spec.RuntimeName
 
-		err = r.Client.Status().Update(context.TODO(), r.confidentialContainersRuntime)
+		err = r.Client.Status().Update(context.TODO(), r.ccRuntime)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
 	}
 
 	// Don't create the daemonset if the runtime is already installed on the cluster nodes
-	if r.confidentialContainersRuntime.Status.TotalNodesCount > 0 &&
-		r.confidentialContainersRuntime.Status.InstallationStatus.Completed.CompletedNodesCount != r.confidentialContainersRuntime.Status.TotalNodesCount {
+	if r.ccRuntime.Status.TotalNodesCount > 0 &&
+		r.ccRuntime.Status.InstallationStatus.Completed.CompletedNodesCount != r.ccRuntime.Status.TotalNodesCount {
 		ds := r.processDaemonset(InstallOperation)
-		// Set ConfidentialContainersRuntime instance as the owner and controller
-		if err := controllerutil.SetControllerReference(r.confidentialContainersRuntime, ds, r.Scheme); err != nil {
+		// Set CcRuntime instance as the owner and controller
+		if err := controllerutil.SetControllerReference(r.ccRuntime, ds, r.Scheme); err != nil {
 			return ctrl.Result{}, err
 		}
 		foundDs := &appsv1.DaemonSet{}
@@ -154,11 +154,11 @@ func (r *ConfidentialContainersRuntimeReconciler) processConfidentialContainersR
 			return ctrl.Result{}, err
 		}
 
-		return r.monitorConfidentialContainersRuntimeInstallation()
+		return r.monitorCcRuntimeInstallation()
 	}
 
 	// Add finalizer for this CR
-	// if !contains(r.confidentialContainersRuntime.GetFinalizers(), kataConfigFinalizer) {
+	// if !contains(r.ccRuntime.GetFinalizers(), kataConfigFinalizer) {
 	// 	if err := r.addFinalizer(); err != nil {
 	// 		return ctrl.Result{}, err
 	// 	}
@@ -167,20 +167,20 @@ func (r *ConfidentialContainersRuntimeReconciler) processConfidentialContainersR
 	return ctrl.Result{}, nil
 }
 
-func (r *ConfidentialContainersRuntimeReconciler) monitorConfidentialContainersRuntimeInstallation() (ctrl.Result, error) {
+func (r *CcRuntimeReconciler) monitorCcRuntimeInstallation() (ctrl.Result, error) {
 	// If the installation of the binaries is successful on all nodes, proceed with creating the runtime classes
-	if r.confidentialContainersRuntime.Status.TotalNodesCount > 0 && r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount == r.confidentialContainersRuntime.Status.TotalNodesCount {
+	if r.ccRuntime.Status.TotalNodesCount > 0 && r.ccRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount == r.ccRuntime.Status.TotalNodesCount {
 		rs, err := r.setRuntimeClass()
 		if err != nil {
 			return rs, err
 		}
 
-		r.confidentialContainersRuntime.Status.InstallationStatus.Completed.CompletedNodesList = r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList
-		r.confidentialContainersRuntime.Status.InstallationStatus.Completed.CompletedNodesCount = len(r.confidentialContainersRuntime.Status.InstallationStatus.Completed.CompletedNodesList)
-		r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList = []string{}
-		r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount = 0
+		r.ccRuntime.Status.InstallationStatus.Completed.CompletedNodesList = r.ccRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList
+		r.ccRuntime.Status.InstallationStatus.Completed.CompletedNodesCount = len(r.ccRuntime.Status.InstallationStatus.Completed.CompletedNodesList)
+		r.ccRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList = []string{}
+		r.ccRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount = 0
 
-		err = r.Client.Status().Update(context.TODO(), r.confidentialContainersRuntime)
+		err = r.Client.Status().Update(context.TODO(), r.ccRuntime)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -190,14 +190,14 @@ func (r *ConfidentialContainersRuntimeReconciler) monitorConfidentialContainersR
 
 	nodesList := &corev1.NodeList{}
 
-	if r.confidentialContainersRuntime.Spec.ConfidentialContainersNodeSelector == nil {
-		r.confidentialContainersRuntime.Spec.ConfidentialContainersNodeSelector = &metav1.LabelSelector{
+	if r.ccRuntime.Spec.CcNodeSelector == nil {
+		r.ccRuntime.Spec.CcNodeSelector = &metav1.LabelSelector{
 			MatchLabels: map[string]string{"node-role.kubernetes.io/worker": ""},
 		}
 	}
 
 	listOpts := []client.ListOption{
-		client.MatchingLabels(r.confidentialContainersRuntime.Spec.ConfidentialContainersNodeSelector.MatchLabels),
+		client.MatchingLabels(r.ccRuntime.Spec.CcNodeSelector.MatchLabels),
 	}
 
 	err := r.Client.List(context.TODO(), nodesList, listOpts...)
@@ -206,22 +206,22 @@ func (r *ConfidentialContainersRuntimeReconciler) monitorConfidentialContainersR
 	}
 
 	for _, node := range nodesList.Items {
-		if !contains(r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList, node.Name) {
+		if !contains(r.ccRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList, node.Name) {
 			for k, v := range node.GetLabels() {
 				//kata-deploy labels with katacontainers.io/kata-runtime:"true"
 				//TODO use generic label like confidentialcontainers.org/runtime:"true"
 				if k == "katacontainers.io/kata-runtime" && v == "true" {
-					r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList = append(r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList, node.Name)
-					r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount++
+					r.ccRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList = append(r.ccRuntime.Status.InstallationStatus.InProgress.BinariesInstalledNodesList, node.Name)
+					r.ccRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount++
 
-					err = r.Client.Status().Update(context.TODO(), r.confidentialContainersRuntime)
+					err = r.Client.Status().Update(context.TODO(), r.ccRuntime)
 					if err != nil {
 						return ctrl.Result{}, err
 					}
 				}
 			}
 		}
-		if r.confidentialContainersRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount != r.confidentialContainersRuntime.Status.TotalNodesCount {
+		if r.ccRuntime.Status.InstallationStatus.InProgress.InProgressNodesCount != r.ccRuntime.Status.TotalNodesCount {
 			return ctrl.Result{Requeue: true}, nil
 		}
 	}
@@ -229,7 +229,7 @@ func (r *ConfidentialContainersRuntimeReconciler) monitorConfidentialContainersR
 	return ctrl.Result{}, nil
 }
 
-func (r *ConfidentialContainersRuntimeReconciler) setRuntimeClass() (ctrl.Result, error) {
+func (r *CcRuntimeReconciler) setRuntimeClass() (ctrl.Result, error) {
 	runtimeClassNames := []string{"kata-qemu-virtiofs", "kata-qemu", "kata-clh", "kata-fc", "kata"}
 
 	for _, runtimeClassName := range runtimeClassNames {
@@ -245,16 +245,16 @@ func (r *ConfidentialContainersRuntimeReconciler) setRuntimeClass() (ctrl.Result
 				Handler: runtimeClassName,
 			}
 
-			if r.confidentialContainersRuntime.Spec.ConfidentialContainersNodeSelector != nil {
+			if r.ccRuntime.Spec.CcNodeSelector != nil {
 				rc.Scheduling = &nodeapi.Scheduling{
-					NodeSelector: r.confidentialContainersRuntime.Spec.ConfidentialContainersNodeSelector.MatchLabels,
+					NodeSelector: r.ccRuntime.Spec.CcNodeSelector.MatchLabels,
 				}
 			}
 			return rc
 		}()
 
-		// Set ConfidentialContainersRuntime r.confidentialContainersRuntime as the owner and controller
-		if err := controllerutil.SetControllerReference(r.confidentialContainersRuntime, rc, r.Scheme); err != nil {
+		// Set CcRuntime r.ccRuntime as the owner and controller
+		if err := controllerutil.SetControllerReference(r.ccRuntime, rc, r.Scheme); err != nil {
 			return ctrl.Result{}, err
 		}
 
@@ -270,8 +270,8 @@ func (r *ConfidentialContainersRuntimeReconciler) setRuntimeClass() (ctrl.Result
 
 	}
 
-	r.confidentialContainersRuntime.Status.RuntimeClass = strings.Join(runtimeClassNames, ",")
-	err := r.Client.Status().Update(context.TODO(), r.confidentialContainersRuntime)
+	r.ccRuntime.Status.RuntimeClass = strings.Join(runtimeClassNames, ",")
+	err := r.Client.Status().Update(context.TODO(), r.ccRuntime)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -279,7 +279,7 @@ func (r *ConfidentialContainersRuntimeReconciler) setRuntimeClass() (ctrl.Result
 	return ctrl.Result{}, nil
 }
 
-func (r *ConfidentialContainersRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv1.DaemonSet {
+func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv1.DaemonSet {
 	runPrivileged := true
 	var runAsUser int64 = 0
 	hostPt := corev1.HostPathType("DirectoryOrCreate")
@@ -290,8 +290,8 @@ func (r *ConfidentialContainersRuntimeReconciler) processDaemonset(operation Dae
 	}
 
 	var nodeSelector map[string]string
-	if r.confidentialContainersRuntime.Spec.ConfidentialContainersNodeSelector != nil {
-		nodeSelector = r.confidentialContainersRuntime.Spec.ConfidentialContainersNodeSelector.MatchLabels
+	if r.ccRuntime.Spec.CcNodeSelector != nil {
+		nodeSelector = r.ccRuntime.Spec.CcNodeSelector.MatchLabels
 	} else {
 		nodeSelector = map[string]string{
 			"node-role.kubernetes.io/worker": "",
@@ -325,12 +325,12 @@ func (r *ConfidentialContainersRuntimeReconciler) processDaemonset(operation Dae
 					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
-					ServiceAccountName: "confidential-containers-controller-manager",
+					ServiceAccountName: "cc-operator-controller-manager",
 					NodeSelector:       nodeSelector,
 					Containers: []corev1.Container{
 						{
 							Name:            "cc-runtime-install-pod",
-							Image:           r.confidentialContainersRuntime.Spec.Config.PayloadImage,
+							Image:           r.ccRuntime.Spec.Config.PayloadImage,
 							ImagePullPolicy: "Always",
 							Lifecycle: &corev1.Lifecycle{
 								PreStop: &corev1.Handler{
@@ -441,8 +441,8 @@ func (r *ConfidentialContainersRuntimeReconciler) processDaemonset(operation Dae
 }
 
 // SetupWithManager sets up the controller with the Manager.
-func (r *ConfidentialContainersRuntimeReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *CcRuntimeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&confidentialcontainersorgv1beta1.ConfidentialContainersRuntime{}).
+		For(&ccv1beta1.CcRuntime{}).
 		Complete(r)
 }

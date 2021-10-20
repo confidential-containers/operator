@@ -1,0 +1,306 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.6.1
+  creationTimestamp: null
+  name: ccruntimes.confidentialcontainers.org
+spec:
+  group: confidentialcontainers.org
+  names:
+    kind: CcRuntime
+    listKind: CcRuntimeList
+    plural: ccruntimes
+    singular: ccruntime
+  scope: Cluster
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: CcRuntime is the Schema for the ccruntimes API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CcRuntimeSpec defines the desired state of CcRuntime
+            properties:
+              ccNodeSelector:
+                description: CcNodeSelector is used to select the worker nodes to
+                  deploy the runtime if not specified, all worker nodes are selected
+                nullable: true
+                properties:
+                  matchExpressions:
+                    description: matchExpressions is a list of label selector requirements.
+                      The requirements are ANDed.
+                    items:
+                      description: A label selector requirement is a selector that
+                        contains values, a key, and an operator that relates the key
+                        and values.
+                      properties:
+                        key:
+                          description: key is the label key that the selector applies
+                            to.
+                          type: string
+                        operator:
+                          description: operator represents a key's relationship to
+                            a set of values. Valid operators are In, NotIn, Exists
+                            and DoesNotExist.
+                          type: string
+                        values:
+                          description: values is an array of string values. If the
+                            operator is In or NotIn, the values array must be non-empty.
+                            If the operator is Exists or DoesNotExist, the values
+                            array must be empty. This array is replaced during a strategic
+                            merge patch.
+                          items:
+                            type: string
+                          type: array
+                      required:
+                      - key
+                      - operator
+                      type: object
+                    type: array
+                  matchLabels:
+                    additionalProperties:
+                      type: string
+                    description: matchLabels is a map of {key,value} pairs. A single
+                      {key,value} in the matchLabels map is equivalent to an element
+                      of matchExpressions, whose key field is "key", the operator
+                      is "In", and the values array contains only "value". The requirements
+                      are ANDed.
+                    type: object
+                type: object
+              config:
+                description: CcInstallConfig is a placeholder struct
+                properties:
+                  ImagePullSecret:
+                    description: This specifies the registry secret to pull of the
+                      container images
+                    properties:
+                      name:
+                        description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                          TODO: Add other useful fields. apiVersion, kind, uid?'
+                        type: string
+                    type: object
+                  guestInitrdImage:
+                    description: This specifies the location of the container image
+                      containing the guest initrd If both bundleImage and guestInitrdImage
+                      are specified, then guestInitrdImage content will override the
+                      equivalent one in payloadImage
+                    type: string
+                  guestKernelImage:
+                    description: This specifies the location of the container image
+                      containing the guest kernel If both bundleImage and guestKernelImage
+                      are specified, then guestKernelImage content will override the
+                      equivalent one in payloadImage
+                    type: string
+                  imagePullPolicy:
+                    description: PullPolicy describes a policy for if/when to pull
+                      a container image
+                    type: string
+                  installType:
+                    description: This indicates whether to use native OS packaging
+                      (rpm/deb) or Container image Default is bundle (container image)
+                    enum:
+                    - bundle
+                    - osnative
+                    type: string
+                  osNativeRepo:
+                    description: This specifies the repo location to be used when
+                      using rpm/deb packages Some examples   add-apt-repository 'deb
+                      [arch=amd64] https://repo.confidential-containers.org/apt/ubuntu’   add-apt-repository
+                      ppa:confidential-containers/cc-bundle   dnf install -y https://repo.confidential-containers.org/yum/centos/cc-bundle-repo.rpm
+                    type: string
+                  payloadImage:
+                    description: This specifies the location of the container image
+                      with all artifacts (Cc runtime binaries, initrd, kernel, config
+                      etc) when using "bundle" installType
+                    type: string
+                  runtimeImage:
+                    description: This specifies the location of the container image
+                      containing the Cc runtime binaries If both payloadImage and
+                      runtimeImage are specified, then runtimeImage content will override
+                      the equivalent one in payloadImage
+                    type: string
+                required:
+                - installType
+                - payloadImage
+                type: object
+              runtimeName:
+                enum:
+                - kata
+                type: string
+            required:
+            - config
+            - runtimeName
+            type: object
+          status:
+            description: CcRuntimeStatus defines the observed state of CcRuntime
+            properties:
+              installationStatus:
+                description: InstallationStatus reflects the status of the ongoing
+                  runtime installation
+                properties:
+                  completed:
+                    description: Completed reflects the status of nodes that have
+                      completed the installation
+                    properties:
+                      completedNodesCount:
+                        description: CompletedNodesCount reflects the number of nodes
+                          that have completed install operation
+                        type: integer
+                      completedNodesList:
+                        description: CompletedNodesList reflects the list of nodes
+                          that have completed install operation
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  failed:
+                    description: Failed reflects the status of nodes that have failed
+                      installation
+                    properties:
+                      failedNodesCount:
+                        description: FailedNodesCount reflects the number of nodes
+                          that have failed installation
+                        type: integer
+                      failedNodesList:
+                        description: FailedNodesList reflects the list of nodes that
+                          have failed installation
+                        items:
+                          description: FailedNodeStatus holds the name and the error
+                            message of the failed node
+                          properties:
+                            error:
+                              description: Error message of the failed node reported
+                                by the installation daemon
+                              type: string
+                            name:
+                              description: Name of the failed node
+                              type: string
+                          required:
+                          - error
+                          - name
+                          type: object
+                        type: array
+                    type: object
+                  inProgress:
+                    description: InProgress reflects the status of nodes that are
+                      in the process of installation
+                    properties:
+                      binariesInstallNodesList:
+                        items:
+                          type: string
+                        type: array
+                      inProgressNodesCount:
+                        description: InProgressNodesCount reflects the number of nodes
+                          that are in the process of installation
+                        type: integer
+                    type: object
+                type: object
+              runtimeClass:
+                description: RuntimeClass is the name of the runtime class as used
+                  in container runtime configuration
+                type: string
+              runtimeName:
+                description: Cc Runtime Name
+                enum:
+                - kata
+                type: string
+              totalNodesCount:
+                description: TotalNodesCounts is the total number of worker nodes
+                  targeted by this CR
+                type: integer
+              unInstallationStatus:
+                description: UnInstallationStatus reflects the status of the ongoing
+                  runtime uninstallation
+                properties:
+                  completed:
+                    description: Completed reflects the status of nodes that have
+                      completed the uninstallation operation
+                    properties:
+                      completedNodesCount:
+                        description: CompletedNodesCount reflects the number of nodes
+                          that have completed install operation
+                        type: integer
+                      completedNodesList:
+                        description: CompletedNodesList reflects the list of nodes
+                          that have completed install operation
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  failed:
+                    description: Failed reflects the status of nodes that have failed
+                      uninstallation
+                    properties:
+                      failedNodesCount:
+                        description: FailedNodesCount reflects the number of nodes
+                          that have failed installation
+                        type: integer
+                      failedNodesList:
+                        description: FailedNodesList reflects the list of nodes that
+                          have failed installation
+                        items:
+                          description: FailedNodeStatus holds the name and the error
+                            message of the failed node
+                          properties:
+                            error:
+                              description: Error message of the failed node reported
+                                by the installation daemon
+                              type: string
+                            name:
+                              description: Name of the failed node
+                              type: string
+                          required:
+                          - error
+                          - name
+                          type: object
+                        type: array
+                    type: object
+                  inProgress:
+                    description: InProgress reflects the status of nodes that are
+                      in the process of uninstallation
+                    properties:
+                      binariesUninstallNodesList:
+                        items:
+                          type: string
+                        type: array
+                      inProgressNodesCount:
+                        description: InProgressNodesCount reflects the number of nodes
+                          that are in the process of uninstallation
+                        type: integer
+                    type: object
+                type: object
+              upgradeStatus:
+                description: Upgradestatus reflects the status of the ongoing runtime
+                  upgrade
+                type: object
+            required:
+            - runtimeClass
+            - runtimeName
+            - totalNodesCount
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

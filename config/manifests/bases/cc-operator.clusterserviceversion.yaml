@@ -1,0 +1,56 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: cc-operator.v0.0.1
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: CcRuntime is the Schema for the ccruntimes API
+      displayName: Cc Runtime
+      kind: CcRuntime
+      name: ccruntimes.confidentialcontainers.org
+      version: v1beta1
+  description: An operator to deploy and configure confidential containers runtime
+    on Kubernetes cluster
+  displayName: Confidential Containers Runtime Operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - confidential containers
+  - ccruntime
+  - kata
+  - vm tee
+  links:
+  - name: Confidential Containers
+    url: https://github.com/confidential-containers
+  maintainers:
+  - email: fidenco
+    name: Fabiano
+  - email: jensfr
+    name: Jens
+  - email: bpradipt
+    name: Pradipta
+  maturity: alpha
+  provider:
+    name: Confidential Containers Community
+    url: https://github.com/confidential-containers
+  version: 0.0.1

@@ -1,7 +1,7 @@
 apiVersion: confidentialcontainers.org/v1beta1
-kind: ConfidentialContainersRuntime
+kind: CcRuntime
 metadata:
-  name: confidentialcontainersruntime-sample
+  name: ccruntime-sample
   namespace: confidential-containers-system
 spec:
   # Add fields here
