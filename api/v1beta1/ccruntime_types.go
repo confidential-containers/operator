@@ -25,93 +25,93 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
 // +kubebuilder:validation:Enum=kata
-type CCRuntimeName string
+type CcRuntimeName string
 
 const (
 	// Kata
-	KataCCRuntime CCRuntimeName = "kata"
+	KataCcRuntime CcRuntimeName = "kata"
 
-	// Other CC Runtime
+	// Other Cc Runtime
 )
 
-// ConfidentialContainersRuntimeSpec defines the desired state of ConfidentialContainersRuntime
-type ConfidentialContainersRuntimeSpec struct {
-	// ConfidentialContainersNodeSelector is used to select the worker nodes to deploy the runtime
+// CcRuntimeSpec defines the desired state of CcRuntime
+type CcRuntimeSpec struct {
+	// CcNodeSelector is used to select the worker nodes to deploy the runtime
 	// if not specified, all worker nodes are selected
 	// +optional
 	// +nullable
-	ConfidentialContainersNodeSelector *metav1.LabelSelector `json:"condidentialContainersNodeSelector"`
+	CcNodeSelector *metav1.LabelSelector `json:"ccNodeSelector"`
 
-	RuntimeName CCRuntimeName `json:"runtimeName"`
+	RuntimeName CcRuntimeName `json:"runtimeName"`
 
-	Config ConfidentialContainersInstallConfig `json:"config"`
+	Config CcInstallConfig `json:"config"`
 }
 
 // +kubebuilder:validation:Enum=bundle;osnative
-type CCInstallType string
+type CcInstallType string
 
 const (
 	// Use container image with all installation artifacts
-	BundleInstallType CCInstallType = "bundle"
+	BundleInstallType CcInstallType = "bundle"
 
 	// Use native OS packages (rpm/deb)
-	OsNativeInstallType CCInstallType = "osnative"
+	OsNativeInstallType CcInstallType = "osnative"
 )
 
-// ConfidentialContainersRuntimeStatus defines the observed state of ConfidentialContainersRuntime
-type ConfidentialContainersRuntimeStatus struct {
+// CcRuntimeStatus defines the observed state of CcRuntime
+type CcRuntimeStatus struct {
 	// RuntimeClass is the name of the runtime class as used in container runtime configuration
 	RuntimeClass string `json:"runtimeClass"`
 
-	// ConfidentialContainers Runtime Name
-	RuntimeName CCRuntimeName `json:"runtimeName"`
+	// Cc Runtime Name
+	RuntimeName CcRuntimeName `json:"runtimeName"`
 
 	// TotalNodesCounts is the total number of worker nodes targeted by this CR
 	TotalNodesCount int `json:"totalNodesCount"`
 
 	// InstallationStatus reflects the status of the ongoing runtime installation
 	// +optional
-	InstallationStatus ConfidentialContainersInstallationStatus `json:"installationStatus,omitempty"`
+	InstallationStatus CcInstallationStatus `json:"installationStatus,omitempty"`
 
 	// UnInstallationStatus reflects the status of the ongoing runtime uninstallation
 	// +optional
-	UnInstallationStatus ConfidentialContainersUnInstallationStatus `json:"unInstallationStatus,omitempty"`
+	UnInstallationStatus CcUnInstallationStatus `json:"unInstallationStatus,omitempty"`
 
 	// Upgradestatus reflects the status of the ongoing runtime upgrade
 	// +optional
-	Upgradestatus ConfidentialContainersUpgradeStatus `json:"upgradeStatus,omitempty"`
+	Upgradestatus CcUpgradeStatus `json:"upgradeStatus,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:resource:path=confidentialcontainersruntimes,scope=Cluster
+//+kubebuilder:resource:path=ccruntimes,scope=Cluster
 
-// ConfidentialContainersRuntime is the Schema for the confidentialcontainersruntimes API
-type ConfidentialContainersRuntime struct {
+// CcRuntime is the Schema for the ccruntimes API
+type CcRuntime struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ConfidentialContainersRuntimeSpec   `json:"spec,omitempty"`
-	Status ConfidentialContainersRuntimeStatus `json:"status,omitempty"`
+	Spec   CcRuntimeSpec   `json:"spec,omitempty"`
+	Status CcRuntimeStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// ConfidentialContainersRuntimeList contains a list of ConfidentialContainersRuntime
-type ConfidentialContainersRuntimeList struct {
+// CcRuntimeList contains a list of CcRuntime
+type CcRuntimeList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []ConfidentialContainersRuntime `json:"items"`
+	Items           []CcRuntime `json:"items"`
 }
 
-// ConfidentialContainersInstallConfig is a placeholder struct
-type ConfidentialContainersInstallConfig struct {
+// CcInstallConfig is a placeholder struct
+type CcInstallConfig struct {
 
 	// This indicates whether to use native OS packaging (rpm/deb) or Container image
 	// Default is bundle (container image)
-	InstallType CCInstallType `json:"installType"`
+	InstallType CcInstallType `json:"installType"`
 
-	// This specifies the location of the container image with all artifacts (CC runtime binaries, initrd, kernel, config etc)
+	// This specifies the location of the container image with all artifacts (Cc runtime binaries, initrd, kernel, config etc)
 	// when using "bundle" installType
 	PayloadImage string `json:"payloadImage"`
 
@@ -130,7 +130,7 @@ type ConfidentialContainersInstallConfig struct {
 	// +optional
 	OsNativeRepo string `json:"osNativeRepo,omitempty"`
 
-	// This specifies the location of the container image containing the CC runtime binaries
+	// This specifies the location of the container image containing the Cc runtime binaries
 	// If both payloadImage and runtimeImage are specified, then runtimeImage content will override the equivalent one in payloadImage
 	// +optional
 	RuntimeImage string `json:"runtimeImage,omitempty"`
@@ -146,30 +146,30 @@ type ConfidentialContainersInstallConfig struct {
 	GuestInitrdImage string `json:"guestInitrdImage,omitempty"`
 }
 
-// ConfidentialContainersInstallationStatus reflects the status of the ongoing confidential containers runtime installation
-type ConfidentialContainersInstallationStatus struct {
+// CcInstallationStatus reflects the status of the ongoing confidential containers runtime installation
+type CcInstallationStatus struct {
 	// InProgress reflects the status of nodes that are in the process of installation
-	InProgress ConfidentialContainersInstallationInProgressStatus `json:"inProgress,omitempty"`
+	InProgress CcInstallationInProgressStatus `json:"inProgress,omitempty"`
 
 	// Completed reflects the status of nodes that have completed the installation
-	Completed ConfidentialContainerCompletedStatus `json:"completed,omitempty"`
+	Completed CcCompletedStatus `json:"completed,omitempty"`
 
 	// Failed reflects the status of nodes that have failed installation
-	Failed ConfidentialContainersFailedNodeStatus `json:"failed,omitempty"`
+	Failed CcFailedNodeStatus `json:"failed,omitempty"`
 }
 
-// ConfidentialContainersInstallationInProgressStatus reflects the status of nodes that are in the process of installing
+// CcInstallationInProgressStatus reflects the status of nodes that are in the process of installing
 // the confidential containers runtime
-type ConfidentialContainersInstallationInProgressStatus struct {
+type CcInstallationInProgressStatus struct {
 	// InProgressNodesCount reflects the number of nodes that are in the process of installation
 	InProgressNodesCount int `json:"inProgressNodesCount,omitempty"`
 	// +optional
 	BinariesInstalledNodesList []string `json:"binariesInstallNodesList,omitempty"`
 }
 
-// ConfidentialContainerCompletedStatus reflects the status of nodes that have completed the installation of
+// CcCompletedStatus reflects the status of nodes that have completed the installation of
 // the confidential containers runtime
-type ConfidentialContainerCompletedStatus struct {
+type CcCompletedStatus struct {
 	// CompletedNodesCount reflects the number of nodes that have completed install operation
 	CompletedNodesCount int `json:"completedNodesCount,omitempty"`
 
@@ -178,9 +178,9 @@ type ConfidentialContainerCompletedStatus struct {
 	CompletedNodesList []string `json:"completedNodesList,omitempty"`
 }
 
-// ConfidentialContainersFailedNodeStatus reflects the status of nodes that have failed installation of
+// CcFailedNodeStatus reflects the status of nodes that have failed installation of
 // the confidential containers runtime
-type ConfidentialContainersFailedNodeStatus struct {
+type CcFailedNodeStatus struct {
 	// FailedNodesCount reflects the number of nodes that have failed installation
 	FailedNodesCount int `json:"failedNodesCount,omitempty"`
 
@@ -189,31 +189,31 @@ type ConfidentialContainersFailedNodeStatus struct {
 	FailedNodesList []FailedNodeStatus `json:"failedNodesList,omitempty"`
 }
 
-// ConfidentialContainersUnInstallationStatus reflects the status of the ongoing uninstallation of
+// CcUnInstallationStatus reflects the status of the ongoing uninstallation of
 // the confidential containers runtime
-type ConfidentialContainersUnInstallationStatus struct {
+type CcUnInstallationStatus struct {
 	// InProgress reflects the status of nodes that are in the process of uninstallation
-	InProgress ConfidentialContainersUnInstallationInProgressStatus `json:"inProgress,omitempty"`
+	InProgress CcUnInstallationInProgressStatus `json:"inProgress,omitempty"`
 
 	// Completed reflects the status of nodes that have completed the uninstallation operation
-	Completed ConfidentialContainerCompletedStatus `json:"completed,omitempty"`
+	Completed CcCompletedStatus `json:"completed,omitempty"`
 
 	// Failed reflects the status of nodes that have failed uninstallation
-	Failed ConfidentialContainersFailedNodeStatus `json:"failed,omitempty"`
+	Failed CcFailedNodeStatus `json:"failed,omitempty"`
 }
 
-// ConfidentialContainersUnInstallationInProgressStatus reflects the status of nodes that are in the process of uninstalling
+// CcUnInstallationInProgressStatus reflects the status of nodes that are in the process of uninstalling
 // the confidential containers runtime
-type ConfidentialContainersUnInstallationInProgressStatus struct {
+type CcUnInstallationInProgressStatus struct {
 	// InProgressNodesCount reflects the number of nodes that are in the process of uninstallation
 	InProgressNodesCount int `json:"inProgressNodesCount,omitempty"`
 	// +optional
 	BinariesUnInstalledNodesList []string `json:"binariesUninstallNodesList,omitempty"`
 }
 
-// ConfidentialContainersUpgradeStatus reflects the status of the ongoing upgrade of
+// CcUpgradeStatus reflects the status of the ongoing upgrade of
 // the confidential containers runtime
-type ConfidentialContainersUpgradeStatus struct {
+type CcUpgradeStatus struct {
 }
 
 // FailedNodeStatus holds the name and the error message of the failed node
@@ -225,5 +225,5 @@ type FailedNodeStatus struct {
 }
 
 func init() {
-	SchemeBuilder.Register(&ConfidentialContainersRuntime{}, &ConfidentialContainersRuntimeList{})
+	SchemeBuilder.Register(&CcRuntime{}, &CcRuntimeList{})
 }

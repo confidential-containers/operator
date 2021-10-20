@@ -34,7 +34,7 @@ make install && make deploy IMG=quay.io/user/cc-operator
 
 ## Create Custome Resource (CR)
 ```
-kubectl create -f config/samples/_v1beta1_confidentialcontainersruntime.yaml
+kubectl create -f config/samples/ccruntime.yaml
 ```
 
 ## Uninstalling Operator

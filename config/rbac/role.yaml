@@ -21,7 +21,7 @@ rules:
 - apiGroups:
   - confidentialcontainers.org
   resources:
-  - confidentialcontainersruntimes
+  - ccruntimes
   verbs:
   - create
   - delete
@@ -33,13 +33,13 @@ rules:
 - apiGroups:
   - confidentialcontainers.org
   resources:
-  - confidentialcontainersruntimes/finalizers
+  - ccruntimes/finalizers
   verbs:
   - update
 - apiGroups:
   - confidentialcontainers.org
   resources:
-  - confidentialcontainersruntimes/status
+  - ccruntimes/status
   verbs:
   - get
   - patch

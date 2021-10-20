@@ -1,26 +1,23 @@
-
----
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.6.1
   creationTimestamp: null
-  name: confidentialcontainersruntimes.confidentialcontainers.org
+  name: ccruntimes.confidentialcontainers.org
 spec:
   group: confidentialcontainers.org
   names:
-    kind: ConfidentialContainersRuntime
-    listKind: ConfidentialContainersRuntimeList
-    plural: confidentialcontainersruntimes
-    singular: confidentialcontainersruntime
+    kind: CcRuntime
+    listKind: CcRuntimeList
+    plural: ccruntimes
+    singular: ccruntime
   scope: Cluster
   versions:
   - name: v1beta1
     schema:
       openAPIV3Schema:
-        description: ConfidentialContainersRuntime is the Schema for the confidentialcontainersruntimes
-          API
+        description: CcRuntime is the Schema for the ccruntimes API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -35,13 +32,11 @@ spec:
           metadata:
             type: object
           spec:
-            description: ConfidentialContainersRuntimeSpec defines the desired state
-              of ConfidentialContainersRuntime
+            description: CcRuntimeSpec defines the desired state of CcRuntime
             properties:
-              condidentialContainersNodeSelector:
-                description: ConfidentialContainersNodeSelector is used to select
-                  the worker nodes to deploy the runtime if not specified, all worker
-                  nodes are selected
+              ccNodeSelector:
+                description: CcNodeSelector is used to select the worker nodes to
+                  deploy the runtime if not specified, all worker nodes are selected
                 nullable: true
                 properties:
                   matchExpressions:
@@ -86,8 +81,7 @@ spec:
                     type: object
                 type: object
               config:
-                description: ConfidentialContainersInstallConfig is a placeholder
-                  struct
+                description: CcInstallConfig is a placeholder struct
                 properties:
                   ImagePullSecret:
                     description: This specifies the registry secret to pull of the
@@ -129,12 +123,12 @@ spec:
                     type: string
                   payloadImage:
                     description: This specifies the location of the container image
-                      with all artifacts (CC runtime binaries, initrd, kernel, config
+                      with all artifacts (Cc runtime binaries, initrd, kernel, config
                       etc) when using "bundle" installType
                     type: string
                   runtimeImage:
                     description: This specifies the location of the container image
-                      containing the CC runtime binaries If both payloadImage and
+                      containing the Cc runtime binaries If both payloadImage and
                       runtimeImage are specified, then runtimeImage content will override
                       the equivalent one in payloadImage
                     type: string
@@ -151,8 +145,7 @@ spec:
             - runtimeName
             type: object
           status:
-            description: ConfidentialContainersRuntimeStatus defines the observed
-              state of ConfidentialContainersRuntime
+            description: CcRuntimeStatus defines the observed state of CcRuntime
             properties:
               installationStatus:
                 description: InstallationStatus reflects the status of the ongoing
@@ -220,7 +213,7 @@ spec:
                   in container runtime configuration
                 type: string
               runtimeName:
-                description: ConfidentialContainers Runtime Name
+                description: Cc Runtime Name
                 enum:
                 - kata
                 type: string
