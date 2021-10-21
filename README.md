@@ -1,50 +1,19 @@
 # Introduction
 An operator to deploy confidential containers runtime (and required configs) on a Kubernetes cluster
 
-## Prerequisites
-- Golang (1.16.x)
-- Operator SDK version (1.11.x+)
-- podman, podman-docker or docker
-- Access to Kubernetes cluster (1.21+)
-- Container registry to store images
+## Installation
 
-
-## Set Environment Variables
+Ensure KUBECONFIG points to target Kubernetes cluster
 ```
-export IMG=quay.io/user/cc-operator
-```
-
-## Viewing available Make targets
-```
-make help
-```
-
-## Building Operator image
-```
-make docker-build
-make docker-push
-```
-
-## Deploying Operator
-
-Ensure KUBECONFIG points to target Kubernetes cluster and IMG var is set
-```
-make install && make deploy
+kubectl apply -f https://raw.githubusercontent.com/confidential-containers/operator/master/deploy/deploy.yaml
 ```
 
 ## Create Custom Resource (CR)
 ```
-kubectl create -f config/samples/ccruntime.yaml
+kubectl apply  -f https://raw.githubusercontent.com/confidential-containers/operator/master/config/samples/ccruntime.yaml
 ```
 
-## Uninstalling Operator
-
-Ensure KUBECONFIG points to target Kubernetes cluster and IMG var is set
-```
-make uninstall && make undeploy
-```
-
-## Runtime bundle
+## Changing Runtime bundle
 
 The operator by default uses the `quay.io/kata-containers/kata-deploy-cc:v0` image
 as the payload.
@@ -64,3 +33,14 @@ spec:
     payloadImage: quay.io/kata-containers/kata-deploy-cc:v2
 ```
 
+## Uninstallation
+
+Delete the CR
+```
+kubectl delete  -f https://raw.githubusercontent.com/confidential-containers/operator/master/config/samples/ccruntime.yaml
+```
+
+Delete the Operator
+```
+kubectl delete -f https://raw.githubusercontent.com/confidential-containers/operator/master/deploy/deploy.yaml
+```
