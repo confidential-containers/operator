@@ -5,12 +5,12 @@ An operator to deploy confidential containers runtime (and required configs) on 
 
 Ensure KUBECONFIG points to target Kubernetes cluster
 ```
-kubectl apply -f https://raw.githubusercontent.com/confidential-containers/operator/master/deploy/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/confidential-containers/operator/main/deploy/deploy.yaml
 ```
 
 ## Create Custom Resource (CR)
 ```
-kubectl apply  -f https://raw.githubusercontent.com/confidential-containers/operator/master/config/samples/ccruntime.yaml
+kubectl apply  -f https://raw.githubusercontent.com/confidential-containers/operator/main/config/samples/ccruntime.yaml
 ```
 
 ## Changing Runtime bundle
@@ -37,10 +37,10 @@ spec:
 
 Delete the CR
 ```
-kubectl delete  -f https://raw.githubusercontent.com/confidential-containers/operator/master/config/samples/ccruntime.yaml
+kubectl delete  -f https://raw.githubusercontent.com/confidential-containers/operator/main/config/samples/ccruntime.yaml
 ```
 
 Delete the Operator
 ```
-kubectl delete -f https://raw.githubusercontent.com/confidential-containers/operator/master/deploy/deploy.yaml
+kubectl delete -f https://raw.githubusercontent.com/confidential-containers/operator/main/deploy/deploy.yaml
 ```
