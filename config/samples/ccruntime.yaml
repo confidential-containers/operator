@@ -8,4 +8,4 @@ spec:
   runtimeName: kata
   config:
     installType: bundle
-    payloadImage: quay.io/kata-containers/kata-deploy-cc:v0
+    payloadImage: quay.io/confidential-containers/runtime-payload:v0
