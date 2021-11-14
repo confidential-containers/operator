@@ -92,6 +92,8 @@ func (r *CcRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 }
 
 func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, error) {
+	// Delete kata-deploy daemonset
+	// Run kata-cleanup logic
 	return ctrl.Result{}, nil
 }
 
@@ -230,7 +232,7 @@ func (r *CcRuntimeReconciler) monitorCcRuntimeInstallation() (ctrl.Result, error
 }
 
 func (r *CcRuntimeReconciler) setRuntimeClass() (ctrl.Result, error) {
-	runtimeClassNames := []string{"kata-qemu-virtiofs", "kata-qemu", "kata-clh", "kata-fc", "kata"}
+	runtimeClassNames := []string{"kata-qemu", "kata"}
 
 	for _, runtimeClassName := range runtimeClassNames {
 		rc := func() *nodeapi.RuntimeClass {
