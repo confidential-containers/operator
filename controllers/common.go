@@ -13,7 +13,7 @@ const (
 	// UpgradeOperation denotes the upgrade operation
 	UpgradeOperation DaemonOperation = "upgrade"
 
-	RuntimeConfigFinalizer = "finalizer.runtimeconfig.confidentialcontainers.org"
+	RuntimeConfigFinalizer = "runtimeconfig.confidentialcontainers.org/finalizer"
 )
 
 func contains(list []string, s string) bool {
