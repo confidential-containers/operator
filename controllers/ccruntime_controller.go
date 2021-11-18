@@ -297,7 +297,7 @@ func (r *CcRuntimeReconciler) monitorCcRuntimeInstallation() (ctrl.Result, error
 }
 
 func (r *CcRuntimeReconciler) setRuntimeClass() (ctrl.Result, error) {
-	runtimeClassNames := []string{"kata-qemu", "kata"}
+	runtimeClassNames := []string{"kata-qemu", "kata", "kata-cc"}
 
 	for _, runtimeClassName := range runtimeClassNames {
 		rc := func() *nodeapi.RuntimeClass {
