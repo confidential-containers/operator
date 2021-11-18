@@ -11,7 +11,7 @@ kcli create kube generic -P image=ubuntu2004 -P workers=1 testk8s
 ```
 ## Replace containerd on the worker
 
-Replace containerd on the worker node by building a new containerd from https://github.com/confidential-containers/containerd/tree/current-CCv0
+Replace containerd on the worker node by building a new containerd from https://github.com/confidential-containers/containerd/tree/ali-CCv0
 
 # Install Confidential Containers Operator
 
