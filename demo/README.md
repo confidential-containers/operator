@@ -66,5 +66,5 @@ export PULL_IMAGE=quay.io/bitnami/nginx
 ## Create container inside VM
  
 ```
-./ccv0_helper.sh agent_create_image
+./ccv0_helper.sh agent_create_container
 ```
