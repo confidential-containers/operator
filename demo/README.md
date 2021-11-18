@@ -31,9 +31,43 @@ kubectl get runtimeclass
 ```
 
 # Create sample POD
+
+Regular Kata POD
 ```
-kubectl apply -f  https://raw.githubusercontent.com/confidential-containers/operator/ccv0-demo/demo/nginx-deployment-qemu.yaml
+kubectl apply -f  https://raw.githubusercontent.com/confidential-containers/operator/ccv0-demo/demo/nginx-deployment-kata.yaml
 ```
+
+Confidential Container where container image will be pulled inside the VM
+```
+kubectl apply -f  https://raw.githubusercontent.com/confidential-containers/operator/ccv0-demo/demo/nginx-deployment-cc.yaml
+```
+
+# Verify 
+
+Get container ID from POD
+
+```
+export PODNAME=<podname>
+containerID=$(kubectl get pod $PODNAME -o=jsonpath='{.status.containerStatuses[*].containerID}' | cut -d "/" -f3)
+echo $containerID
+```
+
+Login to the worker node and run the following commands
+```
+export containerID=<set-containerd-from-previous-step>
+sandboxID=$(crictl inspect $containerID | jq -r '.info.sandboxID')
+echo $sandboxID
+```
+
+Check container rootfs 
+```
+cd /run/kata-containers/shared/sandboxes/$sandboxID/shared
+find . -name rootfs
+```
+
+For confidential containers you'll find rootfs of only the `pause` container.
+For regular Kata containers you'll find rootfs of all the containers. 
+
 
 # Interacting with the VM agent
 
