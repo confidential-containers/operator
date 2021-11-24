@@ -206,7 +206,9 @@ function configure_containerd() {
 
 	if [ -f "$containerd_conf_file" ]; then
 		# backup the config.toml only if a backup doesn't already exist (don't override original)
-		cp -n "$containerd_conf_file" "$containerd_conf_file_backup"
+		# Replace the original file for ccv0
+		# TODO - proper config merging when config file exists
+		mv "$containerd_conf_file" "$containerd_conf_file_backup"
 	fi
 
         # Add common config to containerd config
