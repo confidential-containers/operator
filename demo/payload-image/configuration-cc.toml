@@ -51,8 +51,7 @@ valid_hypervisor_paths = ["/opt/kata/bin/qemu-system-x86_64"]
 # may stop the virtual machine from booting.
 # To see the list of default parameters, enable hypervisor debug, create a
 # container and look for 'default-kernel-parameters' log entries.
-#kernel_params = " agent.config_file=/etc/kata-config.toml agent.log=debug initcall_debug"
-kernel_params = " agent.log=debug initcall_debug"
+kernel_params = " agent.config_file=/etc/config.toml"
 
 # Path to the firmware.
 # If you want that qemu uses the default firmware leave this option empty
