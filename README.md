@@ -6,46 +6,16 @@
 This Confidential Containers Operator provides a means to deploy and manage Confidential Containers Runtime on Kubernetes clusters. 
 The primary resource is `CcRuntime` which describes runtime details like installation type, source, nodes to deploy etc.
 
+Here is a short demo video showing the operator in action.
+
+[![asciicast](https://asciinema.org/a/450899.svg)](https://asciinema.org/a/450899)
+
+Instructions to recreate the demo setup in your own environment is available [here](https://github.com/confidential-containers/operator/blob/ccv0-demo/demo/README.md) 
+
 ## Installation
 
-Ensure KUBECONFIG points to the target Kubernetes cluster
-```
-kubectl apply -f https://raw.githubusercontent.com/confidential-containers/operator/main/deploy/deploy.yaml
-```
+Please refer to the following [instructions](.docs/INSTALL.md)
 
-## Create Custom Resource (CR)
-```
-kubectl apply  -f https://raw.githubusercontent.com/confidential-containers/operator/main/config/samples/ccruntime.yaml
-```
+## Development
 
-## Changing Runtime bundle
-
-The operator by default uses the `quay.io/confidential-contianers/runtime-payload:v0` image
-as the payload.
-You can change it when creating the CR by changing the `payloadImage` config.
-The following yaml shows an example where `v2` version of the image is used
-```
-apiVersion: confidentialcontainers.org/v1beta1
-kind: CcRuntime
-metadata:
-  name: ccruntime-sample
-  namespace: confidential-containers-system
-spec:
-  # Add fields here
-  runtimeName: kata
-  config:
-    installType: bundle
-    payloadImage: quay.io/confidential-contianers/runtime-payload:v2
-```
-
-## Uninstallation
-
-Delete the CR
-```
-kubectl delete  -f https://raw.githubusercontent.com/confidential-containers/operator/main/config/samples/ccruntime.yaml
-```
-
-Delete the Operator
-```
-kubectl delete -f https://raw.githubusercontent.com/confidential-containers/operator/main/deploy/deploy.yaml
-```
+Please refer to the following [instructions](.docs/DEVELOPMENT.md)
