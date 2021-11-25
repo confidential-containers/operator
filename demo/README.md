@@ -1,8 +1,13 @@
-# K8s Cluster Setup
-Use kcli or kubeadmin to create a K8s cluster on Ubuntu 20.04
+# Introduction
 
-kcli install and setup instructions are available here - 
-https://kcli.readthedocs.io/en/latest/
+This demo setup doesn't need a TEE environment.
+It's intended to be used for development and understanding of various pieces of the stack. 
+
+## Kubernetes Cluster Setup
+
+Use `kcli` or `kubeadmin` to create a Kubernetes cluster on Ubuntu 20.04
+
+kcli install and setup instructions are available from https://kcli.readthedocs.io/en/latest/
 
 Use kcli to create a two-node cluster using Ubuntu 20.04 
 
@@ -15,17 +20,17 @@ If using single node cluster then label the node as shown below
 kubectl label node <node-name> node-role.kubernetes.io/worker=
 ```
 
-## Replace containerd on the worker
+### Replace containerd on the worker
 
 Replace containerd on the worker node by building a new containerd from https://github.com/confidential-containers/containerd/tree/ali-CCv0
 
-# Install Confidential Containers Operator
+## Install Confidential Containers Operator
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/confidential-containers/operator/main/deploy/deploy.yaml
 ```
 
-# Install Confidential Containers Runtime
+## Install Confidential Containers Runtime
 
 ```
 kubectl apply  -f https://raw.githubusercontent.com/confidential-containers/operator/main/config/samples/ccruntime.yaml
@@ -36,7 +41,7 @@ Check if `runtimeclass` have been successfully created
 kubectl get runtimeclass
 ```
 
-# Create sample POD
+## Create sample POD
 
 Regular Kata POD
 ```
@@ -48,7 +53,7 @@ Confidential Container where container image will be pulled inside the VM
 kubectl apply -f  https://raw.githubusercontent.com/confidential-containers/operator/ccv0-demo/demo/nginx-deployment-cc.yaml
 ```
 
-# Verify 
+## Verify 
 
 Get container ID from POD
 
