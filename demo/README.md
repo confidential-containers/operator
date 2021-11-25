@@ -73,38 +73,3 @@ find . -name rootfs
 
 For confidential containers you'll find rootfs of only the `pause` container.
 For regular Kata containers you'll find rootfs of all the containers. 
-
-
-# Interacting with the VM agent
-
-Download the script and run it as root on a Kubernetes worker node with 
-Kata CC runtime deployed using the [Operator](https://github.com/confidential-containers/confidential-containers-operator)
-
-```
-wget https://raw.githubusercontent.com/confidential-containers/operator/ccv0-demo/demo/ccv0_helper.sh
-chmod +x ccv0_helper.sh
-./ccv0_helper.sh
-```
-
-## Get VM shell
-```
-./ccv0_helper.sh open_kata_shell
-```
-
-## Get VM console
-```
-./ccv0_helper.sh open_kata_console
-```
-
-## Pull container image inside VM
- 
-```
-export PULL_IMAGE=quay.io/bitnami/nginx
-./ccv0_helper.sh agent_pull_image
-```
-
-## Create container inside VM
- 
-```
-./ccv0_helper.sh agent_create_container
-```
