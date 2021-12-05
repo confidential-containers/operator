@@ -14,8 +14,8 @@ Instructions to recreate the demo setup in your own environment is available [he
 
 ## Installation
 
-Please refer to the following [instructions](.docs/INSTALL.md)
+Please refer to the following [instructions](docs/INSTALL.md)
 
 ## Development
 
-Please refer to the following [instructions](.docs/DEVELOPMENT.md)
+Please refer to the following [instructions](docs/DEVELOPMENT.md)
