@@ -8,4 +8,57 @@ spec:
   runtimeName: kata
   config:
     installType: bundle
-    payloadImage: quay.io/confidential-containers/runtime-payload:v0
+    payloadImage: quay.io/kata-containers/kata-deploy:stable
+    installerVolumeMounts:
+      - mountPath: /etc/crio/
+        name: crio-conf
+      - mountPath: /etc/containerd/
+        name: containerd-conf
+      - mountPath: /opt/kata/
+        name: kata-artifacts
+      - mountPath: /var/run/dbus
+        name: dbus
+      - mountPath: /run/systemd
+        name: systemd
+      - mountPath: /usr/local/bin/
+        name: local-bin
+    installerVolumes:
+      - hostPath:
+          path: /etc/crio/
+          type: ""
+        name: crio-conf
+      - hostPath:
+          path: /etc/containerd/
+          type: ""
+        name: containerd-conf
+      - hostPath:
+          path: /opt/kata/
+          type: DirectoryOrCreate
+        name: kata-artifacts
+      - hostPath:
+          path: /var/run/dbus
+          type: ""
+        name: dbus
+      - hostPath:
+          path: /run/systemd
+          type: ""
+        name: systemd
+      - hostPath:
+          path: /usr/local/bin/
+          type: ""
+        name: local-bin
+    installCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "install"]
+    uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
+    cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
+    cleanupNodeSelector:
+      - matchLabels:
+        - name: "katacontainers.io/kata-runtime"
+          value: "cleanup"
+    environmentVariables:
+      - name: NODE_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.nodeName
+      - name: "CONFIGURE_CC"
+        value: "yes"
