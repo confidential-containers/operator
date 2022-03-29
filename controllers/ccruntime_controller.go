@@ -112,6 +112,7 @@ func (r *CcRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		} else {
 			return ctrl.Result{}, nil
 		}
+
 	}
 
 	return r.processCcRuntimeInstallRequest()
@@ -216,7 +217,20 @@ func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, erro
 				return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 5}, err
 			}
 		} else {
-			controllerutil.RemoveFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
+			if r.ccRuntime.Spec.Config.PostUninstall.Image == "" {
+				controllerutil.RemoveFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
+			} else if r.ccRuntime.Spec.Config.PostUninstall.Image != "" {
+				result, err = handlePostUninstall(r)
+				if !result.Requeue {
+					controllerutil.RemoveFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
+					result, err = r.updateCcRuntime()
+					if err != nil {
+						return result, err
+					}
+					result, err = r.deleteUninstallDaemonsets()
+				}
+			}
+			return result, err
 		}
 
 		result, err = r.updateUninstallationStatus(finishedNodes)
@@ -252,10 +266,46 @@ func (r *CcRuntimeReconciler) updateUninstallationStatus(finishedNodes int) (ctr
 		return ctrl.Result{}, err
 	}
 
-	return err, ctrl.Result{}
+	// Update CR
+	r.ccRuntime.Status.UnInstallationStatus.Completed.CompletedNodesCount = finishedNodes
+	r.ccRuntime.Status.UnInstallationStatus.InProgress.InProgressNodesCount = r.ccRuntime.Status.TotalNodesCount - finishedNodes
+	for i := range cleanupNodes.Items {
+		doneNodes = append(doneNodes, cleanupNodes.Items[i].Name)
+	}
+	r.ccRuntime.Status.UnInstallationStatus.InProgress.BinariesUnInstalledNodesList = doneNodes
+	err = r.Client.Update(context.TODO(), r.ccRuntime)
+	if err != nil {
+		r.Log.Error(err, "failed to update ccRuntime with finalizer")
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 5}, err
+	}
+	return ctrl.Result{}, nil
 }
 
->>>>>>> 45c70f6 (merge with generalize patch)
+func handlePostUninstall(r *CcRuntimeReconciler) (ctrl.Result, error) {
+	err, nodes := r.getNodesWithLabels(map[string]string{"cc-postuninstall/done": "true"})
+	if err != nil {
+		r.Log.Info("couldn't get nodes labeled with postuninstall done label")
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
+	}
+
+	if r.ccRuntime.Spec.Config.PostUninstall.Image != "" &&
+		len(nodes.Items) < r.ccRuntime.Status.TotalNodesCount &&
+		r.ccRuntime.Status.TotalNodesCount > 0 {
+		postUninstallDs := r.makeHookDaemonset(PostUninstallOperation)
+		// get daemonset
+		res, err := r.handlePrePostDs(postUninstallDs, map[string]string{"cc-postuninstall/done": "true"})
+		if res.Requeue == true {
+			if err != nil {
+				r.Log.Info("error from handlePrePostDs")
+			}
+		}
+		return res, err
+	} else if len(nodes.Items) == r.ccRuntime.Status.TotalNodesCount {
+		return ctrl.Result{}, nil
+	}
+	return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
+}
+
 func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, error) {
 	nodesList := &corev1.NodeList{}
 
@@ -292,6 +342,23 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 		return ctrl.Result{}, err
 	}
 
+	// if ds exists, get all labels
+	err, nodes := r.getNodesWithLabels(map[string]string{"cc-preinstall/done": "true"})
+	if err != nil {
+		r.Log.Info("couldn't GET labelled nodes")
+		return ctrl.Result{}, err
+	}
+	if r.ccRuntime.Spec.Config.PreInstall.Image != "" &&
+		len(nodes.Items) < r.ccRuntime.Status.TotalNodesCount {
+		preInstallDs := r.makeHookDaemonset(PreInstallOperation)
+		r.Log.Info("ds = ", "daemonset", preInstallDs)
+		res, err := r.handlePrePostDs(preInstallDs, map[string]string{"cc-preinstall/done": "true"})
+		if res.Requeue == true {
+			r.Log.Info("requeue request from handlePrePostDs")
+			return res, err
+		}
+	}
+
 	// Don't create the daemonset if the runtime is already installed on the cluster nodes
 	if r.ccRuntime.Status.TotalNodesCount > 0 &&
 		r.ccRuntime.Status.InstallationStatus.Completed.CompletedNodesCount != r.ccRuntime.Status.TotalNodesCount {
@@ -316,7 +383,40 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 	}
 	return r.monitorCcRuntimeInstallation()
 
-	//return ctrl.Result{}, err
+}
+
+/*
+ This creates DaemonSets for pre-install/post-uninstall unless it already exists.
+ We leave the DaemonSets running until the ccRuntime finalizer is called.
+ This way the running DaemonSet automatically applies changes when a new
+ node is added.
+*/
+func (r *CcRuntimeReconciler) handlePrePostDs(preInstallDs *appsv1.DaemonSet, doneLabel map[string]string) (
+	ctrl.Result, error,
+) {
+	foundPreinstallDs := &appsv1.DaemonSet{}
+	err := r.Client.Get(context.TODO(), types.NamespacedName{Name: preInstallDs.Name, Namespace: preInstallDs.Namespace}, foundPreinstallDs)
+	r.Log.Info("create preinstall/postuninstall DS", "DS", preInstallDs)
+	if err != nil && errors.IsNotFound(err) {
+		err = r.Client.Create(context.TODO(), preInstallDs)
+		if err != nil {
+			r.Log.Info("failed to create preinstall/postuninstall DS", "DS", preInstallDs)
+			return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
+		}
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, nil
+	} else if err != nil {
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
+	}
+	// if ds exists, get all labels
+	err, nodes := r.getNodesWithLabels(doneLabel)
+	if err != nil {
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
+	}
+	if len(nodes.Items) < r.ccRuntime.Status.TotalNodesCount {
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
+	}
+
+	return ctrl.Result{}, nil
 }
 
 func (r *CcRuntimeReconciler) monitorCcRuntimeInstallation() (ctrl.Result, error) {
@@ -641,4 +741,109 @@ func (r *CcRuntimeReconciler) deleteDaemonset(ds *appsv1.DaemonSet) (ctrl.Result
 	}
 
 	return ctrl.Result{}, nil
+}
+
+func (r *CcRuntimeReconciler) makeHookDaemonset(operation DaemonOperation) *appsv1.DaemonSet {
+	var (
+		runPrivileged       = true
+		runAsUser     int64 = 0
+		image               = ""
+		dsName        string
+		volumes       []corev1.Volume
+		volumeMounts  []corev1.VolumeMount
+		envVars       = []corev1.EnvVar{
+			{
+				Name: "NODE_NAME",
+				ValueFrom: &corev1.EnvVarSource{
+					FieldRef: &corev1.ObjectFieldSelector{
+						FieldPath: "spec.nodeName",
+					},
+				},
+			},
+		}
+	)
+
+	switch operation {
+	case PreInstallOperation:
+		dsName = "cc-operator-pre-install-daemon"
+		image = r.ccRuntime.Spec.Config.PreInstall.Image
+		volumeMounts = r.ccRuntime.Spec.Config.PreInstall.VolumeMounts
+		volumes = r.ccRuntime.Spec.Config.PreInstall.Volumes
+		envVars = append(envVars, r.ccRuntime.Spec.Config.PreInstall.EnvironmentVariables...)
+	case PostUninstallOperation:
+		dsName = "cc-operator-post-uninstall-daemon"
+		image = r.ccRuntime.Spec.Config.PostUninstall.Image
+		volumeMounts = r.ccRuntime.Spec.Config.PostUninstall.VolumeMounts
+		volumes = r.ccRuntime.Spec.Config.PostUninstall.Volumes
+		envVars = append(envVars, r.ccRuntime.Spec.Config.PostUninstall.EnvironmentVariables...)
+	default:
+		dsName = "invalid operation"
+		image = "invalid image"
+		volumeMounts = []corev1.VolumeMount{}
+		volumes = []corev1.Volume{}
+		envVars = []corev1.EnvVar{}
+	}
+
+	dsLabelSelectors := map[string]string{
+		"name": dsName,
+	}
+
+	var nodeSelector map[string]string
+	if r.ccRuntime.Spec.CcNodeSelector != nil {
+		nodeSelector = r.ccRuntime.Spec.CcNodeSelector.MatchLabels
+	} else {
+		nodeSelector = map[string]string{
+			"node-role.kubernetes.io/worker": "",
+		}
+	}
+
+	return &appsv1.DaemonSet{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: "apps/v1",
+			Kind:       "DaemonSet",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      dsName,
+			Namespace: "confidential-containers-system",
+		},
+		Spec: appsv1.DaemonSetSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: dsLabelSelectors,
+			},
+			UpdateStrategy: appsv1.DaemonSetUpdateStrategy{
+				Type: "RollingUpdate",
+				RollingUpdate: &appsv1.RollingUpdateDaemonSet{
+					MaxUnavailable: &intstr.IntOrString{
+						Type:   intstr.Int,
+						IntVal: 1,
+					},
+				},
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: dsLabelSelectors,
+				},
+				Spec: corev1.PodSpec{
+					ServiceAccountName: "cc-operator-controller-manager",
+					NodeSelector:       nodeSelector,
+					Containers: []corev1.Container{
+						{
+							Name:            "cc-runtime-" + string(operation) + "-pod",
+							Image:           image,
+							ImagePullPolicy: "Always",
+							SecurityContext: &corev1.SecurityContext{
+								Privileged: &runPrivileged,
+								RunAsUser:  &runAsUser,
+							},
+							Command: []string{"/bin/sh", "-c", "/opt/confidential-containers-pre-install-artifacts/scripts/" + string(operation) + ".sh"},
+							Env:     envVars,
+
+							VolumeMounts: volumeMounts,
+						},
+					},
+					Volumes: volumes,
+				},
+			},
+		},
+	}
 }

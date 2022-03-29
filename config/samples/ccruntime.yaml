@@ -50,7 +50,64 @@ spec:
     installCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "install"]
     uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
     cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
-    cleanupNodeSelector:
+    preInstallImage: quay.io/confidential-containers/container-engine-for-cc-payload:latest
+    postUninstallConfig:
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:latest
+      volumeMounts:
+        - mountPath: /opt/confidential-containers/
+          name: confidential-containers-artifacts
+        - mountPath: /etc/systemd/system/
+          name: etc-systemd-system
+        - mountPath: /var/run/dbus
+          name: dbus
+        - mountPath: /run/systemd
+          name: systemd
+      volumes:
+        - hostPath:
+            path: /opt/confidential-containers/
+            type: DirectoryOrCreate
+          name: confidential-containers-artifacts
+        - hostPath:
+            path: /etc/systemd/system/
+            type: ""
+          name: etc-systemd-system
+        - hostPath:
+            path: /var/run/dbus
+            type: ""
+          name: dbus
+        - hostPath:
+            path: /run/systemd
+            type: ""
+          name: systemd
+    preInstallConfig:
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:latest
+      volumeMounts:
+        - mountPath: /opt/confidential-containers/
+          name: confidential-containers-artifacts
+        - mountPath: /etc/systemd/system/
+          name: etc-systemd-system
+        - mountPath: /var/run/dbus
+          name: dbus
+        - mountPath: /run/systemd
+          name: systemd
+      volumes:
+        - hostPath:
+            path: /opt/confidential-containers/
+            type: DirectoryOrCreate
+          name: confidential-containers-artifacts
+        - hostPath:
+            path: /etc/systemd/system/
+            type: ""
+          name: etc-systemd-system
+        - hostPath:
+            path: /var/run/dbus
+            type: ""
+          name: dbus
+        - hostPath:
+            path: /run/systemd
+            type: ""
+          name: systemd
+    cleanupNodeSelector: 
       - matchLabels:
         - name: "katacontainers.io/kata-runtime"
           value: "cleanup"
