@@ -557,9 +557,31 @@ func (r *CcRuntimeReconciler) getNodesWithLabels(nodeLabels map[string]string) (
 	return nil, nodes
 }
 
+func (r *CcRuntimeReconciler) mapCcRuntimeToRequests(ccRuntimeObj client.Object) []reconcile.Request {
+	ccRuntimeList := &ccv1beta1.CcRuntimeList{}
+
+	err := r.Client.List(context.TODO(), ccRuntimeList)
+	if err != nil {
+		return []reconcile.Request{}
+	}
+
+	reconcileRequests := make([]reconcile.Request, len(ccRuntimeList.Items))
+	for _, ccRuntime := range ccRuntimeList.Items {
+		reconcileRequests = append(reconcileRequests, reconcile.Request{
+			NamespacedName: types.NamespacedName{
+				Name: ccRuntime.Name,
+			},
+		})
+	}
+	return reconcileRequests
+}
+
 // SetupWithManager sets up the controller with the Manager.
 func (r *CcRuntimeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&ccv1beta1.CcRuntime{}).
+		Watches(
+			&source.Kind{Type: &corev1.Node{}},
+			handler.EnqueueRequestsFromMapFunc(r.mapCcRuntimeToRequests)).
 		Complete(r)
 }
