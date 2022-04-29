@@ -7,8 +7,16 @@ spec:
   # Add fields here
   runtimeName: kata
   config:
+    cleanupNodeSelector: 
+      - matchLabels:
+        - name: "katacontainers.io/kata-runtime"
+          value: "cleanup"
     installType: bundle
     payloadImage: quay.io/kata-containers/kata-deploy:stable
+    installDoneLabel:
+      katacontainers.io/kata-runtime: "true"
+    uninstallDoneLabel:
+      katacontainers.io/kata-runtime: "cleanup"
     installerVolumeMounts:
       - mountPath: /etc/crio/
         name: crio-conf
@@ -48,10 +56,9 @@ spec:
           type: ""
         name: local-bin
     installCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "install"]
-    uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
-    cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
-    preInstallImage: quay.io/confidential-containers/container-engine-for-cc-payload:latest
-    postUninstallConfig:
+    uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
+    cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
+    postUninstall:
       image: quay.io/confidential-containers/container-engine-for-cc-payload:latest
       volumeMounts:
         - mountPath: /opt/confidential-containers/
@@ -79,7 +86,7 @@ spec:
             path: /run/systemd
             type: ""
           name: systemd
-    preInstallConfig:
+    preInstall:
       image: quay.io/confidential-containers/container-engine-for-cc-payload:latest
       volumeMounts:
         - mountPath: /opt/confidential-containers/
@@ -107,10 +114,6 @@ spec:
             path: /run/systemd
             type: ""
           name: systemd
-    cleanupNodeSelector: 
-      - matchLabels:
-        - name: "katacontainers.io/kata-runtime"
-          value: "cleanup"
     environmentVariables:
       - name: NODE_NAME
         valueFrom:
