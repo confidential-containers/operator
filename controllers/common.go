@@ -10,6 +10,12 @@ const (
 	// UninstallOperation denotes the uninstallation operation
 	UninstallOperation DaemonOperation = "uninstall"
 
+	// PreInstallOperation denotes the pre-install operation
+	PreInstallOperation DaemonOperation = "pre-install"
+
+	//PostUninstallOperation denotes the post-uninstall operation
+	PostUninstallOperation DaemonOperation = "post-uninstall"
+
 	// UpgradeOperation denotes the upgrade operation
 	UpgradeOperation DaemonOperation = "upgrade"
 

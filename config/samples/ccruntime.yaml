@@ -7,5 +7,118 @@ spec:
   # Add fields here
   runtimeName: kata
   config:
+    cleanupNodeSelector: 
+      - matchLabels:
+        - name: "katacontainers.io/kata-runtime"
+          value: "cleanup"
     installType: bundle
-    payloadImage: quay.io/confidential-containers/runtime-payload:v0
+    payloadImage: quay.io/kata-containers/kata-deploy:stable
+    installDoneLabel:
+      katacontainers.io/kata-runtime: "true"
+    uninstallDoneLabel:
+      katacontainers.io/kata-runtime: "cleanup"
+    installerVolumeMounts:
+      - mountPath: /etc/crio/
+        name: crio-conf
+      - mountPath: /etc/containerd/
+        name: containerd-conf
+      - mountPath: /opt/kata/
+        name: kata-artifacts
+      - mountPath: /var/run/dbus
+        name: dbus
+      - mountPath: /run/systemd
+        name: systemd
+      - mountPath: /usr/local/bin/
+        name: local-bin
+    installerVolumes:
+      - hostPath:
+          path: /etc/crio/
+          type: ""
+        name: crio-conf
+      - hostPath:
+          path: /etc/containerd/
+          type: ""
+        name: containerd-conf
+      - hostPath:
+          path: /opt/kata/
+          type: DirectoryOrCreate
+        name: kata-artifacts
+      - hostPath:
+          path: /var/run/dbus
+          type: ""
+        name: dbus
+      - hostPath:
+          path: /run/systemd
+          type: ""
+        name: systemd
+      - hostPath:
+          path: /usr/local/bin/
+          type: ""
+        name: local-bin
+    installCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "install"]
+    uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
+    cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
+    postUninstall:
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:latest
+      volumeMounts:
+        - mountPath: /opt/confidential-containers/
+          name: confidential-containers-artifacts
+        - mountPath: /etc/systemd/system/
+          name: etc-systemd-system
+        - mountPath: /var/run/dbus
+          name: dbus
+        - mountPath: /run/systemd
+          name: systemd
+      volumes:
+        - hostPath:
+            path: /opt/confidential-containers/
+            type: DirectoryOrCreate
+          name: confidential-containers-artifacts
+        - hostPath:
+            path: /etc/systemd/system/
+            type: ""
+          name: etc-systemd-system
+        - hostPath:
+            path: /var/run/dbus
+            type: ""
+          name: dbus
+        - hostPath:
+            path: /run/systemd
+            type: ""
+          name: systemd
+    preInstall:
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:latest
+      volumeMounts:
+        - mountPath: /opt/confidential-containers/
+          name: confidential-containers-artifacts
+        - mountPath: /etc/systemd/system/
+          name: etc-systemd-system
+        - mountPath: /var/run/dbus
+          name: dbus
+        - mountPath: /run/systemd
+          name: systemd
+      volumes:
+        - hostPath:
+            path: /opt/confidential-containers/
+            type: DirectoryOrCreate
+          name: confidential-containers-artifacts
+        - hostPath:
+            path: /etc/systemd/system/
+            type: ""
+          name: etc-systemd-system
+        - hostPath:
+            path: /var/run/dbus
+            type: ""
+          name: dbus
+        - hostPath:
+            path: /run/systemd
+            type: ""
+          name: systemd
+    environmentVariables:
+      - name: NODE_NAME
+        valueFrom:
+          fieldRef:
+            apiVersion: v1
+            fieldPath: spec.nodeName
+      - name: "CONFIGURE_CC"
+        value: "yes"

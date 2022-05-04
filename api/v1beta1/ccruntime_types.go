@@ -144,6 +144,88 @@ type CcInstallConfig struct {
 	// If both bundleImage and guestInitrdImage are specified, then guestInitrdImage content will override the equivalent one in payloadImage
 	// +optional
 	GuestInitrdImage string `json:"guestInitrdImage,omitempty"`
+
+	// This specifies volume mounts required for the installer pods
+	// +optional
+	InstallerVolumeMounts []corev1.VolumeMount `json:"installerVolumeMounts,omitempty"`
+
+	// This specifies volumes required for the installer pods
+	// +optional
+	InstallerVolumes []corev1.Volume `json:"installerVolumes,omitempty"`
+
+	// This specifies the command for installation of the runtime on the nodes
+	// +optional
+	InstallCmd []string `json:"installCmd,omitempty"`
+
+	// This specifies the command for uninstallation of the runtime on the nodes
+	// +optional
+	UninstallCmd []string `json:"uninstallCmd,omitempty"`
+
+	// This specifies the command for cleanup on the nodes
+	// +optional
+	CleanupCmd []string `json:"cleanupCmd,omitempty"`
+
+	// This specifies the environment variables required by the daemon set
+	// +optional
+	EnvironmentVariables []corev1.EnvVar `json:"environmentVariables,omitempty"`
+	// This specifies the label that the install daemonset adds to nodes
+	// when the installation is done
+	InstallDoneLabel map[string]string `json:"installDoneLabel,omitempty"`
+
+	// This specifies the label that the uninstall daemonset adds to nodes
+	// when the uninstallation  is done
+	UninstallDoneLabel map[string]string `json:"uninstallDoneLabel,omitempty"`
+
+	// This specifies the configuration for the pre-install daemonset
+	// +optional
+	PreInstall PreInstallConfig `json:"preInstall,omitempty"`
+
+	// This specifies the configuration for the post-uninstall daemonset
+	// +optional
+	PostUninstall PostUninstallConfig `json:"postUninstall,omitempty"`
+}
+
+type PostUninstallConfig struct {
+	// This specifies the command executes before UnInstallCmd
+	// +optional
+	Cmd []string `json:"cmd,omitempty"`
+
+	// This specifies the pull spec for the postuninstall daemonset image
+	// +optional
+	Image string `json:"image,omitempty"`
+
+	// This specifies the env variables for the post-uninstall daemon set
+	// +optional
+	EnvironmentVariables []corev1.EnvVar `json:"environmentVariables,omitempty"`
+
+	// This specifies the volumes for the post-uninstall daemon set
+	// +optional
+	Volumes []corev1.Volume `json:"volumes,omitempty"`
+
+	// This specifies the volumeMounts for the post-uninstall daemon set
+	// +optional
+	VolumeMounts []corev1.VolumeMount `json:"volumeMounts,omitempty"`
+}
+
+type PreInstallConfig struct {
+	// This specifies the command executes before InstallCmd
+	// +optional
+	Cmd []string `json:"cmd,omitempty"`
+
+	// This specifies the image for the pre-install scripts
+	// +optional
+	Image string `json:"image,omitempty"`
+
+	// This specifies the env variables for the pre-install daemon set
+	// +optional
+	EnvironmentVariables []corev1.EnvVar `json:"environmentVariables,omitempty"`
+
+	// This specifies the volumes for the pre-install daemon set
+	// +optional
+	Volumes []corev1.Volume `json:"volumes,omitempty"`
+	// This specifies the volumeMounts for the pre-install daemon set
+	// +optional
+	VolumeMounts []corev1.VolumeMount `json:"volumeMounts,omitempty"`
 }
 
 // CcInstallationStatus reflects the status of the ongoing confidential containers runtime installation
