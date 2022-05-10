@@ -84,7 +84,7 @@ type CcRuntimeStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:resource:path=ccruntimes,scope=Cluster
+//+kubebuilder:resource:path=ccruntimes,shortName=ccr,scope=Cluster
 
 // CcRuntime is the Schema for the ccruntimes API
 type CcRuntime struct {

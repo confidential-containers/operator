@@ -6,11 +6,10 @@ metadata:
 spec:
   # Add fields here
   runtimeName: kata
+  ccNodeSelector:
+    matchLabels:
+      node-role.kubernetes.io/worker: ""
   config:
-    cleanupNodeSelector: 
-      - matchLabels:
-        - name: "katacontainers.io/kata-runtime"
-          value: "cleanup"
     installType: bundle
     payloadImage: quay.io/kata-containers/kata-deploy:stable
     installDoneLabel:
