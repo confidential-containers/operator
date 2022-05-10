@@ -13,9 +13,9 @@ spec:
     kind: CcRuntime
     listKind: CcRuntimeList
     plural: ccruntimes
-    singular: ccruntime
     shortNames:
     - ccr
+    singular: ccruntime
   scope: Cluster
   versions:
   - name: v1beta1
@@ -96,62 +96,11 @@ spec:
                           TODO: Add other useful fields. apiVersion, kind, uid?'
                         type: string
                     type: object
-                  ccNodeSelector:
-                    description: This specifies a node selector to define which nodes
-                      to install on
-                    properties:
-                      matchExpressions:
-                        description: matchExpressions is a list of label selector
-                          requirements. The requirements are ANDed.
-                        items:
-                          description: A label selector requirement is a selector
-                            that contains values, a key, and an operator that relates
-                            the key and values.
-                          properties:
-                            key:
-                              description: key is the label key that the selector
-                                applies to.
-                              type: string
-                            operator:
-                              description: operator represents a key's relationship
-                                to a set of values. Valid operators are In, NotIn,
-                                Exists and DoesNotExist.
-                              type: string
-                            values:
-                              description: values is an array of string values. If
-                                the operator is In or NotIn, the values array must
-                                be non-empty. If the operator is Exists or DoesNotExist,
-                                the values array must be empty. This array is replaced
-                                during a strategic merge patch.
-                              items:
-                                type: string
-                              type: array
-                          required:
-                          - key
-                          - operator
-                          type: object
-                        type: array
-                      matchLabels:
-                        additionalProperties:
-                          type: string
-                        description: matchLabels is a map of {key,value} pairs. A
-                          single {key,value} in the matchLabels map is equivalent
-                          to an element of matchExpressions, whose key field is "key",
-                          the operator is "In", and the values array contains only
-                          "value". The requirements are ANDed.
-                        type: object
-                    type: object
                   cleanupCmd:
                     description: This specifies the command for cleanup on the nodes
                     items:
                       type: string
                     type: array
-                  doneLabel:
-                    additionalProperties:
-                      type: string
-                    description: This specifies the environment variables required
-                      by the daemon set
-                    type: object
                   environmentVariables:
                     description: This specifies the environment variables required
                       by the daemon set
@@ -285,6 +234,12 @@ spec:
                     items:
                       type: string
                     type: array
+                  installDoneLabel:
+                    additionalProperties:
+                      type: string
+                    description: This specifies the label that the install daemonset
+                      adds to nodes when the installation is done
+                    type: object
                   installType:
                     description: This indicates whether to use native OS packaging
                       (rpm/deb) or Container image Default is bundle (container image)
@@ -1882,7 +1837,7 @@ spec:
                       daemonset
                     properties:
                       cmd:
-                        description: This specifies the command executes before UninstallCmd
+                        description: This specifies the command executes before UnInstallCmd
                         items:
                           type: string
                         type: array
@@ -5439,6 +5394,12 @@ spec:
                     items:
                       type: string
                     type: array
+                  uninstallDoneLabel:
+                    additionalProperties:
+                      type: string
+                    description: This specifies the label that the uninstall daemonset
+                      adds to nodes when the uninstallation  is done
+                    type: object
                 required:
                 - installType
                 - payloadImage
