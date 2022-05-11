@@ -496,7 +496,7 @@ spec:
         - --leader-elect
         command:
         - /manager
-        image: quay.io/confidential-containers/operator:latest
+        image: quay.io/confidential-containers/operator:demo
         livenessProbe:
           httpGet:
             path: /healthz

@@ -19,6 +19,9 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -28,9 +31,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	"strings"
-	"time"
 
+	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -85,6 +87,7 @@ func (r *CcRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	// Check if the CcRuntime instance is marked to be deleted, which is
 	// indicated by the deletion timestamp being set.
 	if r.ccRuntime.GetDeletionTimestamp() != nil {
+		r.Log.Info("ccRuntime instance marked deleted")
 		return r.processCcRuntimeDeleteRequest()
 	}
 
@@ -92,6 +95,50 @@ func (r *CcRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 }
 
 func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, error) {
+	// Run kata-cleanup logic
+	r.Log.Info("processCcRuntimeDeleteRequest()")
+
+	if contains(r.ccRuntime.GetFinalizers(), RuntimeConfigFinalizer) {
+		// Delete install DS
+		r.Log.Info("Deleting install Daemonset")
+		installDs := &appsv1.DaemonSet{}
+		installDsName := "cc-operator-daemon-" + string(InstallOperation)
+		installDsNamespace := "confidential-containers-system"
+		err := r.Client.Get(context.TODO(), types.NamespacedName{Name: installDsName, Namespace: installDsNamespace}, installDs)
+		if err != nil {
+			if errors.IsNotFound(err) {
+				// Check for nodes with label set by install DS prestop hook.
+				// If no nodes exist then remove finalizer and reconcile
+				err, nodes := r.getNodesWithLabels(map[string]string{"katacontainers.io/kata-runtime": "cleanup"})
+				if err != nil {
+					r.Log.Error(err, "Error in getting list of nodes with label katacontainers.io/kata-runtime=cleanup")
+					return ctrl.Result{}, err
+				}
+				if len(nodes.Items) == 0 {
+					r.Log.Info("No Nodes with required labels found. Remove Finalizer")
+					controllerutil.RemoveFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
+					// Update CR
+					err = r.Client.Update(context.TODO(), r.ccRuntime)
+					if err != nil {
+						r.Log.Error(err, "Failed to update ccRuntime with finalizer")
+						return ctrl.Result{}, err
+					}
+					// Requeue the request
+					return ctrl.Result{Requeue: true}, nil
+				}
+			}
+			r.Log.Error(err, "Error in getting Install Daemonset")
+			return ctrl.Result{}, err
+		} else {
+			err = r.Client.Delete(context.TODO(), installDs)
+			if err != nil {
+				r.Log.Error(err, "Error in deleting Install Daemonset")
+				return ctrl.Result{}, err
+			} else {
+				return ctrl.Result{Requeue: true, RequeueAfter: 20 * time.Second}, nil
+			}
+		}
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -140,6 +187,7 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 		ds := r.processDaemonset(InstallOperation)
 		// Set CcRuntime instance as the owner and controller
 		if err := controllerutil.SetControllerReference(r.ccRuntime, ds, r.Scheme); err != nil {
+			r.Log.Error(err, "Failed setting ControllerReference")
 			return ctrl.Result{}, err
 		}
 		foundDs := &appsv1.DaemonSet{}
@@ -157,12 +205,32 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 		return r.monitorCcRuntimeInstallation()
 	}
 
+	// Create the uninstall DaemonSet as well. It'll run only when nodes gets labelled as part of preStop hook
+	ds := r.processDaemonset(UninstallOperation)
+	// Set CcRuntime instance as the owner and controller
+	if err := controllerutil.SetControllerReference(r.ccRuntime, ds, r.Scheme); err != nil {
+		r.Log.Error(err, "Failed setting ControllerReference for uninstall DS")
+		return ctrl.Result{}, err
+	}
+	foundDs := &appsv1.DaemonSet{}
+	err := r.Client.Get(context.TODO(), types.NamespacedName{Name: ds.Name, Namespace: ds.Namespace}, foundDs)
+	if err != nil && errors.IsNotFound(err) {
+		r.Log.Info("Creating cleanup Daemonset", "ds.Namespace", ds.Namespace, "ds.Name", ds.Name)
+		err = r.Client.Create(context.TODO(), ds)
+		if err != nil {
+			r.Log.Error(err, "Error in creating Cleanup Daemonset")
+			return ctrl.Result{}, err
+		}
+	} else if err != nil {
+		return ctrl.Result{}, err
+	}
+
 	// Add finalizer for this CR
-	// if !contains(r.ccRuntime.GetFinalizers(), kataConfigFinalizer) {
-	// 	if err := r.addFinalizer(); err != nil {
-	// 		return ctrl.Result{}, err
-	// 	}
-	// }
+	if !contains(r.ccRuntime.GetFinalizers(), RuntimeConfigFinalizer) {
+		if err := r.addFinalizer(); err != nil {
+			return ctrl.Result{}, err
+		}
+	}
 
 	return ctrl.Result{}, nil
 }
@@ -230,7 +298,7 @@ func (r *CcRuntimeReconciler) monitorCcRuntimeInstallation() (ctrl.Result, error
 }
 
 func (r *CcRuntimeReconciler) setRuntimeClass() (ctrl.Result, error) {
-	runtimeClassNames := []string{"kata-qemu-virtiofs", "kata-qemu", "kata-clh", "kata-fc", "kata"}
+	runtimeClassNames := []string{"kata-qemu", "kata", "kata-cc"}
 
 	for _, runtimeClassName := range runtimeClassNames {
 		rc := func() *nodeapi.RuntimeClass {
@@ -289,12 +357,35 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		"name": dsName,
 	}
 
+	r.Log.Info("processDaemonset", "operation", operation)
+
 	var nodeSelector map[string]string
 	if r.ccRuntime.Spec.CcNodeSelector != nil {
 		nodeSelector = r.ccRuntime.Spec.CcNodeSelector.MatchLabels
 	} else {
 		nodeSelector = map[string]string{
 			"node-role.kubernetes.io/worker": "",
+		}
+	}
+
+	containerCommand := []string{}
+	preStopHook := &corev1.Lifecycle{}
+
+	if operation == InstallOperation {
+		preStopHook = &corev1.Lifecycle{
+			PreStop: &corev1.Handler{
+				Exec: &corev1.ExecAction{
+					Command: []string{"bash", "-c", "/opt/kata-artifacts/scripts/kata-deploy.sh cleanup"},
+				},
+			},
+		}
+		containerCommand = []string{"bash", "-c", "/opt/kata-artifacts/scripts/kata-deploy.sh install"}
+	}
+
+	if operation == UninstallOperation {
+		containerCommand = []string{"bash", "-c", "/opt/kata-artifacts/scripts/kata-deploy.sh reset"}
+		nodeSelector = map[string]string{
+			"katacontainers.io/kata-runtime": "cleanup",
 		}
 	}
 
@@ -332,19 +423,13 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 							Name:            "cc-runtime-install-pod",
 							Image:           r.ccRuntime.Spec.Config.PayloadImage,
 							ImagePullPolicy: "Always",
-							Lifecycle: &corev1.Lifecycle{
-								PreStop: &corev1.Handler{
-									Exec: &corev1.ExecAction{
-										Command: []string{"bash", "-c", "/opt/kata-artifacts/scripts/kata-deploy.sh cleanup"},
-									},
-								},
-							},
+							Lifecycle:       preStopHook,
 							SecurityContext: &corev1.SecurityContext{
 								// TODO - do we really need to run as root?
 								Privileged: &runPrivileged,
 								RunAsUser:  &runAsUser,
 							},
-							Command: []string{"bash", "-c", "/opt/kata-artifacts/scripts/kata-deploy.sh install"},
+							Command: containerCommand,
 							Env: []corev1.EnvVar{
 								{
 									Name: "NODE_NAME",
@@ -353,6 +438,10 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 											FieldPath: "spec.nodeName",
 										},
 									},
+								},
+								{
+									Name:  "CONFIGURE_CC",
+									Value: "yes",
 								},
 							},
 							VolumeMounts: []corev1.VolumeMount{
@@ -438,6 +527,34 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 			},
 		},
 	}
+}
+
+func (r *CcRuntimeReconciler) addFinalizer() error {
+	r.Log.Info("Adding Finalizer for the RuntimeConfig")
+	controllerutil.AddFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
+
+	// Update CR
+	err := r.Client.Update(context.TODO(), r.ccRuntime)
+	if err != nil {
+		r.Log.Error(err, "Failed to update ccRuntime with finalizer")
+		return err
+	}
+	return nil
+}
+
+// Get Nodes container specific labels
+func (r *CcRuntimeReconciler) getNodesWithLabels(nodeLabels map[string]string) (error, *corev1.NodeList) {
+	nodes := &corev1.NodeList{}
+	labelSelector := labels.SelectorFromSet(nodeLabels)
+	listOpts := []client.ListOption{
+		client.MatchingLabelsSelector{Selector: labelSelector},
+	}
+
+	if err := r.Client.List(context.TODO(), nodes, listOpts...); err != nil {
+		r.Log.Error(err, "Getting list of nodes having specified labels failed")
+		return err, &corev1.NodeList{}
+	}
+	return nil, nodes
 }
 
 // SetupWithManager sets up the controller with the Manager.

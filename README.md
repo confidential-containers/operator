@@ -1,46 +1,21 @@
-# Introduction
-An operator to deploy confidential containers runtime (and required configs) on a Kubernetes cluster
+# Confidential Containers Operator
+
+[![Build](https://github.com/confidential-containers/operator/actions/workflows/makefile.yml/badge.svg)](https://github.com/confidential-containers/operator/actions/workflows/makefile.yml)
+[![Container Image](https://github.com/confidential-containers/operator/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/confidential-containers/operator/actions/workflows/docker-publish.yml)
+
+This Confidential Containers Operator provides a means to deploy and manage Confidential Containers Runtime on Kubernetes clusters. 
+The primary resource is `CcRuntime` which describes runtime details like installation type, source, nodes to deploy etc.
+
+Here is a short demo video showing the operator in action.
+
+[![asciicast](https://asciinema.org/a/450899.svg)](https://asciinema.org/a/450899)
+
+Instructions to recreate the demo setup in your own environment is available [here](https://github.com/confidential-containers/operator/blob/ccv0-demo/demo/README.md) 
 
 ## Installation
 
-Ensure KUBECONFIG points to target Kubernetes cluster
-```
-kubectl apply -f https://raw.githubusercontent.com/confidential-containers/operator/master/deploy/deploy.yaml
-```
+Please refer to the following [instructions](docs/INSTALL.md)
 
-## Create Custom Resource (CR)
-```
-kubectl apply  -f https://raw.githubusercontent.com/confidential-containers/operator/master/config/samples/ccruntime.yaml
-```
+## Development
 
-## Changing Runtime bundle
-
-The operator by default uses the `quay.io/kata-containers/kata-deploy-cc:v0` image
-as the payload.
-You can change it when creating the CR by changing the `payloadImage` config.
-The following yaml shows an example where `v2` version of the image is used
-```
-apiVersion: confidentialcontainers.org/v1beta1
-kind: CcRuntime
-metadata:
-  name: ccruntime-sample
-  namespace: confidential-containers-system
-spec:
-  # Add fields here
-  runtimeName: kata
-  config:
-    installType: bundle
-    payloadImage: quay.io/kata-containers/kata-deploy-cc:v2
-```
-
-## Uninstallation
-
-Delete the CR
-```
-kubectl delete  -f https://raw.githubusercontent.com/confidential-containers/operator/master/config/samples/ccruntime.yaml
-```
-
-Delete the Operator
-```
-kubectl delete -f https://raw.githubusercontent.com/confidential-containers/operator/master/deploy/deploy.yaml
-```
+Please refer to the following [instructions](docs/DEVELOPMENT.md)
