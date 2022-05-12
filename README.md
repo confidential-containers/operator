@@ -10,7 +10,6 @@ Here is a short demo video showing the operator in action.
 
 [![asciicast](https://asciinema.org/a/450899.svg)](https://asciinema.org/a/450899)
 
-Instructions to recreate the demo setup in your own environment is available [here](https://github.com/confidential-containers/operator/blob/ccv0-demo/demo/README.md) 
 
 ## Installation
 
