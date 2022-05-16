@@ -11,7 +11,7 @@ Here is a short demo video showing the operator in action.
 
 [![asciicast](https://asciinema.org/a/450899.svg)](https://asciinema.org/a/450899)
 
-Instructions to recreate the demo setup in your own environment is available [here](https://github.com/confidential-containers/operator/blob/ccv0-demo/demo/README.md) 
+Instructions to recreate the demo setup in your own environment are available [here](https://github.com/confidential-containers/operator/blob/ccv0-demo/docs/INSTALL.md) 
 
 ## Installation
 
@@ -24,3 +24,4 @@ Please refer to the following [instructions](docs/DEVELOPMENT.md)
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fconfidential-containers%2Foperator.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fconfidential-containers%2Foperator?ref=badge_large)
+
