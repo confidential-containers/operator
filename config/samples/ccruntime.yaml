@@ -11,17 +11,15 @@ spec:
       node-role.kubernetes.io/worker: ""
   config:
     installType: bundle
-    payloadImage: quay.io/kata-containers/kata-deploy:stable
+    payloadImage: quay.io/confidential-containers/runtime-payload:kata-containers-e8902bb373727d282f1ba7612056f671b8096ee4
     installDoneLabel:
       katacontainers.io/kata-runtime: "true"
     uninstallDoneLabel:
       katacontainers.io/kata-runtime: "cleanup"
     installerVolumeMounts:
-      - mountPath: /etc/crio/
-        name: crio-conf
       - mountPath: /etc/containerd/
         name: containerd-conf
-      - mountPath: /opt/kata/
+      - mountPath: /opt/confidential-containers/
         name: kata-artifacts
       - mountPath: /var/run/dbus
         name: dbus
@@ -31,15 +29,11 @@ spec:
         name: local-bin
     installerVolumes:
       - hostPath:
-          path: /etc/crio/
-          type: ""
-        name: crio-conf
-      - hostPath:
           path: /etc/containerd/
           type: ""
         name: containerd-conf
       - hostPath:
-          path: /opt/kata/
+          path: /opt/confidential-containers/
           type: DirectoryOrCreate
         name: kata-artifacts
       - hostPath:
@@ -58,7 +52,7 @@ spec:
     uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
     cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
     postUninstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload:latest
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:2022070719511657216287
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts
@@ -86,7 +80,7 @@ spec:
             type: ""
           name: systemd
     preInstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload:latest
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:2022070719511657216287
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts

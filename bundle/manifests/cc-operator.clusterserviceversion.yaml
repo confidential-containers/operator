@@ -52,15 +52,11 @@ metadata:
               "installType": "bundle",
               "installerVolumeMounts": [
                 {
-                  "mountPath": "/etc/crio/",
-                  "name": "crio-conf"
-                },
-                {
                   "mountPath": "/etc/containerd/",
                   "name": "containerd-conf"
                 },
                 {
-                  "mountPath": "/opt/kata/",
+                  "mountPath": "/opt/confidential-containers/",
                   "name": "kata-artifacts"
                 },
                 {
@@ -79,13 +75,6 @@ metadata:
               "installerVolumes": [
                 {
                   "hostPath": {
-                    "path": "/etc/crio/",
-                    "type": ""
-                  },
-                  "name": "crio-conf"
-                },
-                {
-                  "hostPath": {
                     "path": "/etc/containerd/",
                     "type": ""
                   },
@@ -93,7 +82,7 @@ metadata:
                 },
                 {
                   "hostPath": {
-                    "path": "/opt/kata/",
+                    "path": "/opt/confidential-containers/",
                     "type": "DirectoryOrCreate"
                   },
                   "name": "kata-artifacts"
@@ -120,9 +109,9 @@ metadata:
                   "name": "local-bin"
                 }
               ],
-              "payloadImage": "quay.io/kata-containers/kata-deploy:stable",
+              "payloadImage": "quay.io/confidential-containers/runtime-payload:kata-containers-e8902bb373727d282f1ba7612056f671b8096ee4"
               "postUninstall": {
-                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:latest",
+                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:2022070719511657216287",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -173,7 +162,7 @@ metadata:
                 ]
               },
               "preInstall": {
-                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:latest",
+                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:2022070719511657216287",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
