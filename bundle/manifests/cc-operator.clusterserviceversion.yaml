@@ -52,10 +52,6 @@ metadata:
               "installType": "bundle",
               "installerVolumeMounts": [
                 {
-                  "mountPath": "/etc/crio/",
-                  "name": "crio-conf"
-                },
-                {
                   "mountPath": "/etc/containerd/",
                   "name": "containerd-conf"
                 },
@@ -77,13 +73,6 @@ metadata:
                 }
               ],
               "installerVolumes": [
-                {
-                  "hostPath": {
-                    "path": "/etc/crio/",
-                    "type": ""
-                  },
-                  "name": "crio-conf"
-                },
                 {
                   "hostPath": {
                     "path": "/etc/containerd/",
