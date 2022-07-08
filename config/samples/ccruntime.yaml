@@ -19,7 +19,7 @@ spec:
     installerVolumeMounts:
       - mountPath: /etc/containerd/
         name: containerd-conf
-      - mountPath: /opt/kata/
+      - mountPath: /opt/confidential-containers/
         name: kata-artifacts
       - mountPath: /var/run/dbus
         name: dbus
@@ -33,7 +33,7 @@ spec:
           type: ""
         name: containerd-conf
       - hostPath:
-          path: /opt/kata/
+          path: /opt/confidential-containers/
           type: DirectoryOrCreate
         name: kata-artifacts
       - hostPath:
