@@ -521,7 +521,7 @@ func (r *CcRuntimeReconciler) allNodesInstalled() bool {
 }
 
 func (r *CcRuntimeReconciler) setRuntimeClass() (ctrl.Result, error) {
-	runtimeClassNames := []string{"kata-qemu", "kata", "kata-cc"}
+	runtimeClassNames := []string{"kata-qemu", "kata"}
 
 	for _, runtimeClassName := range runtimeClassNames {
 		rc := func() *nodeapi.RuntimeClass {
