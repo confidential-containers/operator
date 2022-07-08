@@ -111,7 +111,7 @@ metadata:
               ],
               "payloadImage": "quay.io/kata-containers/kata-deploy:stable",
               "postUninstall": {
-                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:latest",
+                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:2022070719511657216287",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -162,7 +162,7 @@ metadata:
                 ]
               },
               "preInstall": {
-                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:latest",
+                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:2022070719511657216287",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
