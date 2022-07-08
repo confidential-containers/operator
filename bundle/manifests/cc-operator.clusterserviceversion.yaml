@@ -109,7 +109,7 @@ metadata:
                   "name": "local-bin"
                 }
               ],
-              "payloadImage": "quay.io/kata-containers/kata-deploy:stable",
+              "payloadImage": "quay.io/confidential-containers/runtime-payload:kata-containers-e8902bb373727d282f1ba7612056f671b8096ee4"
               "postUninstall": {
                 "image": "quay.io/confidential-containers/container-engine-for-cc-payload:2022070719511657216287",
                 "volumeMounts": [
