@@ -228,6 +228,32 @@ func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, erro
 						return result, err
 					}
 					result, err = r.deleteUninstallDaemonsets()
+					prepostLabels := map[string]string{}
+					if r.ccRuntime.Spec.Config.PreInstall.Image != "" {
+						prepostLabels[PreInstallDoneLabel[0]] = PreInstallDoneLabel[1]
+					}
+					if r.ccRuntime.Spec.Config.PostUninstall.Image != "" {
+						prepostLabels[PostUninstallDoneLabel[0]] = PostUninstallDoneLabel[1]
+
+					}
+					err, nodes := r.getNodesWithLabels(prepostLabels)
+					if err != nil {
+						r.Log.Error(err, "an error occured when getting the list of nodes from which we want to"+
+							"remove preinstall/postuninstall labels")
+						return ctrl.Result{}, err
+					}
+					postuninstalledNodes := len(nodes.Items)
+					if !allNodesDone(postuninstalledNodes, r) {
+						return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 5}, err
+					} else {
+						if postuninstalledNodes > 0 {
+							result, err = r.removeNodeLabels(nodes)
+							if err != nil {
+								r.Log.Error(err, "removing the labels from nodes failed")
+								return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 5}, err
+							}
+						}
+					}
 				}
 			}
 			return result, err
@@ -719,12 +745,17 @@ func (r *CcRuntimeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 func (r *CcRuntimeReconciler) deleteUninstallDaemonsets() (ctrl.Result, error) {
-	ds := r.processDaemonset(InstallOperation)
+	ds := r.processDaemonset(UninstallOperation)
 	result, err := r.deleteDaemonset(ds)
 	if err != nil {
 		return result, err
 	}
 	ds = r.makeHookDaemonset(PostUninstallOperation)
+	result, err = r.deleteDaemonset(ds)
+	if err != nil {
+		return result, err
+	}
+	ds = r.makeHookDaemonset(PreInstallOperation)
 	result, err = r.deleteDaemonset(ds)
 	if err != nil {
 		return result, err
@@ -846,4 +877,34 @@ func (r *CcRuntimeReconciler) makeHookDaemonset(operation DaemonOperation) *apps
 			},
 		},
 	}
+}
+
+func (r *CcRuntimeReconciler) removeNodeLabels(nodesList *corev1.NodeList) (ctrl.Result, error) {
+	nodesClient, err := r.getNodeClient()
+	if err != nil {
+		r.Log.Info("Couldn't get nodes client")
+		return ctrl.Result{}, err
+	}
+
+	for _, node := range nodesList.Items {
+		nodeLabels := node.GetLabels()
+		for k, v := range nodeLabels {
+			if k == PostUninstallDoneLabel[0] && v == PostUninstallDoneLabel[1] ||
+				k == PreInstallDoneLabel[0] && v == PreInstallDoneLabel[1] ||
+				k == "katacontainers.io/kata-runtime" && v == "cleanup" {
+				delete(nodeLabels, k)
+			}
+		}
+		node.SetLabels(nodeLabels)
+		_, err := nodesClient.Update(context.TODO(), &node, metav1.UpdateOptions{
+			TypeMeta:     metav1.TypeMeta{},
+			DryRun:       nil,
+			FieldManager: "",
+		})
+		if err != nil {
+			r.Log.Info("failed to update node labels")
+			return ctrl.Result{}, err
+		}
+	}
+	return ctrl.Result{}, nil
 }
