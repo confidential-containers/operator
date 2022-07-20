@@ -745,12 +745,17 @@ func (r *CcRuntimeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 func (r *CcRuntimeReconciler) deleteUninstallDaemonsets() (ctrl.Result, error) {
-	ds := r.processDaemonset(InstallOperation)
+	ds := r.processDaemonset(UninstallOperation)
 	result, err := r.deleteDaemonset(ds)
 	if err != nil {
 		return result, err
 	}
 	ds = r.makeHookDaemonset(PostUninstallOperation)
+	result, err = r.deleteDaemonset(ds)
+	if err != nil {
+		return result, err
+	}
+	ds = r.makeHookDaemonset(PreInstallOperation)
 	result, err = r.deleteDaemonset(ds)
 	if err != nil {
 		return result, err
