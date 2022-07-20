@@ -3,6 +3,12 @@ package controllers
 // DaemonOperation represents the operation the daemon is going to perform
 type DaemonOperation string
 
+var (
+	PreInstallDoneLabel    = []string{"cc-preinstall/done", "true"}
+	PostUninstallDoneLabel = []string{"cc-postuninstall/done", "true"}
+	KataRuntimeLabel       = []string{"katacontainers.io/kata-runtime", "cleanup"}
+)
+
 const (
 	// InstallOperation denotes the installation operation
 	InstallOperation DaemonOperation = "install"
