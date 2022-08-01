@@ -1,34 +1,58 @@
 ## Installation
 
-Ensure KUBECONFIG points to the target Kubernetes cluster
+Ensure KUBECONFIG points to the target Kubernetes cluster.
+
+If you are using a single node Kubernetes cluster, then ensure you label the node with `node-role.kubernetes.io/worker=`.
+
+```
+kubectl label node $NODENAME node-role.kubernetes.io/worker=
+```
+
+Deploy the operator by running the following command.
 ```
 kubectl apply -f https://raw.githubusercontent.com/confidential-containers/operator/main/deploy/deploy.yaml
 ```
+The operator deploys all resources under `confidential-containers-system` namespace.
 
 ## Create Custom Resource (CR)
 ```
 kubectl apply  -f https://raw.githubusercontent.com/confidential-containers/operator/main/config/samples/ccruntime.yaml
 ```
 
+## Verify
+
+- Check the status of operator PODs.
+
+```
+kubectl get pods -n confidential-containers-system
+```
+A successful install should show all PODs with "Running" status
+
+```
+NAME                                             READY   STATUS        RESTARTS   AGE
+cc-operator-controller-manager-dc4846d94-nfnr7   2/2     Running       0          20h
+cc-operator-daemon-install-bdp89                 1/1     Running       0          5s
+cc-operator-pre-install-daemon-hclk9             1/1     Running       0          9s
+```
+
+- Check `RuntimeClasses`
+
+```
+kubectl get runtimeclass
+```
+A successful install should show the following `RuntimeClasses`
+```
+NAME        HANDLER     AGE
+kata        kata        6m7s
+kata-clh    kata-clh    6m7s
+kata-qemu   kata-qemu   6m7s
+```
+
 ## Changing Runtime bundle
 
-The operator by default uses the `quay.io/confidential-contianers/runtime-payload:v0` image
-as the payload.
-You can change it when creating the CR by changing the `payloadImage` config.
-The following yaml shows an example where `v2` version of the image is used
-```
-apiVersion: confidentialcontainers.org/v1beta1
-kind: CcRuntime
-metadata:
-  name: ccruntime-sample
-  namespace: confidential-containers-system
-spec:
-  # Add fields here
-  runtimeName: kata
-  config:
-    installType: bundle
-    payloadImage: quay.io/confidential-contianers/runtime-payload:v2
-```
+You can change the runtime payload when creating the CR by changing the `payloadImage` attribute in the 
+[manifest yaml](https://github.com/confidential-containers/operator/blob/main/config/samples/ccruntime.yaml#L14)
+
 
 ## Uninstallation
 
