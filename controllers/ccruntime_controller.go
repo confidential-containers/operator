@@ -257,6 +257,10 @@ func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, erro
 					}
 				}
 			}
+			if err != nil {
+				return result, err
+			}
+			result, err = r.updateCcRuntime()
 			return result, err
 		}
 
