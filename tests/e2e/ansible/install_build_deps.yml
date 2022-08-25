@@ -1,0 +1,39 @@
+# Copyright 2022 Red Hat
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Install the build dependencies.
+#
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install build packages
+      package:
+        name:
+          - make
+          - gcc
+        state: present
+    - block:
+      - name: Download and extract Go tarball
+        unarchive:
+          # TODO: use facts
+          src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz
+          creates: /usr/local/go
+          dest: /usr/local
+          remote_src: yes
+        register: go_install
+      - name: Create link to go binary
+        file:
+          src: /usr/local/go/bin/go
+          dest: /usr/local/bin/go
+          state: link
+        when: go_install.changed == True
+    - name: Install the operator-sdk
+      get_url:
+        # TODO: use facts
+        url: https://github.com/operator-framework/operator-sdk/releases/download/{{ operator_sdk_version }}/operator-sdk_linux_amd64
+        dest: /usr/local/bin/operator-sdk
+        mode: '+x'
+    # TODO: import only if ubuntu host.
+    - import_tasks: install_docker_ubuntu.yml

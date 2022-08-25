@@ -1,0 +1,108 @@
+# Copyright 2022 Red Hat
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Install kubeadm and everything else needed to bring up a single node
+# k8s cluster.
+#
+---
+- hosts: all
+  become: yes
+  vars:
+    cni_home: "/opt/cni"
+    cni_version: "v1.1.1"
+    flannel_version: "v0.19.1"
+    kubeadm_cri_runtime_socket: "/run/containerd/containerd.sock"
+    kubeadm_conf_dir: "/etc/kubeadm"
+    kubelet_bin: "/usr/local/bin/kubelet"
+    # Use 'cgroupfs' with containerd, 'systemd' with crio?
+    kubelet_cgroup_driver: "cgroupfs"
+  tasks:
+    - name: Install kubeadm required packages
+      package:
+        name:
+          # conntrack and socat are needed by the `kubeadm init` preflight checks
+          - conntrack
+          - socat
+        state: present
+    - name: Create CNI home directory
+      file:
+        path: "{{ cni_home }}/bin"
+        state: directory
+    - name: Install CNI plugins
+      unarchive:
+        # TODO: use facts
+        src: "https://github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-amd64-{{ cni_version }}.tgz"
+        dest: "{{ cni_home }}/bin"
+        remote_src: yes
+    - name: Install crictl
+      unarchive:
+        src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ k8s_version }}/crictl-{{ k8s_version }}-linux-amd64.tar.gz"
+        creates: /usr/local/bin/crictl
+        dest: /usr/local/bin
+        remote_src: yes
+    - name: Install kube binaries
+      get_url:
+        url: https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/{{ item }}
+        dest: /usr/local/bin
+        mode: '+x'
+      with_items:
+        - kubeadm
+        - kubelet
+        - kubectl
+    - name: Disable swap
+      shell: |
+        [ -z "$(swapon --show)" ] && exit 0
+        swapoff --all && exit 1
+        exit 2
+      register: result
+      changed_when: result.rc == 1
+      failed_when: result.rc > 1
+    - name: Disable swap in fstab
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#\s]+\s+){2}swap\s'
+        replace: '# \1'
+    - name: Create kubelet service
+      template:
+        src: kubelet.service.j2
+        dest: /etc/systemd/system/kubelet.service
+      vars:
+        kubelet_bin: /usr/local/bin/kubelet
+    - name: Create kubelet.service.d directory
+      file:
+        path: /etc/systemd/system/kubelet.service.d
+        state: directory
+    - name: Create kubeadm service config
+      template:
+        src: 10-kubeadm.conf.j2
+        dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+      vars:
+        kubelet_bin: /usr/local/bin/kubelet
+    - name: Create kubeadm configuration directory
+      file:
+        path: "{{ kubeadm_conf_dir }}"
+        state: directory
+    - name: Create kubeadm configuration file
+      template:
+        src: kubeadm.conf.j2
+        dest: "{{ kubeadm_conf_dir }}/kubeadm.conf"
+    - name: Start kubelet service
+      service:
+        name: kubelet
+        enabled: yes
+        state: started
+    - name: Create flannel home directory
+      file:
+        path: /opt/flannel
+        state: directory
+#    - name: Install flanneld
+#      unarchive:
+#        src: https://github.com/flannel-io/flannel/releases/download/{{ flannel_version }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz
+#        creates: /opt/bin/flanneld
+#        dest: /opt/bin
+#        remote_src: yes
+    - name: Create flannel deployment file
+      template:
+        src: kube-flannel.yml.j2
+        dest: /opt/flannel/kube-flannel.yml

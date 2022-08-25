@@ -1,0 +1,52 @@
+# Copyright (c) 2022 Red Hat, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# This is a Vagrant configuration file.
+#
+
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Read the Kata Containers CI job from the CI_JOB environment variable.
+job = ENV['CI_JOB'] || ""
+guest_home_dir = '/home/vagrant'
+host_arch = `uname -m`.strip
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+
+  # By default vagrant sync the current directory. Let's disabled it because the directory
+  # will be synced later to the proper destination.
+  config.vm.synced_folder ".", "/vagrant", disabled:true
+  config.vm.synced_folder "../../", "#{guest_home_dir}/src/confidential-containers/operator", type:"rsync"
+
+  config.vm.provider "libvirt" do |lv|
+    lv.driver = "kvm"
+    lv.cpus = "4"
+    lv.memory = "8192"
+    # Domains on Libvirt will be created with the following prefix.
+    lv.default_prefix = "cc-operator_test-"
+    if host_arch == "x86_64"
+      lv.machine_type = "q35"
+    end
+  end
+
+  config.vm.define "tests-e2e-ubuntu2004", autostart: false do |ubuntu|
+    ubuntu.vm.box = "generic/ubuntu2004"
+
+    ubuntu.vm.provision "shell", inline: <<-SHELL
+      sudo apt-get -y update
+      sudo apt-get -y install ansible
+      cd "#{guest_home_dir}/src/confidential-containers/operator/tests/e2e"
+      ansible-playbook -i localhost, -c local ansible/main.yml
+      sudo ./cluster/up.sh
+      export KUBECONFIG=/etc/kubernetes/admin.conf
+      sudo -E ./operator.sh || true
+    SHELL
+  end
+
+end

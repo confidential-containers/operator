@@ -1,0 +1,17 @@
+# Copyright 2022 Red Hat
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# This the main entry point to bootstrap the test environment.
+#
+---
+- name: Install build dependencies
+  import_playbook: install_build_deps.yml
+- name: Install and configure containerd
+  import_playbook: install_containerd.yml
+# TODO: import either containerd or crio 
+#  when: container_runtime is 'containerd'
+- name: Install and configure kubeadm
+  import_playbook: install_kubeadm.yml
+- name: Start a local docker registry
+  import_playbook: start_docker_registry.yml
