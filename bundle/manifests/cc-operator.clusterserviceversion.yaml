@@ -12,20 +12,15 @@ metadata:
             "namespace": "confidential-containers-system"
           },
           "spec": {
+            "ccNodeSelector": {
+              "matchLabels": {
+                "node-role.kubernetes.io/worker": ""
+              }
+            },
             "config": {
               "cleanupCmd": [
                 "/opt/kata-artifacts/scripts/kata-deploy.sh",
                 "reset"
-              ],
-              "cleanupNodeSelector": [
-                {
-                  "matchLabels": [
-                    {
-                      "name": "katacontainers.io/kata-runtime",
-                      "value": "cleanup"
-                    }
-                  ]
-                }
               ],
               "environmentVariables": [
                 {
@@ -109,7 +104,7 @@ metadata:
                   "name": "local-bin"
                 }
               ],
-              "payloadImage": "quay.io/confidential-containers/runtime-payload:kata-containers-e8902bb373727d282f1ba7612056f671b8096ee4"
+              "payloadImage": "quay.io/confidential-containers/runtime-payload:kata-containers-e8902bb373727d282f1ba7612056f671b8096ee4",
               "postUninstall": {
                 "image": "quay.io/confidential-containers/container-engine-for-cc-payload:2022070719511657216287",
                 "volumeMounts": [
@@ -225,7 +220,7 @@ metadata:
         }
       ]
     capabilities: Basic Install
-    operators.operatorframework.io/builder: operator-sdk-v1.19.0+git
+    operators.operatorframework.io/builder: operator-sdk-v1.23.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: cc-operator.v0.0.1
   namespace: placeholder

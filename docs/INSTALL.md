@@ -1,8 +1,10 @@
 ## Installation
 
+You will need to use either Kubernetes 1.24 or 1.25 versions.
+ 
 Ensure KUBECONFIG points to the target Kubernetes cluster.
 
-If you are using a single node Kubernetes cluster, then ensure you label the node with `node-role.kubernetes.io/worker=`.
+Ensure at least one node in the cluster is having the label `node-role.kubernetes.io/worker=`.
 
 ```
 kubectl label node $NODENAME node-role.kubernetes.io/worker=

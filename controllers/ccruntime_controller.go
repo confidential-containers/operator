@@ -19,19 +19,20 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/kubernetes/typed/core/v1"
+	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
-	"strings"
-	"time"
 
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	nodeapi "k8s.io/api/node/v1beta1"
+	nodeapi "k8s.io/api/node/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -412,10 +413,10 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 }
 
 /*
- This creates DaemonSets for pre-install/post-uninstall unless it already exists.
- We leave the DaemonSets running until the ccRuntime finalizer is called.
- This way the running DaemonSet automatically applies changes when a new
- node is added.
+This creates DaemonSets for pre-install/post-uninstall unless it already exists.
+We leave the DaemonSets running until the ccRuntime finalizer is called.
+This way the running DaemonSet automatically applies changes when a new
+node is added.
 */
 func (r *CcRuntimeReconciler) handlePrePostDs(preInstallDs *appsv1.DaemonSet, doneLabel map[string]string) (
 	ctrl.Result, error,
@@ -623,7 +624,7 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 
 	if operation == InstallOperation {
 		preStopHook = &corev1.Lifecycle{
-			PreStop: &corev1.Handler{
+			PreStop: &corev1.LifecycleHandler{
 				Exec: &corev1.ExecAction{
 					Command: r.ccRuntime.Spec.Config.CleanupCmd,
 				},
