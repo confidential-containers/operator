@@ -33,7 +33,7 @@ Ensure KUBECONFIG points to target Kubernetes cluster
 make install && make deploy
 ```
 
-## Create Custome Resource (CR)
+## Create Custom Resource (CR)
 ```
 kubectl create -f config/samples/ccruntime.yaml
 ```
