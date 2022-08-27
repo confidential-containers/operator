@@ -165,6 +165,10 @@ type CcInstallConfig struct {
 	// +optional
 	CleanupCmd []string `json:"cleanupCmd,omitempty"`
 
+	// This specifies the RuntimeClasses that needs to be created
+	// +optional
+	RuntimeClassNames []string `json:"runtimeClassNames,omitempty"`
+
 	// This specifies the environment variables required by the daemon set
 	// +optional
 	EnvironmentVariables []corev1.EnvVar `json:"environmentVariables,omitempty"`

@@ -104,6 +104,11 @@ func (in *CcInstallConfig) DeepCopyInto(out *CcInstallConfig) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.RuntimeClassNames != nil {
+		in, out := &in.RuntimeClassNames, &out.RuntimeClassNames
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	if in.EnvironmentVariables != nil {
 		in, out := &in.EnvironmentVariables, &out.EnvironmentVariables
 		*out = make([]corev1.EnvVar, len(*in))
