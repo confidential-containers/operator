@@ -1,0 +1,27 @@
+# Install the test dependencies.
+#
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install test dependencies
+      package:
+        name:
+          - bats
+          - jq
+        state: present
+    - block:
+      - name: Download and extract Go tarball
+        unarchive:
+          # TODO: use facts
+          src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz
+          creates: /usr/local/go
+          dest: /usr/local
+          remote_src: yes
+        register: go_install
+      - name: Create link to go binary
+        file:
+          src: /usr/local/go/bin/go
+          dest: /usr/local/bin/go
+          state: link
+        when: go_install.changed == True
