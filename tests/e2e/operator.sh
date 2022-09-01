@@ -102,8 +102,8 @@ start_local_registry() {
 #
 uninstall_operator() {
 	pushd "$project_dir" >/dev/null
-	make uninstall
-	make undeploy
+	make uninstall ignore-not-found=true
+	make undeploy ignore-not-found=true
 	popd >/dev/null
 }
 
