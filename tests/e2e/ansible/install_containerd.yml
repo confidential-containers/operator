@@ -32,3 +32,16 @@
         name: containerd
         enabled: yes
         state: restarted
+    #
+    # Undo the installation.
+    #
+    - name: Revert containerd config to defaults
+      tags: undo
+      block:
+        - name: Re-create containerd config
+          shell: containerd config default > /etc/containerd/config.toml
+        - name: Restart containerd service
+          service:
+            name: containerd
+            enabled: yes
+            state: restarted

@@ -11,10 +11,13 @@
   vars:
     cni_home: "/opt/cni"
     cni_version: "v1.1.1"
+    flannel_home: "/opt/flannel"
     flannel_version: "v0.19.1"
     kubeadm_cri_runtime_socket: "/run/containerd/containerd.sock"
     kubeadm_conf_dir: "/etc/kubeadm"
     kubelet_bin: "/usr/local/bin/kubelet"
+    kubelet_service_dir: "/etc/systemd/system/kubelet.service.d"
+    kubelet_service_file: "/etc/systemd/system/kubelet.service"
     # Use 'cgroupfs' with containerd, 'systemd' with crio?
     kubelet_cgroup_driver: "cgroupfs"
   tasks:
@@ -66,17 +69,17 @@
     - name: Create kubelet service
       template:
         src: kubelet.service.j2
-        dest: /etc/systemd/system/kubelet.service
+        dest: "{{ kubelet_service_file }}"
       vars:
         kubelet_bin: /usr/local/bin/kubelet
     - name: Create kubelet.service.d directory
       file:
-        path: /etc/systemd/system/kubelet.service.d
+        path: "{{ kubelet_service_dir }}"
         state: directory
     - name: Create kubeadm service config
       template:
         src: 10-kubeadm.conf.j2
-        dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+        dest: "{{ kubelet_service_dir }}/10-kubeadm.conf"
       vars:
         kubelet_bin: /usr/local/bin/kubelet
     - name: Create kubeadm configuration directory
@@ -94,15 +97,49 @@
         state: started
     - name: Create flannel home directory
       file:
-        path: /opt/flannel
+        path: "{{ flannel_home }}"
         state: directory
-#    - name: Install flanneld
-#      unarchive:
-#        src: https://github.com/flannel-io/flannel/releases/download/{{ flannel_version }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz
-#        creates: /opt/bin/flanneld
-#        dest: /opt/bin
-#        remote_src: yes
     - name: Create flannel deployment file
       template:
         src: kube-flannel.yml.j2
-        dest: /opt/flannel/kube-flannel.yml
+        dest: "{{ flannel_home }}/kube-flannel.yml"
+    #
+    # Undo the kubeadm installation. Assume that ../cluster/down.sh is executed
+    # before.
+    #
+    - name: Uninstall kubeadm
+      tags: undo
+      block:
+        - name: Uninstall flannel
+          file:
+            path: "{{ flannel_home }}"
+            state: absent
+        - name: Stop kubelet service
+          service:
+            name: kubelet
+            state: stopped
+        - name: Delete kubelet service files
+          file:
+            path: "{{ item }}"
+            state: absent
+          with_items:
+            - "{{ kubelet_service_file }}"
+            - "{{ kubelet_service_dir }}"
+        - name: Delete the kubeadm configuration directory
+          file:
+            path: "{{ kubeadm_conf_dir }}"
+            state: absent
+        - name: Remove kube binaries
+          file:
+            path: "/usr/local/bin/{{ item }}"
+            state: absent
+          with_items:
+            - crictl
+            - kubeadm
+            - kubectl
+            - kubelet
+        - name: Uninstall cni
+          file:
+            path: "{{ cni_home }}"
+            state: absent
+        # TODO: what to do with swap?

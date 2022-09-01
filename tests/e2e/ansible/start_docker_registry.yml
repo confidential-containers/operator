@@ -10,6 +10,7 @@
   become: yes
   vars:
     local_registry_port: 5000
+    local_registry_name: local-registry
   tasks:
     - name: Install pip3
       package:
@@ -22,9 +23,19 @@
         name: docker
     - name: Start a docker registry
       docker_container:
-        name: local-registry
+        name: "{{ local_registry_name }}"
         # TODO: docker.io is troublesome as we can hit the pull limits.
         image: docker.io/library/registry:latest
         ports:
           - "{{ local_registry_port }}:{{ local_registry_port }}"
         state: started
+    #
+    # Remove the docker registry container.
+    #
+    - name: Remove the docker registry container
+      tags: undo
+      block:
+        - name: Remove the docker registry
+          docker_container:
+            name: "{{ local_registry_name }}"
+            state: absent

@@ -37,3 +37,20 @@
         mode: '+x'
     # TODO: import only if ubuntu host.
     - import_tasks: install_docker_ubuntu.yml
+    #
+    # Undo the installation.
+    #
+    - name: Uninstall build dependencies
+      tags: undo
+      block:
+        - name: Uninstall operator-sdk
+          file:
+            path: /usr/local/bin/operator-sdk
+            state: absent
+        - name: Uninstall go
+          file:
+            path: "{{ item }}"
+            state: absent
+          with_items:
+            - /usr/local/bin/go
+            - /usr/local/go
