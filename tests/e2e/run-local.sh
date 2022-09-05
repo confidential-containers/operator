@@ -10,6 +10,7 @@ set -o pipefail
 
 script_dir="$(dirname "$(readlink -f "$0")")"
 
+runtimeclass=""
 undo="false"
 
 usage() {
@@ -23,9 +24,10 @@ usage() {
 }
 
 parse_args() {
-	while getopts "hu" opt; do
+	while getopts "hr:u" opt; do
 		case $opt in
 			h) usage && exit 0;;
+			r) runtimeclass="$OPTARG";;
 			u) undo="true";;
 			*) usage && exit 1;;
 		esac
@@ -51,6 +53,8 @@ on_exit() {
 trap on_exit EXIT
 
 main() {
+	local cmd
+
 	parse_args $@
 
 	# Check Ansible is installed.
@@ -71,7 +75,9 @@ main() {
 	sudo -E PATH="$PATH" ./operator.sh
 
 	echo "INFO: Run tests"
-	sudo -E PATH="$PATH" ./tests_runner.sh
+	cmd="sudo -E PATH=\"$PATH\" ./tests_runner.sh"
+	[ -z $runtimeclass ] || cmd+=" -r $runtimeclass"
+	eval $cmd
 	popd >/dev/null
 }
 
