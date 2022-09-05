@@ -10,22 +10,30 @@ set -o pipefail
 
 script_dir="$(dirname "$(readlink -f "$0")")"
 
+runtimeclass=""
 undo="false"
 
 usage() {
 	cat <<-EOF
-	$0: run the end-to-end tests on local host.
-
+	Prepare the local host and run end-to-end tests.
 	It requires Ansible to run.
 	Important: it will change the system so ensure it is executed in a development
 	environment.
+
+	Use: $0 [-h|--help] [-r RUNTIMECLASS] [-u], where:
+	-h | --help : show this usage
+	-r RUNTIMECLASS: configure to use the RUNTIMECLASS (e.g. kata-clh) on
+                         the tests. Defaults to "kata-qemu".
+	-u: undo the installation and configuration before exiting. Useful for
+	    baremetal machine were it needs to do clean up for the next tests.
 	EOF
 }
 
 parse_args() {
-	while getopts "hu" opt; do
+	while getopts "hr:u" opt; do
 		case $opt in
 			h) usage && exit 0;;
+			r) runtimeclass="$OPTARG";;
 			u) undo="true";;
 			*) usage && exit 1;;
 		esac
@@ -51,6 +59,8 @@ on_exit() {
 trap on_exit EXIT
 
 main() {
+	local cmd
+
 	parse_args $@
 
 	# Check Ansible is installed.
@@ -71,7 +81,9 @@ main() {
 	sudo -E PATH="$PATH" ./operator.sh
 
 	echo "INFO: Run tests"
-	sudo -E PATH="$PATH" ./tests_runner.sh
+	cmd="sudo -E PATH=\"$PATH\" ./tests_runner.sh"
+	[ -z $runtimeclass ] || cmd+=" -r $runtimeclass"
+	eval $cmd
 	popd >/dev/null
 }
 
