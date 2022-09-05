@@ -52,7 +52,7 @@ spec:
     uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
     cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
     postUninstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload:2022070719511657216287
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:2022090517241662391458
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts
@@ -80,7 +80,7 @@ spec:
             type: ""
           name: systemd
     preInstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload:2022070719511657216287
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:2022090517241662391458
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts
