@@ -1,0 +1,41 @@
+# Copyright 2022 Red Hat
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+# Start a docker registry server on the host. It will be used to store the
+# operator images.
+#
+---
+- hosts: all
+  become: yes
+  vars:
+    local_registry_port: 5000
+    local_registry_name: local-registry
+  tasks:
+    - name: Install pip3
+      package:
+        # TODO: this is ubuntu specific...
+        name: python3-pip
+        state: present
+    # The docker pip is needed by the docker_container ansible module itself.
+    - name: Install docker pip
+      pip:
+        name: docker
+    - name: Start a docker registry
+      docker_container:
+        name: "{{ local_registry_name }}"
+        # TODO: docker.io is troublesome as we can hit the pull limits.
+        image: docker.io/library/registry:latest
+        ports:
+          - "{{ local_registry_port }}:{{ local_registry_port }}"
+        state: started
+    #
+    # Remove the docker registry container.
+    #
+    - name: Remove the docker registry container
+      tags: undo
+      block:
+        - name: Remove the docker registry
+          docker_container:
+            name: "{{ local_registry_name }}"
+            state: absent

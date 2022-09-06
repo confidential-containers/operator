@@ -1,0 +1,7 @@
+---
+# Please keep alphabetically sorted.
+#
+container_runtime: containerd
+go_version: 1.18.5
+operator_sdk_version: v1.23.0
+k8s_version: v1.24.0
