@@ -23,7 +23,9 @@ setup() {
 # Assume the operator is installed, otherwise fail.
 is_operator_installed
 
+echo "Uninstalling the operator"
 "${BATS_TEST_DIRNAME}/operator.sh" uninstall
+echo "Operator has been uninstalled"
 
 # TODO: this check is not passing as we need to update the payload.
 #
@@ -36,5 +38,5 @@ systemctl is-active "$container_runtime"
 
 teardown() {
 	# If any test removes the operator, let's ensure it is re-installed.
-	is_operator_installed || "${BATS_TEST_DIRNAME}/operator.sh" install
+	is_operator_installed || echo "Reinstalling the operator" && "${BATS_TEST_DIRNAME}/operator.sh" install
 }
