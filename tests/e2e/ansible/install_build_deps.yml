@@ -10,9 +10,7 @@
   tasks:
     - name: Install build packages
       package:
-        name:
-          - make
-          - gcc
+        name: "{{ build_pkgs[ansible_distribution | lower] }}"
         state: present
     - block:
       - name: Download and extract Go tarball
@@ -35,9 +33,7 @@
         url: https://github.com/operator-framework/operator-sdk/releases/download/{{ operator_sdk_version }}/operator-sdk_linux_amd64
         dest: /usr/local/bin/operator-sdk
         mode: '+x'
-    # TODO: import only if ubuntu host.
-    - import_tasks: install_docker_ubuntu.yml
-    #
+    - import_tasks: "install_docker.yml"
     # Undo the installation.
     #
     - name: Uninstall build dependencies
