@@ -44,8 +44,8 @@ undo_changes() {
 	# TODO: in case the script failed, we should undo only the steps
 	# executed.
 	pushd "$script_dir" >/dev/null
-	sudo -E PATH="$PATH" ./operator.sh uninstall || true
-	sudo -E PATH="$PATH" ./cluster/down.sh || true
+	sudo -E PATH="$PATH" bash -c './operator.sh uninstall' || true
+	sudo -E PATH="$PATH" bash -c './cluster/down.sh' || true
 	ansible-playbook -i localhost, -c local --tags undo ansible/main.yml || true
 	popd
 }
@@ -69,20 +69,26 @@ main() {
 		exit 1
 	fi
 
+	export "PATH=$PATH:/usr/local/bin"
+
 	pushd "$script_dir" >/dev/null
 	echo "INFO: Bootstrap the local machine"
 	ansible-playbook -i localhost, -c local --tags untagged ansible/main.yml
 
 	echo "INFO: Bring up the test cluster"
-	sudo -E PATH="$PATH" ./cluster/up.sh
+	sudo -E PATH="$PATH" bash -c './cluster/up.sh'
 	export KUBECONFIG=/etc/kubernetes/admin.conf
 
 	echo "INFO: Build and install the operator"
-	sudo -E PATH="$PATH" ./operator.sh
+	sudo -E PATH="$PATH" bash -c './operator.sh'
 
 	echo "INFO: Run tests"
-	cmd="sudo -E PATH=\"$PATH\" ./tests_runner.sh"
-	[ -z $runtimeclass ] || cmd+=" -r $runtimeclass"
+	cmd="sudo -E PATH=\"$PATH\" bash -c "
+	if [ -z "$runtimeclass" ]; then
+		cmd+="'./tests_runner.sh'"
+	else
+		cmd+="'./tests_runner.sh -r $runtimeclass'"
+	fi
 	eval $cmd
 	popd >/dev/null
 }
