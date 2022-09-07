@@ -1,7 +1,28 @@
 ---
 # Please keep alphabetically sorted.
 #
+build_pkgs:
+  ubuntu:
+    - make
+    - gcc
+  centos:
+    - make
+    - gcc
 container_runtime: containerd
 go_version: 1.18.5
 operator_sdk_version: v1.23.0
+# conntrack and socat are needed by the `kubeadm init` preflight checks
+kubeadm_pkgs:
+  ubuntu:
+    - conntrack
+    - socat
+  centos:
+    - conntrack
+    - socat
 k8s_version: v1.24.0
+test_pkgs:
+  ubuntu:
+    - bats
+    - jq
+  centos:
+    - jq

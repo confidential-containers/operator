@@ -74,7 +74,7 @@ main() {
 	ansible-playbook -i localhost, -c local --tags untagged ansible/main.yml
 
 	echo "INFO: Bring up the test cluster"
-	sudo ./cluster/up.sh
+	sudo -E PATH="$PATH" ./cluster/up.sh
 	export KUBECONFIG=/etc/kubernetes/admin.conf
 
 	echo "INFO: Build and install the operator"

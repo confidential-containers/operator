@@ -6,10 +6,30 @@
   tasks:
     - name: Install test dependencies
       package:
-        name:
-          - bats
-          - jq
+        name: "{{ test_pkgs[ansible_distribution | lower] }}"
         state: present
+    # bats package not available on CentOS Stream 8.
+    - name: Install bats from sources
+      block:
+        - shell: command -v bats >/dev/null 2>&1
+          register: bats_exist
+          ignore_errors: yes
+        - block:
+            - name: Clone bats repository
+              git:
+                repo: https://github.com/bats-core/bats-core.git
+                dest: bats-core
+                force: yes
+            - name: Install bats
+              shell:
+                cmd: ./install.sh /usr/local
+                chdir: bats-core
+            - name: Remove bats sources
+              file:
+                path: bats-core
+                state: absent
+          when: bats_exist.rc != 0
+      when: ansible_distribution == "CentOS"
     - block:
       - name: Download and extract Go tarball
         unarchive:
@@ -38,3 +58,4 @@
           with_items:
             - /usr/local/bin/go
             - /usr/local/go
+            - /usr/local/bin/bats
