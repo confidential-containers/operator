@@ -21,6 +21,10 @@ export CI=true
 # be enabled always.
 export DEBUG=true
 
+# The container runtime class (e.g. kata, kata-qemu, kata-clh) test pods should
+# be created with.
+runtimeclass="kata-qemu"
+
 # TODO: some tests use the SKOPEO variable (which is a build time variable) to
 # decide whether run or not. This should be no longer the case when we replace
 # skopeo with image-rs.
@@ -41,13 +45,63 @@ clone_kata_tests() {
 }
 
 cleanup() {
-	unlink /usr/local/bin/kata-runtime || true
+	[ ! -s "/usr/local/bin/kata-runtime" ] || \
+		unlink /usr/local/bin/kata-runtime
 	rm -rf "$tests_repo_dir" || true
+
+	# Restore the configuration.toml to its default value.
+	if [ "$runtimeclass" != "kata-qemu" ];then
+		set_kata_config "kata-qemu"
+	fi
 }
 
 trap cleanup EXIT
 
+parse_args() {
+	while getopts "hr:" opt; do
+		case $opt in
+			h) usage && exit 0;;
+			r) runtimeclass="$OPTARG";;
+			*) usage && exit 1;;
+		esac
+	done
+}
+
+set_kata_config() {
+	local runtimeclass="$1"
+	# Remove "kata-" prefix to get the name of the configuration file.
+	local kata_config="$(echo "$runtimeclass" | sed 's/^kata-//g')"
+	local kata_config_dir="/opt/confidential-containers/share/defaults/kata-containers/"
+	local default_config_link="${kata_config_dir}/configuration.toml"
+	local config_file="${kata_config_dir}/configuration-${kata_config}.toml"
+
+	if [ ! -f "$config_file" ]; then
+		echo "ERROR: Kata configuration file does exist: $config_file"
+		return 1
+	fi
+
+	[ ! -s "$default_config_link" ] || unlink "$default_config_link"
+	ln -s "$config_file" "$default_config_link"
+}
+
+usage() {
+	cat <<-EOF
+	Utility to run the tests.
+
+	Use: $0 [-h|--help] [-r RUNTIMECLASS], where:
+	-h | --help : show this usage
+	-r RUNTIMECLASS: configure to use the RUNTIMECLASS (e.g. kata-clh) on
+	                 the tests. Defaults to "kata-qemu".
+	EOF
+}
+
 main() {
+
+	parse_args $@
+
+	if [ "$runtimeclass" != "kata-qemu" ];then
+		set_kata_config "$runtimeclass"
+	fi
 
 	clone_kata_tests
 
