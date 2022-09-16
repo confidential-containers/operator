@@ -73,21 +73,8 @@ usage() {
 	EOF
 }
 
-main() {
-
-	parse_args $@
-
-	clone_kata_tests
-
-	cd "${tests_repo_dir}/integration/kubernetes/confidential"
-
-	# Test scripts rely on kata-runtime so it should be reacheable on PATH.
-	# Re-export PATH is error prone as some calls to kata-runtime use sudo,
-	# so let's create a symlink.
-	ln -sf /opt/confidential-containers/bin/kata-runtime \
-		/usr/local/bin/kata-runtime
-
-	# Run tests.
+# tests for CC with QEMU and no specific hardware support
+run_kata_qemu_tests() {
 
 	# Results for agent_image.bats:
 	#
@@ -113,6 +100,44 @@ main() {
 		"agent_image.bats" \
 		"agent_image_encrypted.bats" \
 		"${script_dir}/operator_tests.bats"
+
+}
+
+# Tests for CC with QEMU on SEV HW
+run_kata_qemu_sev_tests() {
+	bats "sev.bats"
+
+}
+
+main() {
+
+	parse_args $@
+
+	clone_kata_tests
+
+	cd "${tests_repo_dir}/integration/kubernetes/confidential"
+
+	# Test scripts rely on kata-runtime so it should be reacheable on PATH.
+	# Re-export PATH is error prone as some calls to kata-runtime use sudo,
+	# so let's create a symlink.
+	ln -sf /opt/confidential-containers/bin/kata-runtime \
+		/usr/local/bin/kata-runtime
+
+	# Run tests.
+	case $runtimeclass in
+		kata-qemu)
+			echo "INFO: Running kata-qemu tests"
+			run_kata_qemu_tests
+			;;
+		kata-qemu-sev)
+			echo "INFO: Running kata-qemu-sev tests"
+			run_kata_qemu_sev_tests
+			;;
+		*)
+			echo "ERROR: no known tests for runtime class ${runtimeclass} "
+			exit 1
+			;;
+	esac
 }
 
 main "$@"
