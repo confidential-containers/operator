@@ -7,7 +7,6 @@
     - name: Install test dependencies
       package:
         name:
-          - bats
           - jq
         state: present
     - block:
@@ -25,6 +24,21 @@
           dest: /usr/local/bin/go
           state: link
         when: go_install.changed == True
+    - block:
+      - name: Clone upstream Bats source
+        git:
+          repo: https://github.com/bats-core/bats-core.git
+          dest: /tmp/bats-core
+      - name: Install Bats
+        command: ./install.sh /usr
+        args:
+          chdir: /tmp/bats-core
+          creates: /usr/bin/bats
+      - name: Remove Bats source
+        file:
+          path: /tmp/bats-core
+          state: absent
+
     #
     # Undo the installation.
     #
@@ -38,3 +52,7 @@
           with_items:
             - /usr/local/bin/go
             - /usr/local/go
+        - name: Remove Bats binary
+          file:
+            path: /usr/bin/bats
+            state: absent
