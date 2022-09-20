@@ -55,7 +55,7 @@ spec:
     # If this is commented, then the operator creates 3 default runtimeclasses "kata", "kata-clh", "kata-qemu"
     runtimeClassNames: ["kata", "kata-clh", "kata-clh-tdx", "kata-qemu", "kata-qemu-tdx"]
     postUninstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload:31e1e81ceb984ed9090d5ddff39837c817814f62
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:4892b726eaf15e3932dd7990e196e92bd6f964d5
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts
@@ -83,7 +83,7 @@ spec:
             type: ""
           name: systemd
     preInstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload:31e1e81ceb984ed9090d5ddff39837c817814f62
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:4892b726eaf15e3932dd7990e196e92bd6f964d5
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts
