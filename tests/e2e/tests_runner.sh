@@ -107,6 +107,11 @@ main() {
 
 	cd "${tests_repo_dir}/integration/kubernetes/confidential"
 
+        # Update runtimeclass and kata default config for the scripts in tests repo
+        sed -i "s/runtimeClassName: kata/runtimeClassName: $runtimeclass/g" fixtures/*.yaml
+	local default_config_link="/opt/confidential-containers/share/defaults/kata-containers/configuration.toml"
+        sed -i "s#kata-runtime kata-env#kata-runtime --config $default_config_link kata-env#g" ../../../lib/common.bash
+
 	# Test scripts rely on kata-runtime so it should be reacheable on PATH.
 	# Re-export PATH is error prone as some calls to kata-runtime use sudo,
 	# so let's create a symlink.
