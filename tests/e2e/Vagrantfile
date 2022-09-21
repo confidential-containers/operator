@@ -8,8 +8,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-# Read the Kata Containers CI job from the CI_JOB environment variable.
-job = ENV['CI_JOB'] || ""
+# Read the runtimeClassName (e.g. kata-qemu, kata-clh, etc) from RUNTIMECLASS.
+runtimeclass = ENV['RUNTIMECLASS'] || "kata-qemu"
 guest_home_dir = '/home/vagrant'
 host_arch = `uname -m`.strip
 
@@ -42,7 +42,7 @@ Vagrant.configure("2") do |config|
       sudo apt-get -y update
       sudo apt-get -y install ansible
       cd "#{guest_home_dir}/src/confidential-containers/operator/tests/e2e"
-      ./run-local.sh
+      ./run-local.sh -r "#{runtimeclass}"
     SHELL
   end
 
@@ -54,7 +54,7 @@ Vagrant.configure("2") do |config|
       # On CentOS the docker_container module is not available on ansible-core.
       ansible-galaxy collection install community.docker
       cd "#{guest_home_dir}/src/confidential-containers/operator/tests/e2e"
-      ./run-local.sh
+      ./run-local.sh -r "#{runtimeclass}"
     SHELL
   end
 
