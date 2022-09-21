@@ -34,7 +34,14 @@ is_operator_installed
 systemctl is-active "$container_runtime"
 }
 
+@test "$test_tag Test can reinstall the operator" {
+# Assume the previous test (which removes the operator) passed.
+! is_operator_installed
+
+"${BATS_TEST_DIRNAME}/operator.sh" install
+}
+
 teardown() {
-	# If any test removes the operator, let's ensure it is re-installed.
-	is_operator_installed || "${BATS_TEST_DIRNAME}/operator.sh" install
+	# For debugging sake.
+	kubectl get pods -A || true
 }

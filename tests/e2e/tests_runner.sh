@@ -134,6 +134,7 @@ main() {
 	tests_passing+="|Test cannot pull an encrypted image inside the guest without decryption key"
 	tests_passing+="|Test can pull an encrypted image inside the guest with decryption key"
 	tests_passing+="|Test can uninstall the operator"
+	tests_passing+="|Test can reinstall the operator"
 
 	bats -f "$tests_passing" \
 		"agent_image.bats" \
