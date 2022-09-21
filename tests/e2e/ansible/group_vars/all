@@ -22,7 +22,6 @@ kubeadm_pkgs:
 k8s_version: v1.24.0
 test_pkgs:
   ubuntu:
-    - bats
     - jq
   centos:
     - jq
