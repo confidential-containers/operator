@@ -5555,6 +5555,7 @@ spec:
               runtimeName:
                 enum:
                 - kata
+                - enclave-cc
                 type: string
             required:
             - config
@@ -5632,6 +5633,7 @@ spec:
                 description: Cc Runtime Name
                 enum:
                 - kata
+                - enclave-cc
                 type: string
               totalNodesCount:
                 description: TotalNodesCounts is the total number of worker nodes
