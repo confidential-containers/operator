@@ -9,7 +9,10 @@ set -o nounset
 set -o pipefail
 
 script_dir="$(dirname "$(readlink -f "$0")")"
-
+# Track the executed steps for the purpose of undoing only those needed.
+step_bootstrap_env=0
+step_start_cluster=0
+step_install_operator=0
 runtimeclass=""
 undo="false"
 
@@ -41,13 +44,23 @@ parse_args() {
 }
 
 undo_changes() {
-	# TODO: in case the script failed, we should undo only the steps
-	# executed.
 	pushd "$script_dir" >/dev/null
-	sudo -E PATH="$PATH" bash -c './operator.sh uninstall' || true
-	sudo -E PATH="$PATH" bash -c './cluster/down.sh' || true
-	ansible-playbook -i localhost, -c local --tags undo ansible/main.yml || true
-	popd
+	# Do not try to undo steps that did not execute.
+	if [ $step_install_operator -eq 1 ]; then
+		echo "INFO: Uninstall the operator"
+		sudo -E PATH="$PATH" bash -c './operator.sh uninstall' || true
+	fi
+
+	if [ $step_start_cluster -eq 1 ]; then
+		echo "INFO: Shutdown the cluster"
+		sudo -E PATH="$PATH" bash -c './cluster/down.sh' || true
+	fi
+
+	if [ $step_bootstrap_env -eq 1 ]; then
+		echo "INFO: Undo the bootstrap"
+		ansible-playbook -i localhost, -c local --tags undo ansible/main.yml || true
+	fi
+	popd >/dev/null
 }
 
 on_exit() {
@@ -73,13 +86,16 @@ main() {
 
 	pushd "$script_dir" >/dev/null
 	echo "INFO: Bootstrap the local machine"
+	step_bootstrap_env=1
 	ansible-playbook -i localhost, -c local --tags untagged ansible/main.yml
 
 	echo "INFO: Bring up the test cluster"
+	step_start_cluster=1
 	sudo -E PATH="$PATH" bash -c './cluster/up.sh'
 	export KUBECONFIG=/etc/kubernetes/admin.conf
 
 	echo "INFO: Build and install the operator"
+	step_install_operator=1
 	sudo -E PATH="$PATH" bash -c './operator.sh'
 
 	echo "INFO: Run tests"
