@@ -25,12 +25,6 @@ export DEBUG=true
 # be created with.
 runtimeclass="kata-qemu"
 
-# TODO: some tests use the SKOPEO variable (which is a build time variable) to
-# decide whether run or not. This should be no longer the case when we replace
-# skopeo with image-rs.
-export SKOPEO=yes
-echo "IMPORTANT: Assume the image was built with SKOPEO=${SKOPEO}"
-
 # Tests will attempt to re-configure containerd. In our case it is already
 # proper set by the operator, so let's skip that step.
 export TESTS_CONFIGURE_CC_CONTAINERD=no
