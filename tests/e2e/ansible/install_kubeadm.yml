@@ -111,10 +111,15 @@
           file:
             path: "{{ flannel_home }}"
             state: absent
+        - name: Check kubelet is installed
+          shell: systemctl list-unit-files | grep kubelet
+          register: kubelet_exist
+          ignore_errors: yes
         - name: Stop kubelet service
           service:
             name: kubelet
             state: stopped
+          when: kubelet_exist.rc == 0
         - name: Delete kubelet service files
           file:
             path: "{{ item }}"
