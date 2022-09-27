@@ -8,6 +8,9 @@ build_pkgs:
   centos:
     - make
     - gcc
+  redhat:
+    - make
+    - gcc
 container_runtime: containerd
 go_version: 1.18.5
 operator_sdk_version: v1.23.0
@@ -19,9 +22,14 @@ kubeadm_pkgs:
   centos:
     - conntrack
     - socat
+  redhat:
+    - conntrack
+    - socat
 k8s_version: v1.24.0
 test_pkgs:
   ubuntu:
     - jq
   centos:
+    - jq
+  redhat:
     - jq

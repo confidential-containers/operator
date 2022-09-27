@@ -46,7 +46,7 @@
         state: present
       # TODO: add regular non-root users to docker group
   when: docker_exist.rc != 0 and ansible_distribution == "Ubuntu"
-- name: Handle docker installation on CentOS.
+- name: Handle docker installation on CentOS/RHEL.
   block:
     - name: Install yum-utils
       dnf:
@@ -68,4 +68,4 @@
         name: docker
         enabled: yes
         state: started
-  when: docker_exist.rc != 0 and ansible_distribution == "CentOS"
+  when: docker_exist.rc != 0 and ansible_distribution_file_variety == "RedHat"
