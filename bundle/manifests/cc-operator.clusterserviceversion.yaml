@@ -207,6 +207,13 @@ metadata:
                   }
                 ]
               },
+              "runtimeClassNames": [
+                "kata",
+                "kata-clh",
+                "kata-clh-tdx",
+                "kata-qemu",
+                "kata-qemu-tdx"
+              ],
               "uninstallCmd": [
                 "/opt/kata-artifacts/scripts/kata-deploy.sh",
                 "cleanup"
@@ -350,7 +357,7 @@ spec:
                 - --leader-elect
                 command:
                 - /manager
-                image: controller:latest
+                image: quay.io/confidential-containers/operator:latest
                 livenessProbe:
                   httpGet:
                     path: /healthz

@@ -24,15 +24,8 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// +kubebuilder:validation:Enum=kata
+// +kubebuilder:validation:Enum=kata;enclave-cc
 type CcRuntimeName string
-
-const (
-	// Kata
-	KataCcRuntime CcRuntimeName = "kata"
-
-	// Other Cc Runtime
-)
 
 // CcRuntimeSpec defines the desired state of CcRuntime
 type CcRuntimeSpec struct {
