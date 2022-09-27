@@ -63,9 +63,9 @@
           - docker-ce
           - docker-ce-cli
         state: present
-    - name: Start docker service
-      service:
-        name: docker
-        enabled: yes
-        state: started
   when: docker_exist.rc != 0 and ansible_distribution == "CentOS"
+- name: Start docker service
+  service:
+    name: docker
+    enabled: yes
+    state: started

@@ -87,6 +87,9 @@
       template:
         src: kubeadm.conf.j2
         dest: "{{ kubeadm_conf_dir }}/kubeadm.conf"
+    - name: Reload systemd configuration
+      systemd:
+        daemon_reload: yes
     - name: Start kubelet service
       service:
         name: kubelet
