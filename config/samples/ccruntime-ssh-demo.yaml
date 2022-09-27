@@ -2,7 +2,6 @@ apiVersion: confidentialcontainers.org/v1beta1
 kind: CcRuntime
 metadata:
   name: ccruntime-ssh-demo
-  namespace: confidential-containers-system
 spec:
   # Add fields here
   runtimeName: kata
