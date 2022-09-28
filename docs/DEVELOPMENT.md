@@ -12,7 +12,8 @@ changes
 
 ## Set Environment Variables
 ```
-export IMG=quay.io/user/cc-operator
+export QUAY_USER=<userid>
+export IMG=quay.io/${QUAY_USER}/cc-operator
 ```
 
 ## Viewing available Make targets
@@ -33,7 +34,7 @@ Ensure KUBECONFIG points to target Kubernetes cluster
 make install && make deploy
 ```
 
-## Create Custome Resource (CR)
+## Create Custom Resource (CR)
 ```
 kubectl create -f config/samples/ccruntime.yaml
 ```
@@ -44,3 +45,16 @@ Ensure KUBECONFIG points to target Kubernetes cluster
 ```
 make uninstall && make undeploy
 ```
+
+## Using Kind Kubernetes cluster
+
+You can use a [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/) cluster running on non-TEE hardware 
+for development purposes.
+
+Kind version `v0.16.0` have been successfully tested on the following Linux distros.
+- `CentOS Stream 8`
+- `RHEL9`
+- `Ubuntu 20.04`
+- `Ubuntu 22.04`
+
+>**Note**: Only `kata-clh` runtimeclass works with Kind cluster.
