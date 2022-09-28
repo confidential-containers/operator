@@ -134,7 +134,7 @@ main() {
 
 	# Run tests.
 	case $runtimeclass in
-		kata-qemu|kata-clh)
+		kata-qemu|kata-clh|kata-qemu-tdx|kata-clh-tdx)
 			echo "INFO: Running non-TEE tests for $runtimeclass"
 			run_non_tee_tests "$runtimeclass"
 			;;
