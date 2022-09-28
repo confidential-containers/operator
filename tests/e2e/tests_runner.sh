@@ -46,6 +46,12 @@ cleanup() {
 
 trap cleanup EXIT
 
+# Get the current ccruntime installed. Assume only one is deployed at time.
+#
+get_ccruntime() {
+	kubectl get ccruntimes -o jsonpath='{.items[0].metadata.name}'
+}
+
 parse_args() {
 	while getopts "hr:" opt; do
 		case $opt in
@@ -112,6 +118,15 @@ run_non_tee_tests() {
 
 }
 
+# Tests for ccruntime-ssh-demo runtime
+run_ccruntime_ssh_demo_tests() {
+	bats "${script_dir}/ccruntime-ssh-demo_tests.bats"
+
+	# TODO: might be a good idea to run the install/uninstall tests too but they
+	# should be adapted.
+	# "${script_dir}/operator_tests.bats"
+}
+
 # Tests for CC with QEMU on SEV HW
 run_kata_qemu_sev_tests() {
 	bats "sev.bats"
@@ -122,6 +137,7 @@ main() {
 
 	parse_args $@
 
+	# TODO: move to the run tests functions that actually need the repo.
 	clone_kata_tests
 
 	cd "${tests_repo_dir}/integration/kubernetes/confidential"
@@ -135,8 +151,13 @@ main() {
 	# Run tests.
 	case $runtimeclass in
 		kata-qemu|kata-clh|kata-qemu-tdx|kata-clh-tdx)
-			echo "INFO: Running non-TEE tests for $runtimeclass"
-			run_non_tee_tests "$runtimeclass"
+			if [ "ccruntime-ssh-demo" == "$(get_ccruntime)" ]; then
+				echo "INFO: Running tests for ccruntime-ssh-demo"
+				run_ccruntime_ssh_demo_tests
+			else
+				echo "INFO: Running non-TEE tests for $runtimeclass"
+				run_non_tee_tests "$runtimeclass"
+			fi
 			;;
 		kata-qemu-sev)
 			echo "INFO: Running kata-qemu-sev tests"
