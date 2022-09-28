@@ -10,7 +10,9 @@ set -o pipefail
 
 script_dir="$(dirname "$(readlink -f "$0")")"
 
+readonly default_runtime_payload="ccruntime"
 runtimeclass=""
+runtime_payload=""
 undo="false"
 
 usage() {
@@ -20,31 +22,37 @@ usage() {
 	Important: it will change the system so ensure it is executed in a development
 	environment.
 
-	Use: $0 [-h|--help] [-r RUNTIMECLASS] [-u], where:
+	Use: $0 [-h|--help] [-p RUNTIME_PAYLOAD] [-r RUNTIMECLASS] [-u], where:
 	-h | --help : show this usage
+	-p RUNTIME_PAYLOAD: install an alternative runtime payload (e.g.
+	                    cc-demo-runtime). Defaults to "ccruntime".
 	-r RUNTIMECLASS: configure to use the RUNTIMECLASS (e.g. kata-clh) on
-                         the tests. Defaults to "kata-qemu".
+	                 the tests. Defaults to "kata-qemu".
 	-u: undo the installation and configuration before exiting. Useful for
 	    baremetal machine were it needs to do clean up for the next tests.
 	EOF
 }
 
 parse_args() {
-	while getopts "hr:u" opt; do
+	while getopts "hp:r:u" opt; do
 		case $opt in
 			h) usage && exit 0;;
+			p) runtime_payload="$OPTARG";;
 			r) runtimeclass="$OPTARG";;
 			u) undo="true";;
 			*) usage && exit 1;;
 		esac
 	done
+
+	# Use the default payload if none is passed.
+	[ -n "$runtime_payload" ] || runtime_payload="$default_runtime_payload"
 }
 
 undo_changes() {
 	# TODO: in case the script failed, we should undo only the steps
 	# executed.
 	pushd "$script_dir" >/dev/null
-	sudo -E PATH="$PATH" bash -c './operator.sh uninstall' || true
+	sudo -E PATH="$PATH" bash -c "./operator.sh uninstall $runtime_payload" || true
 	sudo -E PATH="$PATH" bash -c './cluster/down.sh' || true
 	ansible-playbook -i localhost, -c local --tags undo ansible/main.yml || true
 	popd
@@ -79,8 +87,10 @@ main() {
 	sudo -E PATH="$PATH" bash -c './cluster/up.sh'
 	export KUBECONFIG=/etc/kubernetes/admin.conf
 
-	echo "INFO: Build and install the operator"
-	sudo -E PATH="$PATH" bash -c './operator.sh'
+	echo "INFO: Build the operator"
+	sudo -E PATH="$PATH" bash -c './operator.sh build'
+	echo "INFO: Install the operator"
+	sudo -E PATH="$PATH" bash -c "./operator.sh install $runtime_payload"
 
 	echo "INFO: Run tests"
 	cmd="sudo -E PATH=\"$PATH\" bash -c "

@@ -14,6 +14,7 @@ project_dir="$(readlink -f ${script_dir}/../..)"
 
 source "${script_dir}/lib.sh"
 
+readonly default_runtime="ccruntime"
 # The operator namespace.
 readonly op_ns="confidential-containers-system"
 # There should be a registry running locally on port 5000.
@@ -57,9 +58,11 @@ install_operator() {
 
 # Install the CC runtime.
 #
-install_ccruntime() {
+install_runtime() {
+	local runtime="${1:-$default_runtime}"
+
 	pushd "$project_dir" >/dev/null
-	kubectl create -f config/samples/ccruntime.yaml
+	kubectl create -f "config/samples/$runtime.yaml"
 	popd >/dev/null
 
 	local pod=""
@@ -96,11 +99,13 @@ start_local_registry() {
 	fi
 }
 
-# Uninstall the operator and ccruntime.
+# Uninstall the operator and runtime.
 #
 uninstall_operator() {
+	local runtime="${1:-$default_runtime}"
+
 	pushd "$project_dir" >/dev/null
-	kubectl delete -f config/samples/ccruntime.yaml
+	kubectl delete -f "config/samples/$runtime.yaml"
 	kubectl delete -f deploy/deploy.yaml
 	popd >/dev/null
 }
@@ -109,12 +114,12 @@ usage() {
 	cat <<-EOF
 	Utility to build/install/uninstall the operator.
 
-	Use: $0 [-h|--help] [command], where:
+	Use: $0 [-h|--help] [command [arg1 ... argN]], where:
 	-h | --help : show this usage
 	command : optional command (build and install by default). Can be:
-	 "build": build only,
-	 "install": install only,
-	 "uninstall": uninstall the operator.
+	 "build": build only;
+	 "install [runtime]": install only. Optionally specify the runtime;
+	 "uninstall [runtime]": uninstall the operator. Optionally specify the runtime.
 	EOF
 }
 
@@ -122,16 +127,16 @@ main() {
 	if [ $# -eq 0 ]; then
 		build_operator
 		install_operator
-		install_ccruntime
+		install_runtime
 	else
 		case $1 in
 			-h|--help) usage && exit 0;;
 			build) build_operator;;
 			install)
 				install_operator
-				install_ccruntime
+				install_runtime "${2:-}"
 				;;
-			uninstall) uninstall_operator;;
+			uninstall) uninstall_operator "${2:-}";;
 			*)
 				echo "Unknown command '$1'"
 				usage && exit 1
