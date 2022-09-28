@@ -67,8 +67,9 @@ usage() {
 	EOF
 }
 
-# tests for CC with QEMU and no specific hardware support
-run_kata_qemu_tests() {
+# tests for CC without specific hardware support
+run_non_tee_tests() {
+	local runtimeclass="$1"
 
 	# Results for agent_image.bats:
 	#
@@ -90,6 +91,19 @@ run_kata_qemu_tests() {
 	tests_passing+="|Test can pull an encrypted image inside the guest with decryption key"
 	tests_passing+="|Test can uninstall the operator"
 	tests_passing+="|Test can reinstall the operator"
+
+	# This will hopefully make the pods created by the tests to use
+	# the $runtimeclass.
+	export RUNTIMECLASS="$runtimeclass"
+
+	# TODO: this is a workaround for the tests that rely on `kata-runtime kata-env`
+	# to get the path to kata's configuration.toml and image files. Without this
+	# they will change the default configuration.toml, which doesn't correspond to
+	# the one used by the runtimeclass, therefore, performing bogus changes.
+	local runtime_config_file="/opt/confidential-containers/share/defaults/kata-containers/"
+	runtime_config_file+="configuration-${runtimeclass/kata-/}.toml"
+	sed -i "s#kata-runtime kata-env#kata-runtime --config $runtime_config_file kata-env#g" \
+		../../../lib/common.bash
 
 	bats -f "$tests_passing" \
 		"agent_image.bats" \
@@ -120,9 +134,9 @@ main() {
 
 	# Run tests.
 	case $runtimeclass in
-		kata-qemu)
-			echo "INFO: Running kata-qemu tests"
-			run_kata_qemu_tests
+		kata-qemu|kata-clh)
+			echo "INFO: Running non-TEE tests for $runtimeclass"
+			run_non_tee_tests "$runtimeclass"
 			;;
 		kata-qemu-sev)
 			echo "INFO: Running kata-qemu-sev tests"
