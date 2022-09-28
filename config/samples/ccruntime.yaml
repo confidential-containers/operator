@@ -11,7 +11,7 @@ spec:
       node-role.kubernetes.io/worker: ""
   config:
     installType: bundle
-    payloadImage: quay.io/confidential-containers/runtime-payload:kata-containers-77176cd7b94ec1a8c7afba08e246e84ca21cd161
+    payloadImage: quay.io/confidential-containers/runtime-payload:kata-containers-8ad86e2ec9d26d2ef07f3bf794352a3fda7597e5
     installDoneLabel:
       katacontainers.io/kata-runtime: "true"
     uninstallDoneLabel:
