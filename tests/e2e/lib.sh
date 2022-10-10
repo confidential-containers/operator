@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2022 Red Hat
+# Copyright Confidential Containers Contributors
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -35,6 +35,35 @@ check_pods_are_ready() {
 		kubectl wait "--timeout=$timeout" -n "$ns" \
 			--for=condition=Ready "pod/${p}" >/dev/null
 	done
+}
+
+# Print information about the pod in namespace.
+#
+# Parameters
+#	$1 - the pod id.
+#	$2 - (optional) the namespace.
+#
+debug_pod() {
+	local pod="$1"
+	local ns="$2"
+
+	set -x
+	kubectl describe "pods/$1" ${ns:+"-n $ns"} || true
+	kubectl logs "pods/$1" ${ns:+"-n $ns"} || true
+	set +x
+}
+
+# Return a list of pod ids (pod1 pod2 ... podn) that match the regex.
+#
+# Parameters:
+#	$1 - the regex as accepted by grep.
+#	$2 - (optional) the namespace. Otherwise search on default namespace.
+#
+get_pods_regex() {
+	local regex="$1"
+	local ns="$2"
+	echo $(kubectl get pods ${ns:+-n "$ns"} --no-headers 2>/dev/null \
+		| grep "$regex" | cut -d" " -f1)
 }
 
 # Wait for at least one pod to show up on the namespace.

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2022 Red Hat
+# Copyright Confidential Containers Contributors
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -47,10 +47,16 @@ install_operator() {
 	popd >/dev/null
 
 	# Wait the operator controller to be running.
+	local controller_pod="cc-operator-controller-manager"
 	local cmd="kubectl get pods -n "$op_ns" --no-headers |"
-	cmd+="egrep -q cc-operator-controller-manager.*'\<Running\>'"
+	cmd+="egrep -q ${controller_pod}.*'\<Running\>'"
 	if ! wait_for_process 120 10 "$cmd"; then
-		echo "ERROR: operator-controller-manager pod is not running"
+		echo "ERROR: ${controller_pod} pod is not running"
+
+		local pod_id="$(get_pods_regex $controller_pod $op_ns)"
+		echo "DEBUG: Pod $pod_id"
+		debug_pod "$pod_id" "$op_ns"
+
 		return 1
 	fi
 }
@@ -69,6 +75,11 @@ install_ccruntime() {
 		cmd+="egrep -q ${pod}.*'\<Running\>'"
 		if ! wait_for_process 600 30 "$cmd"; then
 			echo "ERROR: $pod pod is not running"
+
+			local pod_id="$(get_pods_regex $pod $op_ns)"
+			echo "DEBUG: Pod $pod_id"
+			debug_pod "$pod_id" "$op_ns"
+
 			return 1
 		fi
 	done

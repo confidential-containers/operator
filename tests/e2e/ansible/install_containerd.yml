@@ -1,4 +1,4 @@
-# Copyright 2022 Red Hat
+# Copyright Confidential Containers Contributors
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -27,6 +27,8 @@
     # file with its defaults.
     - name: Re-create containerd config
       shell: containerd config default > /etc/containerd/config.toml
+      args:
+        executable: /bin/bash
     - name: Restart containerd service
       service:
         name: containerd
@@ -38,10 +40,16 @@
     - name: Revert containerd config to defaults
       tags: undo
       block:
+        - name: Check containerd is installed
+          shell: systemctl list-unit-files | grep containerd
+          register: containerd_exist
+          ignore_errors: yes
         - name: Re-create containerd config
           shell: containerd config default > /etc/containerd/config.toml
+          when: containerd_exist.rc == 0
         - name: Restart containerd service
           service:
             name: containerd
             enabled: yes
             state: restarted
+          when: containerd_exist.rc == 0

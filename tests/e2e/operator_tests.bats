@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Copyright 2022 Red Hat
+# Copyright Confidential Containers Contributors
 #
 # SPDX-License-Identifier: Apache-2.0
 #

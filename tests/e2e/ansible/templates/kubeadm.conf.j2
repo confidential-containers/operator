@@ -1,14 +1,15 @@
 # Copied and modified from https://github.com/kata-containers/tests/blob/main/integration/kubernetes/kubeadm/config.yaml
 #
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
 nodeRegistration:
-  criSocket: {{ kubeadm_cri_runtime_socket }}
+  criSocket: unix://{{ kubeadm_cri_runtime_socket }}
+  imagePullPolicy: IfNotPresent
   kubeletExtraArgs:
     allowed-unsafe-sysctls: kernel.msg*,kernel.shm.*,net.*
     v: "4"
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 kubernetesVersion: {{ k8s_version }}
 networking:
@@ -18,6 +19,8 @@ networking:
 apiServer:
   extraArgs:
     feature-gates: PodOverhead=true
+  timeoutForControlPlane: 4m0s
+imageRepository: k8s.gcr.io
 scheduler:
   extraArgs:
     feature-gates: PodOverhead=true
