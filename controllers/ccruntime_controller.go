@@ -54,6 +54,7 @@ type CcRuntimeReconciler struct {
 	Scheme    *runtime.Scheme
 	Log       logr.Logger
 	ccRuntime *ccv1beta1.CcRuntime
+	Namespace string
 }
 
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=ccruntimes,verbs=get;list;watch;create;update;patch;delete
@@ -653,7 +654,7 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      dsName,
-			Namespace: "confidential-containers-system",
+			Namespace: r.Namespace,
 		},
 		Spec: appsv1.DaemonSetSpec{
 			Selector: &metav1.LabelSelector{
@@ -845,7 +846,7 @@ func (r *CcRuntimeReconciler) makeHookDaemonset(operation DaemonOperation) *apps
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      dsName,
-			Namespace: "confidential-containers-system",
+			Namespace: r.Namespace,
 		},
 		Spec: appsv1.DaemonSetSpec{
 			Selector: &metav1.LabelSelector{
