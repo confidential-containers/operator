@@ -1,0 +1,17 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: enclave-cc-pod-sim
+spec:
+  runtimeClassName: enclave-cc
+  containers:
+  - name: hello-world
+    image: docker.io/huaijin20191223/scratch-base:v1.8
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: OCCLUM_RELEASE_ENCLAVE
+      value: "0"
+    workingDir: "/run/rune/boot_instance/"
+    command:
+    - /run/rune/boot_instance/build/bin/occlum-run
+    - /bin/hello_world
