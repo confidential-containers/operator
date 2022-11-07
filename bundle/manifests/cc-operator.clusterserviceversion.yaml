@@ -106,7 +106,7 @@ metadata:
               ],
               "payloadImage": "quay.io/confidential-containers/runtime-payload:kata-containers-b11b6e3756a15e602a5bff1d4d47da8ecf23c593",
               "postUninstall": {
-                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:4892b726eaf15e3932dd7990e196e92bd6f964d5",
+                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:1034f9fcf947b22eea080a6f77d8e164e2369849",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -157,7 +157,7 @@ metadata:
                 ]
               },
               "preInstall": {
-                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:4892b726eaf15e3932dd7990e196e92bd6f964d5",
+                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:1034f9fcf947b22eea080a6f77d8e164e2369849",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
