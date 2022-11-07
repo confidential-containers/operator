@@ -43,7 +43,7 @@ install_operator() {
 	fi
 
 	pushd "$project_dir" >/dev/null
-	kubectl apply -f deploy/deploy.yaml
+	kubectl apply -k config/default
 	popd >/dev/null
 
 	# Wait the operator controller to be running.
@@ -112,7 +112,7 @@ start_local_registry() {
 uninstall_operator() {
 	pushd "$project_dir" >/dev/null
 	kubectl delete -f config/samples/ccruntime.yaml
-	kubectl delete -f deploy/deploy.yaml
+	kubectl delete -k config/default
 	popd >/dev/null
 }
 

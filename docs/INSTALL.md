@@ -12,9 +12,11 @@
 
 ## Deploy the Operator
 
-Deploy the operator by running the following command.
+Deploy the operator by running the following command where `<RELEASE_VERSION>` needs to be substituted
+with the desired [release tag](https://github.com/confidential-containers/operator/tags).
+
 ```
-kubectl apply -f https://raw.githubusercontent.com/confidential-containers/operator/main/deploy/deploy.yaml
+kubectl apply -k github.com/confidential-containers/operator/config/release?ref=<RELEASE_VERSION>
 ```
 The operator deploys all resources under `confidential-containers-system` namespace.
 
@@ -141,5 +143,5 @@ kubectl delete  -f https://raw.githubusercontent.com/confidential-containers/ope
 
 ### Delete the Operator
 ```
-kubectl delete -f https://raw.githubusercontent.com/confidential-containers/operator/main/deploy/deploy.yaml
+kubectl delete -k github.com/confidential-containers/operator/config/release?ref=<RELEASE_VERSION>
 ```
