@@ -3,7 +3,6 @@ kind: CcRuntime
 metadata:
   name: ccruntime-enclave-cc
 spec:
-  # Add fields here
   runtimeName: enclave-cc
   ccNodeSelector:
     matchLabels:
