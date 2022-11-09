@@ -10,7 +10,7 @@ spec:
       node-role.kubernetes.io/worker: ""
   config:
     installType: bundle
-    payloadImage: quay.io/confidential-containers/runtime-payload:kata-containers-ssh-demo-03965fd37ac5eb75a72768ee36ab901865656944
+    payloadImage: quay.io/confidential-containers/runtime-payload:kata-containers-ssh-demo-v0.2.0
     installDoneLabel:
       katacontainers.io/kata-runtime: "true"
     uninstallDoneLabel:
