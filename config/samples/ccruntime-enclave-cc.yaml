@@ -10,7 +10,7 @@ spec:
       node-role.kubernetes.io/worker: ""
   config:
     installType: bundle
-    payloadImage: quay.io/confidential-containers/runtime-payload:enclave-cc-0.1.0
+    payloadImage: quay.io/confidential-containers/runtime-payload:enclave-cc-HW-v0.2.0
     installDoneLabel:
       confidentialcontainers.org/enclave-cc: "true"
     uninstallDoneLabel:

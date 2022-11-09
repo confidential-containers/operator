@@ -1,25 +1,26 @@
 apiVersion: confidentialcontainers.org/v1beta1
 kind: CcRuntime
 metadata:
-  name: ccruntime-ssh-demo
+  name: ccruntime-enclave-cc-sim
 spec:
-  # Add fields here
-  runtimeName: kata
+  runtimeName: enclave-cc
   ccNodeSelector:
     matchLabels:
       node-role.kubernetes.io/worker: ""
   config:
     installType: bundle
-    payloadImage: quay.io/confidential-containers/runtime-payload:kata-containers-ssh-demo-03965fd37ac5eb75a72768ee36ab901865656944
+    payloadImage: quay.io/confidential-containers/runtime-payload:enclave-cc-SIM-v0.2.0
     installDoneLabel:
-      katacontainers.io/kata-runtime: "true"
+      confidentialcontainers.org/enclave-cc: "true"
     uninstallDoneLabel:
-      katacontainers.io/kata-runtime: "cleanup"
+      confidentialcontainers.org/enclave-cc: "cleanup"
     installerVolumeMounts:
       - mountPath: /etc/containerd/
         name: containerd-conf
+      - mountPath: /etc/enclave-cc/
+        name: enclave-cc-conf
       - mountPath: /opt/confidential-containers/
-        name: kata-artifacts
+        name: enclave-cc-artifacts
       - mountPath: /var/run/dbus
         name: dbus
       - mountPath: /run/systemd
@@ -32,9 +33,13 @@ spec:
           type: ""
         name: containerd-conf
       - hostPath:
+          path: /etc/enclave-cc/
+          type: DirectoryOrCreate
+        name: enclave-cc-conf
+      - hostPath:
           path: /opt/confidential-containers/
           type: DirectoryOrCreate
-        name: kata-artifacts
+        name: enclave-cc-artifacts
       - hostPath:
           path: /var/run/dbus
           type: ""
@@ -47,10 +52,10 @@ spec:
           path: /usr/local/bin/
           type: ""
         name: local-bin
-    installCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "install"]
-    uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
-    cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
-    runtimeClassNames: ["kata", "kata-clh", "kata-qemu"]
+    installCmd: ["/opt/enclave-cc-artifacts/scripts/enclave-cc-deploy.sh", "install"]
+    uninstallCmd: ["/opt/enclave-cc-artifacts/scripts/enclave-cc-deploy.sh", "cleanup"]
+    cleanupCmd: ["/opt/enclave-cc-artifacts/scripts/enclave-cc-deploy.sh", "reset"]
+    runtimeClassNames: ["enclave-cc"]
     postUninstall:
       image: quay.io/confidential-containers/container-engine-for-cc-payload:1034f9fcf947b22eea080a6f77d8e164e2369849
       volumeMounts:

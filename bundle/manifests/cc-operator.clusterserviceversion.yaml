@@ -104,9 +104,9 @@ metadata:
                   "name": "local-bin"
                 }
               ],
-              "payloadImage": "quay.io/confidential-containers/runtime-payload:kata-containers-b11b6e3756a15e602a5bff1d4d47da8ecf23c593",
+              "payloadImage": "quay.io/confidential-containers/runtime-payload:kata-containers-5b7009f2f9cdb39099b97a4f868b53ec9f3c383f",
               "postUninstall": {
-                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:4892b726eaf15e3932dd7990e196e92bd6f964d5",
+                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:1034f9fcf947b22eea080a6f77d8e164e2369849",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -157,7 +157,7 @@ metadata:
                 ]
               },
               "preInstall": {
-                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:4892b726eaf15e3932dd7990e196e92bd6f964d5",
+                "image": "quay.io/confidential-containers/container-engine-for-cc-payload:1034f9fcf947b22eea080a6f77d8e164e2369849",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -211,8 +211,11 @@ metadata:
                 "kata",
                 "kata-clh",
                 "kata-clh-tdx",
+                "kata-clh-tdx-eaa-kbc"
                 "kata-qemu",
-                "kata-qemu-tdx"
+                "kata-qemu-sev",
+                "kata-qemu-tdx",
+                "kata-qemu-tdx-eaa-kbc"
               ],
               "uninstallCmd": [
                 "/opt/kata-artifacts/scripts/kata-deploy.sh",
