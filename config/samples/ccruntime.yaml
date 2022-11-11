@@ -2,6 +2,7 @@ apiVersion: confidentialcontainers.org/v1beta1
 kind: CcRuntime
 metadata:
   name: ccruntime-sample
+  namespace: confidential-containers-system
 spec:
   # Add fields here
   runtimeName: kata
