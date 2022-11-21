@@ -1,0 +1,62 @@
+name: Ensure the latest tags are used for the runtime payloads
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  latest-tag-generic:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        asset:
+          - enclave-cc-HW
+          - enclave-cc-SIM
+          - kata-containers-ssh-demo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check if ${{ matrix.asset }} sample is using the latest tag
+        run: |
+          latest_local=$(cat config/samples/ccruntime-${{ matrix.asset }}.yaml | grep payloadImage | sed -e 's|.*payloadImage: quay.io/confidential-containers/runtime-payload:||g')
+          latest_quay=$(curl -X GET "https://quay.io/api/v1/repository/confidential-containers/runtime-payload/tag/" | jq .tags[].name | grep ${{ matrix.asset }} | grep -v latest | head -1 | sed -e 's|\"||g')
+          [ "${latest_local}" == "${latest_quay}" ] && exit 0
+          echo "config/sample/ccruntime-${{ matrix.asset }}.yaml needs to be updated to use the \"${latest_quay}\" tag." 
+          exit 1
+
+  latest-tag-ccruntime:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check if ccruntime sample is using the latest tag
+        run: |
+          latest_local=$(cat config/samples/ccruntime.yaml | grep payloadImage | sed -e 's|.*payloadImage: quay.io/confidential-containers/runtime-payload:||g')
+          latest_quay=$(curl -X GET "https://quay.io/api/v1/repository/confidential-containers/runtime-payload/tag/" | jq .tags[].name | grep kata-containers | grep -v latest | grep -v ssh-demo | head -1 | sed -e 's|\"||g')
+          [ "${latest_local}" == "${latest_quay}" ] && exit 0
+          echo "config/sample/ccruntime.yaml needs to be updated to use the \"${latest_quay}\" tag." 
+          exit 1
+
+  latest-tag-contaner-engine-for-cc-payload:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        asset:
+          - ccruntime
+          - ccruntime-enclave-cc-HW
+          - ccruntime-enclave-cc-SIM
+          - ccruntime-kata-containers-ssh-demo
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check if ${{ matrix.asset }}.yaml sample is using the latest preInstall image
+        run: |
+          latest_local=$(cat config/samples/${{ matrix.asset }}.yaml | grep -A1 preInstall | grep image | sed -e 's|.*image: quay.io/confidential-containers/container-engine-for-cc-payload:||g')
+          latest_quay=$(curl -X GET "https://quay.io/api/v1/repository/confidential-containers/container-engine-for-cc-payload/tag/" | jq .tags[].name | grep -v latest | head -1 | sed -e 's|\"||g')
+          [ "${latest_local}" == "${latest_quay}" ] && exit 0
+          echo "config/sample/${{ matrix.asset }}.yaml needs to be updated to use the \"${latest_quay}\" tag for the preInstall image." 
+          exit 1
+      - name: Check if ${{ matrix.asset }}.yaml sample is using the latest postUninstall image
+        run: |
+          latest_local=$(cat config/samples/${{ matrix.asset }}.yaml | grep -A1 postUninstall | grep image | sed -e 's|.*image: quay.io/confidential-containers/container-engine-for-cc-payload:||g')
+          latest_quay=$(curl -X GET "https://quay.io/api/v1/repository/confidential-containers/container-engine-for-cc-payload/tag/" | jq .tags[].name | grep -v latest | head -1 | sed -e 's|\"||g')
+          [ "${latest_local}" == "${latest_quay}" ] && exit 0
+          echo "config/sample/${{ matrix.asset }}.yaml needs to be updated to use the \"${latest_quay}\" tag for the postUninstall image." 
+          exit 1
