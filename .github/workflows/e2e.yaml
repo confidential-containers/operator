@@ -46,7 +46,7 @@ jobs:
 
       - name: Install enclave-cc sim
         run: |
-          kubectl apply -f config/samples/ccruntime-enclave-cc-sim.yaml
+          kubectl apply -f config/samples/ccruntime-enclave-cc-SIM.yaml
           sleep 1
           kubectl wait --for=jsonpath='{.status.runtimeClass}'=enclave-cc ccruntime/ccruntime-enclave-cc-sim --timeout=90s
 
