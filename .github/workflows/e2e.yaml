@@ -25,15 +25,15 @@ jobs:
           driver-opts: network=host
 
       - name: Build and push to local registry
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          push: true
-          tags: localhost:5000/cc-operator:latest
+        run: |
+          make docker-build
+          make docker-push
+        env:
+          IMG: localhost:5000/cc-operator:latest
 
       - name: Setup kind cluster
         run: |
-          kind create cluster -n coco-sgx --config tests/e2e/enclave-cc-kind-config.yaml
+          kind create cluster --image "kindest/node:v1.24.0" -n coco-sgx --config tests/e2e/enclave-cc-kind-config.yaml --wait 120s
           kubectl label node coco-sgx-worker node-role.kubernetes.io/worker=
 
       - name: Deploy operator from the local registry
