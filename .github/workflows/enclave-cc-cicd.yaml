@@ -1,8 +1,7 @@
-name: enclave-cc e2e tests
+name: CI/CD | enclave-cc e2e tests
 on:
-  pull_request:
-    branches:
-      - main
+  schedule:
+  - cron: "0 0 * * *"
 
 permissions:
   contents: read
@@ -46,6 +45,10 @@ jobs:
 
       - name: Install enclave-cc sim
         run: |
+          current_tag=$(curl -X GET "https://quay.io/api/v1/repository/confidential-containers/runtime-payload/tag/" | jq .tags[].name | grep enclave-cc-SIM | grep -v latest | head -1 | sed -e 's|\"||g')
+          latest_ci_tag=$(curl -X GET "https://quay.io/api/v1/repository/confidential-containers/runtime-payload-ci/tag/" | jq .tags[].name | grep enclave-cc-SIM | grep -v latest | head -1 | sed -e 's|\"||g') 
+          sed -e -i 's|runtime-payload:${current_tag}|runtime-payload-ci:${latest_ci_tag}/g' config/samples/ccruntime-enclave-cc-sim.yaml
+          echo "Testing Enclave CC using the following CI tag: ${latest_ci_tag}"
           kubectl apply -f config/samples/ccruntime-enclave-cc-sim.yaml
           sleep 1
           kubectl wait --for=jsonpath='{.status.runtimeClass}'=enclave-cc ccruntime/ccruntime-enclave-cc-sim --timeout=90s
