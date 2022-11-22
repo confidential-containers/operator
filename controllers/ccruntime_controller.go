@@ -102,6 +102,9 @@ func (r *CcRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	if err != nil && errors.IsNotFound(err) {
 		r.Log.Info("Creating cleanup Daemonset", "ds.Namespace", ds.Namespace, "ds.Name", ds.Name)
 		err = r.Client.Create(context.TODO(), ds)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 
 	// Check if the CcRuntime instance is marked to be deleted, which is
@@ -789,7 +792,7 @@ func (r *CcRuntimeReconciler) makeHookDaemonset(operation DaemonOperation) *apps
 	var (
 		runPrivileged       = true
 		runAsUser     int64 = 0
-		image               = ""
+		image               = "" //nolint: ineffassign
 		dsName        string
 		volumes       []corev1.Volume
 		volumeMounts  []corev1.VolumeMount
