@@ -45,13 +45,13 @@ jobs:
 
       - name: Install enclave-cc sim
         run: |
-          current_tag=$(curl -X GET "https://quay.io/api/v1/repository/confidential-containers/runtime-payload/tag/" | jq .tags[].name | grep enclave-cc-SIM | grep -v latest | head -1 | sed -e 's|\"||g')
-          latest_ci_tag=$(curl -X GET "https://quay.io/api/v1/repository/confidential-containers/runtime-payload-ci/tag/" | jq .tags[].name | grep enclave-cc-SIM | grep -v latest | head -1 | sed -e 's|\"||g') 
-          sed -e -i 's|runtime-payload:${current_tag}|runtime-payload-ci:${latest_ci_tag}/g' config/samples/ccruntime-enclave-cc-sim.yaml
+          cd config/samples/enclave-cc/sim
+          latest_ci_tag=$(curl -s -X GET "https://quay.io/api/v1/repository/confidential-containers/runtime-payload-ci/tag/" | jq -r -n 'first(inputs | .tags[].name | select(test("enclave-cc-SIM-[a-f0-9]{40}")))')
+          kustomize edit set image quay.io/confidential-containers/runtime-payload=quay.io/confidential-containers/runtime-payload-ci:$latest_ci_tag
           echo "Testing Enclave CC using the following CI tag: ${latest_ci_tag}"
-          kubectl apply -f config/samples/ccruntime-enclave-cc-sim.yaml
+          kubectl apply -k .
           sleep 1
-          kubectl wait --for=jsonpath='{.status.runtimeClass}'=enclave-cc ccruntime/ccruntime-enclave-cc-sim --timeout=90s
+          kubectl wait --for=jsonpath='{.status.runtimeClass}'=enclave-cc ccruntime/ccruntime-enclave-cc-sgx-mode-sim --timeout=90s
 
       - name: Deploy sample workload
         run: |
