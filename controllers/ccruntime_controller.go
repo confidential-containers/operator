@@ -102,6 +102,9 @@ func (r *CcRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	if err != nil && errors.IsNotFound(err) {
 		r.Log.Info("Creating cleanup Daemonset", "ds.Namespace", ds.Namespace, "ds.Name", ds.Name)
 		err = r.Client.Create(context.TODO(), ds)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
 	}
 
 	// Check if the CcRuntime instance is marked to be deleted, which is
@@ -326,7 +329,7 @@ func handlePostUninstall(r *CcRuntimeReconciler) (ctrl.Result, error) {
 		postUninstallDs := r.makeHookDaemonset(PostUninstallOperation)
 		// get daemonset
 		res, err := r.handlePrePostDs(postUninstallDs, map[string]string{"cc-postuninstall/done": "true"})
-		if res.Requeue == true {
+		if res.Requeue {
 			if err != nil {
 				r.Log.Info("error from handlePrePostDs")
 			}
@@ -385,7 +388,7 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 		preInstallDs := r.makeHookDaemonset(PreInstallOperation)
 		r.Log.Info("ds = ", "daemonset", preInstallDs)
 		res, err := r.handlePrePostDs(preInstallDs, map[string]string{"cc-preinstall/done": "true"})
-		if res.Requeue == true {
+		if res.Requeue {
 			r.Log.Info("requeue request from handlePrePostDs")
 			return res, err
 		}
@@ -789,7 +792,7 @@ func (r *CcRuntimeReconciler) makeHookDaemonset(operation DaemonOperation) *apps
 	var (
 		runPrivileged       = true
 		runAsUser     int64 = 0
-		image               = ""
+		image               = "" //nolint: ineffassign
 		dsName        string
 		volumes       []corev1.Volume
 		volumeMounts  []corev1.VolumeMount
