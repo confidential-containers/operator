@@ -1,0 +1,4 @@
+bases:
+- ../base
+
+nameSuffix: -sgx-mode-hw
