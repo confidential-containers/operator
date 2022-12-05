@@ -4,7 +4,7 @@ ARG IMG_NAME
 ARG IMG_VERSION
 
 # Build the manager binary
-FROM ${IMG_NAME:-docker.io/bitnami/golang}:${IMG_VERSION:-1.18} as builder
+FROM ${IMG_NAME:-golang}:${IMG_VERSION:-1.18} as builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
