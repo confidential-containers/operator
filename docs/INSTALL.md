@@ -4,24 +4,19 @@
 - Ensure a minimum of 8GB RAM and 2 vCPU for the Kubernetes cluster node
 - Only containerd runtime based Kubernetes clusters are supported with the current Confidential Containers (CoCo) release
 - The minimum Kubernetes version should be 1.24.
+- Ensure KUBECONFIG points to the target Kubernetes cluster.
 - Ensure at least one Kubernetes node in the cluster is having the label `node-role.kubernetes.io/worker=`
   ```
   kubectl label node $NODENAME node-role.kubernetes.io/worker=
   ```
-- Ensure KUBECONFIG points to the target Kubernetes cluster.
 
 ## Deploy the Operator
 
-Deploy the operator by running the following command where `<RELEASE_VERSION>` needs to be substituted
-with the desired [release tag](https://github.com/confidential-containers/operator/tags).
+Deploy the operator by running the following command where `<RELEASE_VERSION>` needs to be substituted with the desired [release tag](https://github.com/confidential-containers/operator/tags). For example, to deploy the `v0.2.0` release run: `export RELEASE_VERSION="v0.2.0"`.
 
 ```
-kubectl apply -k github.com/confidential-containers/operator/config/release?ref=<RELEASE_VERSION>
-```
-
-For example, to deploy the `v0.2.0` release run:
-```
-kubectl apply -k github.com/confidential-containers/operator/config/release?ref=v0.2.0
+export RELEASE_VERSION=<RELEASE_VERSION>
+kubectl apply -k "github.com/confidential-containers/operator/config/release?ref=${RELEASE_VERSION}"
 ```
 
 The operator deploys all resources under `confidential-containers-system` namespace.
@@ -34,7 +29,7 @@ kubectl get pods -n confidential-containers-system --watch
 
 ### Custom Resource Definition (CRD)
 
-The operator is responsible for creating the custom resource definition (CRD) which is 
+The operator is responsible for creating the custom resource definition (CRD) which is
 then used for creating a custom resource (CR).
 
 The operator creates the `ccruntime` CRD as can be observed in the following command:
@@ -95,10 +90,11 @@ You can also see the details of the `ccruntime` CRD in the following [file](http
 Creating a custom resource installs the required CC runtime pieces into the cluster node and creates the RuntimeClasses
 
 ```
-kubectl apply  -f https://raw.githubusercontent.com/confidential-containers/operator/main/config/samples/ccruntime.yaml
+kubectl apply -f https://raw.githubusercontent.com/confidential-containers/operator/main/config/samples/ccruntime.yaml
 ```
 
-Wait until each pod has the STATUS of Running.
+Wait until each pod has the `STATUS` as `Running`:
+
 ```
 kubectl get pods -n confidential-containers-system --watch
 ```
@@ -110,7 +106,9 @@ kubectl get pods -n confidential-containers-system --watch
 ```
 kubectl get pods -n confidential-containers-system
 ```
-A successful install should show all PODs with "Running" status
+
+A successful install should show `STATUS` field of all pods as `Running`.
+
 ```
 NAME                                              READY   STATUS    RESTARTS   AGE
 cc-operator-controller-manager-5df7584679-kffzf   2/2     Running   0          21m
@@ -123,7 +121,9 @@ cc-operator-pre-install-daemon-rtdls              1/1     Running   0          7
 ```
 kubectl get runtimeclass
 ```
-A successful install should show the following `RuntimeClasses`
+
+A successful install should show the following `RuntimeClasses`.
+
 ```
 NAME            HANDLER         AGE
 kata            kata            9m55s
@@ -136,7 +136,7 @@ kata-qemu-sev   kata-qemu-sev   9m55s
 
 ## Changing Runtime bundle
 
-You can change the runtime payload when creating the CR by changing the `payloadImage` attribute in the 
+You can change the runtime payload when creating the CR by changing the `payloadImage` attribute in the
 [manifest yaml](https://github.com/confidential-containers/operator/blob/main/config/samples/ccruntime.yaml#L14)
 
 
@@ -148,6 +148,7 @@ kubectl delete  -f https://raw.githubusercontent.com/confidential-containers/ope
 ```
 
 ### Delete the Operator
+
 ```
-kubectl delete -k github.com/confidential-containers/operator/config/release?ref=<RELEASE_VERSION>
+kubectl delete -k "github.com/confidential-containers/operator/config/release?ref=${RELEASE_VERSION}"
 ```
