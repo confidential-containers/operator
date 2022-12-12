@@ -72,27 +72,6 @@ run_non_tee_tests() {
 	local runtimeclass="$1"
 	local aa_kbc="${2:-"offline_fs_kbc"}"
 
-	# Results for agent_image.bats:
-	#
-	# ok 1 [cc][agent][kubernetes][containerd] Test can pull an unencrypted image inside the guest
-	# ok 2 [cc][agent][kubernetes][containerd] Test can pull a unencrypted signed image from a protected registry
-	# not ok 3 [cc][agent][kubernetes][containerd] Test cannot pull an unencrypted unsigned image from a protected registry
-	# ok 4 [cc][agent][kubernetes][containerd] Test can pull an unencrypted unsigned image from an unprotected registry
-	# not ok 5 [cc][agent][kubernetes][containerd] Test unencrypted signed image with unknown signature is rejected
-
-	# Results for agent_image_encrypted.bats
-	#
-	# ok 1 [cc][agent][kubernetes][containerd] Test can pull an encrypted image inside the guest with decryption key
-	# ok 2 [cc][agent][kubernetes][containerd] Test cannot pull an encrypted image inside the guest without decryption key
-
-	local tests_passing="Test can pull an unencrypted image inside the guest"
-	tests_passing+="|Test can pull a unencrypted signed image from a protected registry"
-	tests_passing+="|Test can pull an unencrypted unsigned image from an unprotected registry"
-	tests_passing+="|Test cannot pull an encrypted image inside the guest without decryption key"
-	tests_passing+="|Test can pull an encrypted image inside the guest with decryption key"
-	tests_passing+="|Test can uninstall the operator"
-	tests_passing+="|Test can reinstall the operator"
-
 	# This will hopefully make the pods created by the tests to use
 	# the $runtimeclass.
 	export RUNTIMECLASS="$runtimeclass"
@@ -110,7 +89,7 @@ run_non_tee_tests() {
 	sed -i "s#kata-runtime kata-env#kata-runtime --config $runtime_config_file kata-env#g" \
 		../../../lib/common.bash
 
-	bats -f "$tests_passing" \
+	bats \
 		"agent_image.bats" \
 		"agent_image_encrypted.bats" \
 		"${script_dir}/operator_tests.bats"
