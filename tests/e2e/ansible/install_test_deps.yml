@@ -37,13 +37,11 @@
           creates: /usr/local/go
           dest: /usr/local
           remote_src: yes
-        register: go_install
       - name: Create link to go binary
         file:
           src: /usr/local/go/bin/go
           dest: /usr/local/bin/go
           state: link
-        when: go_install.changed == True
     #
     # Undo the installation.
     #
