@@ -43,6 +43,8 @@ install_operator() {
 	fi
 
 	pushd "$project_dir" >/dev/null
+	# We should use a locally built image for operator.
+	sed -i "s~\(.*newName: \).*~\1${IMG}~g" config/manager/kustomization.yaml
 	kubectl apply -k config/default
 	popd >/dev/null
 
@@ -64,8 +66,9 @@ install_operator() {
 # Install the CC runtime.
 #
 install_ccruntime() {
+	local runtimeclass="${RUNTIMECLASS:-kata-qemu}"
 	pushd "$project_dir" >/dev/null
-	kubectl create -f config/samples/ccruntime.yaml
+	kubectl create -f config/samples/ccruntime${ccruntime_file_suffix}.yaml
 	popd >/dev/null
 
 	local pod=""
@@ -84,8 +87,15 @@ install_ccruntime() {
 		fi
 	done
 
-	# TODO: check the runtime is up.
-	# kubectl get runtimeclass
+	# Check if the runtime is up.
+	# There could be a case where it is not even if the pods above are running.
+	cmd="kubectl get runtimeclass | grep -q ${runtimeclass}"
+	if ! wait_for_process 300 30 "$cmd"; then
+		echo "ERROR: runtimeclass ${runtimeclass} is not up"
+		return 1
+	fi
+	# To keep operator running, we should resume registry stopped during containerd restart.
+	start_local_registry
 }
 
 # Start a local registry where images can be stored.
@@ -111,7 +121,7 @@ start_local_registry() {
 #
 uninstall_operator() {
 	pushd "$project_dir" >/dev/null
-	kubectl delete -f config/samples/ccruntime.yaml
+	kubectl delete -f config/samples/ccruntime${ccruntime_file_suffix}.yaml
 	kubectl delete -k config/default
 	popd >/dev/null
 }
@@ -130,6 +140,10 @@ usage() {
 }
 
 main() {
+	ccruntime_file_suffix=""
+	if [ "$(uname -m)" = "s390x" ]; then
+		ccruntime_file_suffix="-s390x"
+	fi
 	if [ $# -eq 0 ]; then
 		build_operator
 		install_operator

@@ -95,6 +95,10 @@ run_non_tee_tests() {
 	# This will hopefully make the pods created by the tests to use
 	# the $runtimeclass.
 	export RUNTIMECLASS="$runtimeclass"
+	# This will be extended further to export differently based on a type of runtimeclass.
+	# At the time of writing, it is assumed that all non-tee tests use offline_fs_kbc.
+	# Discussion: https://github.com/confidential-containers/operator/pull/142#issuecomment-1359349595
+	export AA_KBC="offline_fs_kbc"
 
 	# TODO: this is a workaround for the tests that rely on `kata-runtime kata-env`
 	# to get the path to kata's configuration.toml and image files. Without this

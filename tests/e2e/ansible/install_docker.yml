@@ -29,7 +29,7 @@
         state: present
     - name: Add docker repo
       apt_repository:
-        repo: "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+        repo: "deb [arch={{ target_arch }} signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
         filename: docker
         update_cache: yes
         state: present
