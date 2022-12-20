@@ -16,7 +16,7 @@
       - name: Download and extract Go tarball
         unarchive:
           # TODO: use facts
-          src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz
+          src: https://go.dev/dl/go{{ go_version }}.linux-{{ target_arch }}.tar.gz
           creates: /usr/local/go
           dest: /usr/local
           remote_src: yes
@@ -28,7 +28,7 @@
     - name: Install the operator-sdk
       get_url:
         # TODO: use facts
-        url: https://github.com/operator-framework/operator-sdk/releases/download/{{ operator_sdk_version }}/operator-sdk_linux_amd64
+        url: https://github.com/operator-framework/operator-sdk/releases/download/{{ operator_sdk_version }}/operator-sdk_linux_{{ target_arch }}
         dest: /usr/local/bin/operator-sdk
         mode: '+x'
     - import_tasks: "install_docker.yml"

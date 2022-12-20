@@ -94,6 +94,13 @@ function main() {
 		restart_systemd_service
 		;;
 	uninstall)
+		# Adjustment for s390x (clefos:7)
+		# It is identified that a node is not labeled during post-uninstall,
+		# if the function is called after container engine is restarted by systemctl.
+		# This results in having the uninstallation not triggered.
+		if [ "$(uname -m)" = "s390x" ];
+			label_node "${action}"
+		fi
 		uninstall_artifacts
 		;;
 	*)

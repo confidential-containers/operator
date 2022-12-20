@@ -33,7 +33,7 @@
       - name: Download and extract Go tarball
         unarchive:
           # TODO: use facts
-          src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz
+          src: https://go.dev/dl/go{{ go_version }}.linux-{{ target_arch }}.tar.gz
           creates: /usr/local/go
           dest: /usr/local
           remote_src: yes

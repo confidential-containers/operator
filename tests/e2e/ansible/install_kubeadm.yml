@@ -32,18 +32,18 @@
     - name: Install CNI plugins
       unarchive:
         # TODO: use facts
-        src: "https://github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-amd64-{{ cni_version }}.tgz"
+        src: "https://github.com/containernetworking/plugins/releases/download/{{ cni_version }}/cni-plugins-linux-{{ target_arch  }}-{{ cni_version }}.tgz"
         dest: "{{ cni_home }}/bin"
         remote_src: yes
     - name: Install crictl
       unarchive:
-        src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ k8s_version }}/crictl-{{ k8s_version }}-linux-amd64.tar.gz"
+        src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ k8s_version }}/crictl-{{ k8s_version }}-linux-{{ target_arch  }}.tar.gz"
         creates: /usr/local/bin/crictl
         dest: /usr/local/bin
         remote_src: yes
     - name: Install kube binaries
       get_url:
-        url: https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/amd64/{{ item }}
+        url: https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/{{ target_arch  }}/{{ item }}
         dest: /usr/local/bin
         mode: '+x'
       with_items:
