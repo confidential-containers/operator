@@ -36,7 +36,7 @@ make install && make deploy
 
 ## Create Custom Resource (CR)
 ```
-kubectl create -f config/samples/ccruntime.yaml
+kubectl create -k config/samples/ccruntime/default
 ```
 
 ## Uninstalling Operator

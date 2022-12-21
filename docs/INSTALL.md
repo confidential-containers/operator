@@ -87,10 +87,13 @@ You can also see the details of the `ccruntime` CRD in the following [file](http
 
 ## Create Custom Resource (CR)
 
-Creating a custom resource installs the required CC runtime pieces into the cluster node and creates the RuntimeClasses
+Creating a custom resource installs the required CC runtime pieces into the cluster node and creates the RuntimeClasses.
+
+The default CR can be created as shown below where `<RELEASE_VERSION>` needs to be substituted with the
+desired [release tag](https://github.com/confidential-containers/operator/tags):
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/confidential-containers/operator/main/config/samples/ccruntime.yaml
+kubectl apply -k github.com/confidential-containers/operator/config/samples/ccruntime/default?ref=<RELEASE_VERSION>
 ```
 
 Wait until each pod has the `STATUS` as `Running`:
@@ -136,15 +139,27 @@ kata-qemu-sev   kata-qemu-sev   9m55s
 
 ## Changing Runtime bundle
 
-You can change the runtime payload when creating the CR by changing the `payloadImage` attribute in the
-[manifest yaml](https://github.com/confidential-containers/operator/blob/main/config/samples/ccruntime.yaml#L14)
+You can change the runtime payload when creating the CR by creating a new [kustomize](https://kustomize.io) overlay
+as shown below, where `<MY_CUSTOM_CR>`, `<MY_PAYLOAD>`, and `<TAG>` needs to be changed according to your payload.
 
+```
+make kustomize
+cp -r config/samples/ccruntime/default config/samples/ccruntime/<MY_CUSTOM_CR>
+cd config/samples/ccruntime/<MY_CUSTOM_CR>
+../../../../bin/kustomize edit set image quay.io/confidential-containers/runtime-payload=<MY_PAYLOAD>:<TAG>
+```
+
+Then install the new CR as:
+
+```
+kubectl apply -k config/samples/ccruntime/<MY_CUSTOM_CR>
+```
 
 ## Uninstallation
 
 ### Delete the CR
 ```
-kubectl delete  -f https://raw.githubusercontent.com/confidential-containers/operator/main/config/samples/ccruntime.yaml
+kubectl delete -k github.com/confidential-containers/operator/config/samples/ccruntime/default?ref=<RELEASE_VERSION>
 ```
 
 ### Delete the Operator
