@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+nameSuffix: -sample
+
+resources:
+- ../base
+
+images:
+- name: quay.io/confidential-containers/container-engine-for-cc-payload
+  newTag: 1034f9fcf947b22eea080a6f77d8e164e2369849
+- name: quay.io/confidential-containers/runtime-payload
+  newTag: kata-containers-5b7009f2f9cdb39099b97a4f868b53ec9f3c383f
+
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/config/runtimeClassNames
+      value: ["kata", "kata-clh", "kata-clh-tdx", "kata-clh-tdx-eaa-kbc", "kata-qemu", "kata-qemu-tdx", "kata-qemu-tdx-eaa-kbc", "kata-qemu-sev"]
+  target:
+    kind: CcRuntime

@@ -1,7 +1,7 @@
 apiVersion: confidentialcontainers.org/v1beta1
 kind: CcRuntime
 metadata:
-  name: ccruntime-sample
+  name: ccruntime
 spec:
   # Add fields here
   runtimeName: kata
@@ -10,7 +10,7 @@ spec:
       node-role.kubernetes.io/worker: ""
   config:
     installType: bundle
-    payloadImage: quay.io/confidential-containers/runtime-payload-ci:kata-containers-latest
+    payloadImage: quay.io/confidential-containers/runtime-payload:kata-containers
     installDoneLabel:
       katacontainers.io/kata-runtime: "true"
     uninstallDoneLabel:
@@ -53,9 +53,9 @@ spec:
     # Uncomment and add the required RuntimeClassNames to be created
     # If this is commented, then the operator creates 3 default runtimeclasses "kata", "kata-clh", "kata-qemu"
     runtimeClassNames: 
-      ["kata", "kata-qemu"]
+      [""]
     postUninstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload:s390x-f0c7fc73c97e0a7222eb8b39a13b3cca16a9a5c1
+      image: quay.io/confidential-containers/container-engine-for-cc-payload
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts
@@ -83,7 +83,7 @@ spec:
             type: ""
           name: systemd
     preInstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload:s390x-f0c7fc73c97e0a7222eb8b39a13b3cca16a9a5c1
+      image: quay.io/confidential-containers/container-engine-for-cc-payload
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts

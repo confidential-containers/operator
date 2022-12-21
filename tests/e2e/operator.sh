@@ -68,7 +68,7 @@ install_operator() {
 install_ccruntime() {
 	local runtimeclass="${RUNTIMECLASS:-kata-qemu}"
 	pushd "$project_dir" >/dev/null
-	kubectl create -f config/samples/ccruntime${ccruntime_file_suffix}.yaml
+	kubectl create -k config/samples/ccruntime/${ccruntime_overlay}
 	popd >/dev/null
 
 	local pod=""
@@ -121,7 +121,7 @@ start_local_registry() {
 #
 uninstall_operator() {
 	pushd "$project_dir" >/dev/null
-	kubectl delete -f config/samples/ccruntime${ccruntime_file_suffix}.yaml
+	kubectl delete -k config/samples/ccruntime/${ccruntime_overlay}
 	kubectl delete -k config/default
 	popd >/dev/null
 }
@@ -140,9 +140,9 @@ usage() {
 }
 
 main() {
-	ccruntime_file_suffix=""
+	ccruntime_overlay="default"
 	if [ "$(uname -m)" = "s390x" ]; then
-		ccruntime_file_suffix="-s390x"
+		ccruntime_overlay="s390x"
 	fi
 	if [ $# -eq 0 ]; then
 		build_operator

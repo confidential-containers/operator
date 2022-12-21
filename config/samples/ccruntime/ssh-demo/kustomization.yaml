@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+nameSuffix: -ssh-demo
+
+resources:
+- ../base
+
+images:
+- name: quay.io/confidential-containers/runtime-payload
+  newTag: kata-containers-ssh-demo-v0.2.0
+- name: quay.io/confidential-containers/container-engine-for-cc-payload
+  newTag: 1034f9fcf947b22eea080a6f77d8e164e2369849
+
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/config/runtimeClassNames
+      value: ["kata", "kata-clh", "kata-qemu"]
+  target:
+    kind: CcRuntime
+

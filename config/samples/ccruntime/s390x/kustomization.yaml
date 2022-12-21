@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+nameSuffix: -s390x
+
+resources:
+- ../base
+
+images:
+- name: quay.io/confidential-containers/runtime-payload
+  newName: quay.io/confidential-containers/runtime-payload-ci
+  newTag: kata-containers-latest
+- name: quay.io/confidential-containers/container-engine-for-cc-payload
+  newTag: s390x-f0c7fc73c97e0a7222eb8b39a13b3cca16a9a5c1
+
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/config/runtimeClassNames
+      value: ["kata", "kata-qemu"]
+  target:
+    kind: CcRuntime
