@@ -4,6 +4,7 @@
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
 VERSION ?= 0.0.1
+ARCH = $(shell uname -m)
 
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "candidate,fast,stable")
@@ -58,6 +59,24 @@ else
 GOBIN=$(shell go env GOBIN)
 endif
 
+ifeq ($(ARCH),s390x)
+K8S_VERSION=v1.24.2
+ETCD_VERSION=v3.5.4
+ETCD_BASE_NAME=etcd-$(ETCD_VERSION)-linux-$(ARCH)
+KUBEBUILDER_PATH=$${PWD}/kubebuilder-tools/bin
+# ATM, there is no s390x support for kubebuilder-tools.
+# We need to prepare core binaries without envtest.
+# $1: a path where binaries are installed
+define INSTALL_KUBEBUILDER_TOOLS
+$(shell mkdir -p $1 && cd $1 && \
+curl -sLO https://dl.k8s.io/$(K8S_VERSION)/bin/linux/$(ARCH)/kube-apiserver && \
+curl -sLO https://dl.k8s.io/$(K8S_VERSION)/bin/linux/$(ARCH)/kubectl && \
+chmod +x kube-apiserver kubectl && \
+curl -sLO https://github.com/coreos/etcd/releases/download/$(ETCD_VERSION)/$(ETCD_BASE_NAME).tar.gz && \
+tar xzf $(ETCD_BASE_NAME).tar.gz && cp $(ETCD_BASE_NAME)/etcd . && rm -rf $(ETCD_BASE_NAME)*)
+endef
+endif
+
 # Setting SHELL to bash allows bash commands to be executed by recipes.
 # Options are set to exit when a recipe line exits non-zero or a piped command fails.
 SHELL = /usr/bin/env bash -o pipefail
@@ -103,7 +122,12 @@ vet: ## Run go vet against code.
 
 .PHONY: test
 test: manifests generate fmt vet envtest ## Run tests.
+ifeq ($(ARCH),s390x)
+	$(call INSTALL_KUBEBUILDER_TOOLS,$(KUBEBUILDER_PATH))
+	KUBEBUILDER_ASSETS="$(KUBEBUILDER_PATH)" go test ./... -coverprofile cover.out
+else
 	KUBEBUILDER_ASSETS="$(shell $(ENVTEST) use $(ENVTEST_K8S_VERSION) -p path)" go test ./... -coverprofile cover.out
+endif
 
 ##@ Build
 

@@ -33,17 +33,15 @@
       - name: Download and extract Go tarball
         unarchive:
           # TODO: use facts
-          src: https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz
+          src: https://go.dev/dl/go{{ go_version }}.linux-{{ target_arch }}.tar.gz
           creates: /usr/local/go
           dest: /usr/local
           remote_src: yes
-        register: go_install
       - name: Create link to go binary
         file:
           src: /usr/local/go/bin/go
           dest: /usr/local/bin/go
           state: link
-        when: go_install.changed == True
     #
     # Undo the installation.
     #
