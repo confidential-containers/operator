@@ -70,6 +70,7 @@ usage() {
 # tests for CC without specific hardware support
 run_non_tee_tests() {
 	local runtimeclass="$1"
+	local aa_kbc="${2:-"offline_fs_kbc"}"
 
 	# Results for agent_image.bats:
 	#
@@ -98,7 +99,7 @@ run_non_tee_tests() {
 	# This will be extended further to export differently based on a type of runtimeclass.
 	# At the time of writing, it is assumed that all non-tee tests use offline_fs_kbc.
 	# Discussion: https://github.com/confidential-containers/operator/pull/142#issuecomment-1359349595
-	export AA_KBC="offline_fs_kbc"
+	export AA_KBC="${aa_kbc}"
 
 	# TODO: this is a workaround for the tests that rely on `kata-runtime kata-env`
 	# to get the path to kata's configuration.toml and image files. Without this
@@ -138,9 +139,13 @@ main() {
 
 	# Run tests.
 	case $runtimeclass in
-		kata-qemu|kata-clh|kata-qemu-tdx|kata-clh-tdx)
-			echo "INFO: Running non-TEE tests for $runtimeclass"
+		kata-qemu|kata-clh|kata-clh-tdx)
+			echo "INFO: Running non-TEE tests for $runtimeclass using OfflineFS KBC"
 			run_non_tee_tests "$runtimeclass"
+			;;
+		kata-qemu-tdx)
+			echo "INFO: Running non-TEE tests for $runtimeclass using EAA KBC"
+			run_non_tee_tests "$runtimeclass" "eaa_kbc"
 			;;
 		kata-qemu-sev)
 			echo "INFO: Running kata-qemu-sev tests"
