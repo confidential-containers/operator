@@ -120,3 +120,7 @@ spec:
             fieldPath: spec.nodeName
       - name: "CONFIGURE_CC"
         value: "yes"
+      - name: "DECRYPT_CONFIG"
+        value: "ewogICAgImtleV9wcm92aWRlciI6ICJwcm92aWRlcjphdHRlc3RhdGlvbi1hZ2VudDplYWFfa2JjOjoxNzIuMTcuMy4xMTM6MTIzNCIsCiAgICAic2VjdXJpdHlfdmFsaWRhdGUiOiB0cnVlCn0K"
+      - name: "OCICRYPT_CONFIG"
+        value: "ewogICAgImtleS1wcm92aWRlcnMiOiB7CiAgICAgICAgImF0dGVzdGF0aW9uLWFnZW50IjogewogICAgICAgICAgICAibmF0aXZlIjogImF0dGVzdGF0aW9uLWFnZW50IgogICAgICAgIH0KICAgIH0KfQo="
