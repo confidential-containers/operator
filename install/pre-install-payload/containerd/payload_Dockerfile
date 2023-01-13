@@ -3,7 +3,7 @@ FROM ${IMAGE:-docker.io/library/centos}:7
 
 ARG ARCH
 ARG VERSION
-ARG SYSTEMD_ARTIFACTS=./output/containerd-for-cc-override.conf
+ARG SYSTEMD_ARTIFACTS=./containerd/containerd-for-cc-override.conf
 ARG CONTAINER_ENGINE_ARTIFACTS=./scripts
 ARG DESTINATION=/opt/confidential-containers-pre-install-artifacts
 
