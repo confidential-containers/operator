@@ -1,3 +1,0 @@
-[Service]
-ExecStart=
-ExecStart=/opt/confidential-containers/bin/@CONTAINER_ENGINE@
