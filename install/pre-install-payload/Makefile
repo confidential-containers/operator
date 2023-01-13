@@ -1,4 +1,4 @@
-CONTAINERD_VERSION=v1.6.6.0
+CONTAINERD_VERSION = 1.6.8.1
 
 SYSTEMD_DROP_IN_CONFIG = configs/container-engine-for-cc-override.conf.in
 
@@ -17,4 +17,4 @@ containerd-systemd-drop-in: $(SYSTEMD_DROP_IN_CONFIG)
 		$< > $(OUTPUT_DIR)/containerd-for-cc-override.conf
 
 containerd-container-image: containerd-systemd-drop-in
-	$(BASH) -x containerd/payload.sh
+	containerd_version=$(CONTAINERD_VERSION) $(BASH) -x containerd/payload.sh
