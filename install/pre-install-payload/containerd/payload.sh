@@ -22,12 +22,14 @@ function setup_env_for_arch() {
 		"linux/amd64") 
 			image="docker.io/library/centos"
 			kernel_arch="x86_64"
+			golang_arch="amd64"
 			;;
 		"linux/s390x")
 			image="docker.io/library/clefos"
 			kernel_arch="s390x"
+			golang_arch="s390x"
 			;;
-		(*) echo "$1 is not supported" && exit 1
+		(*) echo "$1 is not supported" > /dev/stderr && exit 1
 	esac
 		
 }
@@ -42,7 +44,8 @@ function build_containerd_payload() {
 
 		echo "Building containerd payload image for ${arch}"
 		docker buildx build \
-			--build-arg ARCH="${kernel_arch}" \
+			--build-arg ARCH="${golang_arch}" \
+			--build-arg VERSION="${containerd_version}" \
 			-f "containerd/payload_Dockerfile" \
 			-t "${registry}:${kernel_arch}-${tag}" \
 			--platform="${arch}" \

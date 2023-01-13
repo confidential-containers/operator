@@ -10,14 +10,11 @@ MKDIR = mkdir
 
 containerd: containerd-container-image
 
-containerd-bin:
-	$(BASH) -x containerd/build.sh
-
 containerd-systemd-drop-in: $(SYSTEMD_DROP_IN_CONFIG)
 	$(MKDIR) -p $(OUTPUT_DIR)
 	$(SED) \
 		-e "s|@CONTAINER_ENGINE@|containerd|g" \
 		$< > $(OUTPUT_DIR)/containerd-for-cc-override.conf
 
-containerd-container-image: containerd-bin containerd-systemd-drop-in
+containerd-container-image: containerd-systemd-drop-in
 	$(BASH) -x containerd/payload.sh
