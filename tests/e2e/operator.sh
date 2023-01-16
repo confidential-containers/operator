@@ -24,6 +24,18 @@ export IMG=localhost:5000/cc-operator
 build_operator () {
 	start_local_registry
 
+        # Note: git config --global --add safe.directory will always
+        # append the target to .gitconfig without checking the
+        # existence of the target,
+        # so it's better to check it before adding the target repo.
+        local sd="$(git config --global --get safe.directory ${project_dir} || true)"
+        if [ "${sd}" == "" ]; then
+                echo "Add repo ${project_dir} to git's safe.directory"
+                git config --global --add safe.directory "${project_dir}"
+        else
+                echo "Repo ${project_dir} already in git's safe.directory"
+        fi
+
 	pushd "$project_dir" >/dev/null
 	make docker-build
 	make docker-push
