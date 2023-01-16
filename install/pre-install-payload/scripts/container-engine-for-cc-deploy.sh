@@ -98,7 +98,7 @@ function main() {
 		# It is identified that a node is not labeled during post-uninstall,
 		# if the function is called after container engine is restarted by systemctl.
 		# This results in having the uninstallation not triggered.
-		if [ "$(uname -m)" = "s390x" ];
+		if [ "$(uname -m)" = "s390x" ]; then
 			label_node "${action}"
 		fi
 		uninstall_artifacts
