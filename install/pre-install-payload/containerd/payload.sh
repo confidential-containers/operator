@@ -14,7 +14,7 @@ registry="${registry:-quay.io/confidential-containers/container-engine-for-cc-pa
 
 supported_arches=(
 	"linux/amd64"
-#	"linux/s390x"
+	"linux/s390x"
 )
 
 function setup_env_for_arch() {
@@ -57,13 +57,13 @@ function build_containerd_payload() {
 
 	docker manifest create \
 		${registry}:${tag} \
-		--amend ${registry}:x86_64-${tag}
-#		--amend ${registry}:s390x-${tag}
+		--amend ${registry}:x86_64-${tag} \
+		--amend ${registry}:s390x-${tag}
 
 	docker manifest create \
 		${registry}:latest \
-		--amend ${registry}:x86_64-${tag}
-#		--amend ${registry}:s390x-${tag}
+		--amend ${registry}:x86_64-${tag} \
+		--amend ${registry}:s390x-${tag}
 
 	docker manifest push ${registry}:${tag}
 	docker manifest push ${registry}:latest
