@@ -11,7 +11,7 @@ images:
   newName: quay.io/confidential-containers/runtime-payload-ci
   newTag: kata-containers-latest
 - name: quay.io/confidential-containers/container-engine-for-cc-payload
-  newTag: s390x-f0c7fc73c97e0a7222eb8b39a13b3cca16a9a5c1
+  newTag: 1def978fdf6b0cb2383d43970c3dc484df3cad54
 
 patches:
 - patch: |-
