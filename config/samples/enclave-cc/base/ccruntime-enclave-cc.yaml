@@ -57,7 +57,7 @@ spec:
     cleanupCmd: ["/opt/enclave-cc-artifacts/scripts/enclave-cc-deploy.sh", "reset"]
     runtimeClassNames: ["enclave-cc"]
     postUninstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload:1034f9fcf947b22eea080a6f77d8e164e2369849
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:1def978fdf6b0cb2383d43970c3dc484df3cad54
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts
@@ -85,7 +85,7 @@ spec:
             type: ""
           name: systemd
     preInstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload:1034f9fcf947b22eea080a6f77d8e164e2369849
+      image: quay.io/confidential-containers/container-engine-for-cc-payload:1def978fdf6b0cb2383d43970c3dc484df3cad54
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts
