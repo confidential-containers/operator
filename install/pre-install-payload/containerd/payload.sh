@@ -46,6 +46,7 @@ function build_containerd_payload() {
 		docker buildx build \
 			--build-arg ARCH="${golang_arch}" \
 			--build-arg VERSION="${containerd_version}" \
+			--build-arg IMAGE=${image} \
 			-f "containerd/Dockerfile" \
 			-t "${registry}:${kernel_arch}-${tag}" \
 			--platform="${arch}" \
