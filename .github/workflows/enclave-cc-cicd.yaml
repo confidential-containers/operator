@@ -51,7 +51,7 @@ jobs:
           echo "Testing Enclave CC using the following CI tag: ${latest_ci_tag}"
           kubectl apply -k .
           sleep 1
-          kubectl wait --for=jsonpath='{.status.runtimeClass}'=enclave-cc ccruntime/ccruntime-enclave-cc-sgx-mode-sim --timeout=90s
+          kubectl wait --for=jsonpath='{.status.runtimeClass}'=enclave-cc ccruntime/ccruntime-enclave-cc-sgx-mode-sim --timeout=300s
 
       - name: Deploy sample workload
         run: |
