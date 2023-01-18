@@ -9,7 +9,7 @@ spec:
       node-role.kubernetes.io/worker: ""
   config:
     installType: bundle
-    payloadImage: quay.io/confidential-containers/runtime-payload:enclave-cc-HW-v0.2.0
+    payloadImage: quay.io/confidential-containers/runtime-payload:enclave-cc-HW-v0.3.1
     installDoneLabel:
       confidentialcontainers.org/enclave-cc: "true"
     uninstallDoneLabel:
@@ -121,6 +121,6 @@ spec:
       - name: "CONFIGURE_CC"
         value: "yes"
       - name: "DECRYPT_CONFIG"
-        value: "ewogICAgImtleV9wcm92aWRlciI6ICJwcm92aWRlcjphdHRlc3RhdGlvbi1hZ2VudDplYWFfa2JjOjoxNzIuMTcuMy4xMTM6MTIzNCIsCiAgICAic2VjdXJpdHlfdmFsaWRhdGUiOiB0cnVlCn0K"
+        value: "ewogICAgImtleV9wcm92aWRlciI6ICJwcm92aWRlcjphdHRlc3RhdGlvbi1hZ2VudDpzYW1wbGVfa2JjOjoxMjcuMC4wLjE6NTAwMDAiLAogICAgInNlY3VyaXR5X3ZhbGlkYXRlIjogZmFsc2UKfQo="
       - name: "OCICRYPT_CONFIG"
         value: "ewogICAgImtleS1wcm92aWRlcnMiOiB7CiAgICAgICAgImF0dGVzdGF0aW9uLWFnZW50IjogewogICAgICAgICAgICAibmF0aXZlIjogImF0dGVzdGF0aW9uLWFnZW50IgogICAgICAgIH0KICAgIH0KfQo="
