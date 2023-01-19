@@ -10,7 +10,7 @@ images:
 - name: quay.io/confidential-containers/runtime-payload
   newTag: kata-containers-ssh-demo-v0.2.0
 - name: quay.io/confidential-containers/container-engine-for-cc-payload
-  newTag: 1def978fdf6b0cb2383d43970c3dc484df3cad54
+  newTag: 7c307c329cb501b7a80fa59f2df138c6c5042e29
 
 patches:
 - patch: |-
