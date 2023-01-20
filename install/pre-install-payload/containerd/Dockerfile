@@ -12,7 +12,7 @@ COPY ${CONTAINER_ENGINE_ARTIFACTS}/* ${DESTINATION}/scripts/
 
 RUN \
 apt-get update -y && \
-apt-get install -y curl && \
+apt-get install -y curl systemd && \
 curl -fOL --progress-bar https://github.com/confidential-containers/containerd/releases/download/v${VERSION}/containerd-${VERSION}-linux-${ARCH}.tar.gz && \
 tar xvzpf containerd-${VERSION}-linux-${ARCH}.tar.gz -C ${DESTINATION}/opt/confidential-containers && \
 rm -f containerd-${VERSION}-linux-${ARCH}.tar.gz && \
