@@ -17,6 +17,6 @@ patches:
 - patch: |-
     - op: replace
       path: /spec/config/runtimeClassNames
-      value: ["kata", "kata-clh", "kata-clh-tdx", "kata-qemu", "kata-qemu-tdx", "kata-qemu-sev"]
+      value: ["kata", "kata-clh", "kata-clh-tdx", "kata-qemu", "kata-qemu-tdx", "kata-qemu-sev", "kata-qemu-snp"]
   target:
     kind: CcRuntime
