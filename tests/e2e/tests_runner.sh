@@ -15,6 +15,7 @@ project_dir="$(readlink -f ${script_dir}/../..)"
 export GOPATH="$(mktemp -d)"
 tests_repo_dir="$GOPATH/src/github.com/kata-containers/tests"
 export CI=true
+export OPERATOR=true
 
 # TODO: Debug should be enabled in order for some tests to enable the console
 # debug and search for patterns on agent logs. Probably console debug should
