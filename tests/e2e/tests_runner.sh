@@ -72,9 +72,6 @@ run_non_tee_tests() {
 	local runtimeclass="$1"
 	local aa_kbc="${2:-"offline_fs_kbc"}"
 
-	# This will hopefully make the pods created by the tests to use
-	# the $runtimeclass.
-	export RUNTIMECLASS="$runtimeclass"
 	# This will be extended further to export differently based on a type of runtimeclass.
 	# At the time of writing, it is assumed that all non-tee tests use offline_fs_kbc.
 	# Discussion: https://github.com/confidential-containers/operator/pull/142#issuecomment-1359349595
@@ -108,6 +105,9 @@ main() {
 
 	clone_kata_tests
 
+	# This will make the pods created by the tests to use the $runtimeclass.
+	export RUNTIMECLASS="${runtimeclass}"
+
 	cd "${tests_repo_dir}/integration/kubernetes/confidential"
 
 	# Test scripts rely on kata-runtime so it should be reacheable on PATH.
@@ -127,7 +127,7 @@ main() {
 			run_non_tee_tests "$runtimeclass" "eaa_kbc"
 			;;
 		kata-qemu-sev)
-			echo "INFO: Running kata-qemu-sev tests"
+			echo "INFO: Running kata-qemu-sev tests for $runtimeclass"
 			run_kata_qemu_sev_tests
 			;;
 		*)
