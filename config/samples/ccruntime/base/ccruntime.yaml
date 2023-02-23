@@ -52,7 +52,7 @@ spec:
     cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
     # Uncomment and add the required RuntimeClassNames to be created
     # If this is commented, then the operator creates 3 default runtimeclasses "kata", "kata-clh", "kata-qemu"
-    runtimeClassNames: 
+    runtimeClassNames:
       [""]
     postUninstall:
       image: quay.io/confidential-containers/container-engine-for-cc-payload
@@ -87,6 +87,8 @@ spec:
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts
+        - mountPath: /opt/sev/
+          name: sev-artifacts
         - mountPath: /etc/systemd/system/
           name: etc-systemd-system
         - mountPath: /var/run/dbus
@@ -98,6 +100,10 @@ spec:
             path: /opt/confidential-containers/
             type: DirectoryOrCreate
           name: confidential-containers-artifacts
+        - hostPath:
+            path: /opt/sev/
+            type: DirectoryOrCreate
+          name: sev-artifacts
         - hostPath:
             path: /etc/systemd/system/
             type: ""

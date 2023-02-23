@@ -16,7 +16,7 @@ function get_container_engine() {
 		die "${container_engine} is not yet supported"
 	fi
 
-	echo "$container_engine"	
+	echo "$container_engine"
 }
 
 function set_container_engine() {
@@ -41,7 +41,7 @@ function uninstall_artifacts() {
 	rm -f /etc/systemd/system/${container_engine}.service.d/${container_engine}-for-cc-override.conf
 	echo "Removing the systemd drop-in file's directory, if empty"
 	[ -d /etc/systemd/system/${container_engine}.service.d ] && rmdir --ignore-fail-on-non-empty /etc/systemd/system/${container_engine}.service.d
-	
+
 	restart_systemd_service
 
 	echo "Removing the containerd binary"
@@ -65,9 +65,33 @@ label_node() {
 	uninstall)
 		kubectl label node "${NODE_NAME}" cc-postuninstall/done=true
 		;;
-	*)
-		;;
+	*) ;;
 	esac
+}
+
+function install_host_cert() {
+	echo "Installing SEV host certificate!"
+
+	local cert_path="/opt/sev/cert_chain.cert"
+
+	mkdir -p $(dirname ${cert_path})
+
+	# This is an AMD host.
+	if [[ -c "/dev/sev" ]]; then
+		# if $(sevctl ok snp >/dev/null); then
+		# 	# Use the snphost tool, which is still WIP.
+		# 	return 0
+		# elif $(sevctl ok es >/dev/null); then
+		if $(sevctl ok es >/dev/null); then
+			sevctl export --full "${cert_path}"
+			return 0
+		elif $(sevctl ok sev >/dev/null); then
+			sevctl export --full "${cert_path}"
+			return 0
+		else
+			die "AMD host does not support any of the SEV features!"
+		fi
+	fi
 }
 
 function print_help() {
@@ -90,6 +114,7 @@ function main() {
 
 	case "${action}" in
 	install)
+		install_host_cert
 		install_artifacts
 		restart_systemd_service
 		;;
@@ -109,7 +134,6 @@ function main() {
 	esac
 
 	label_node "${action}"
-
 
 	# It is assumed this script will be called as a daemonset. As a result, do
 	# not return, otherwise the daemon will restart and reexecute the script.
