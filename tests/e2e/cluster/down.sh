@@ -15,7 +15,7 @@ script_dir="$(dirname "$(readlink -f "$0")")"
 #
 reset_kubeadm() {
 	# TODO: make it configurable.
-	local cri_runtime_socket="/run/containerd/containerd.sock"
+	local cri_runtime_socket="unix:///run/containerd/containerd.sock"
 
 	kubeadm reset -f --cri-socket="${cri_runtime_socket}"
 
