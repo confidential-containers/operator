@@ -1,4 +1,4 @@
-name: Docker
+name: Publish operator release image when tagged
 
 # When an tag is created, build and push the multi-arch operator image with that version
 

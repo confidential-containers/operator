@@ -1,4 +1,4 @@
-name: Docker
+name: Publish operator latest image on push to main
 
 # When an push to `main` happens, build and push the multi-arch operator image to latest
 
