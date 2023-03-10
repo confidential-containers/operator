@@ -20,12 +20,10 @@ supported_arches=(
 function setup_env_for_arch() {
 	case "$1" in
 		"linux/amd64") 
-			image="docker.io/library/centos"
 			kernel_arch="x86_64"
 			golang_arch="amd64"
 			;;
 		"linux/s390x")
-			image="docker.io/library/clefos"
 			kernel_arch="s390x"
 			golang_arch="s390x"
 			;;
@@ -46,7 +44,6 @@ function build_containerd_payload() {
 		docker buildx build \
 			--build-arg ARCH="${golang_arch}" \
 			--build-arg VERSION="${containerd_version}" \
-			--build-arg IMAGE=${image} \
 			-f "containerd/Dockerfile" \
 			-t "${registry}:${kernel_arch}-${tag}" \
 			--platform="${arch}" \
