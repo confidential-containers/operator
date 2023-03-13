@@ -5,6 +5,7 @@ build_pkgs:
   ubuntu:
     - make
     - gcc
+    - qemu-user-static
   centos:
     - make
     - gcc
