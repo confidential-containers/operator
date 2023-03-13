@@ -29,6 +29,17 @@
                 path: bats-core
                 state: absent
           when: bats_exist.rc != 0
+    - name: Check kustomize is installed
+      shell: command -v kustomize >/dev/null 2>&1
+      register: kustomize_exist
+      ignore_errors: yes
+    - name: Install kustomize
+      shell: |
+        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+        cp -f ./kustomize /usr/local/bin
+      args:
+        creates: /usr/local/bin/kustomize
+      when: kustomize_exist.rc != 0
     - block:
       - name: Download and extract Go tarball
         unarchive:
@@ -56,3 +67,4 @@
             - /usr/local/bin/go
             - /usr/local/go
             - /usr/local/bin/bats
+            - /usr/local/bin/kustomize

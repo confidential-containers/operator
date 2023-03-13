@@ -32,6 +32,19 @@
         dest: /usr/local/bin/operator-sdk
         mode: '+x'
     - import_tasks: "install_docker.yml"
+      # Docker buildx relies on qemu-user-static to multi-arch builds, but
+      # qemu-user-static is not packaged for CentOS. Let's get it installed via
+      # https://github.com/multiarch/qemu-user-static
+    - name: Handle qemu-user-static installation on CentOS.
+      block:
+        - name: Check qemu-user-static is installed
+          shell: docker run --rm -t s390x/ubuntu:22.04 uname -m
+          register: qemu_user_static_exist
+          ignore_errors: yes
+        - name: Install qemu-user-static
+          shell: docker run --rm --privileged multiarch/qemu-user-static:7.2.0-1 --reset -p yes
+          when: qemu_user_static_exist.rc != 0
+      when: ansible_distribution == "CentOS"
     # Undo the installation.
     #
     - name: Uninstall build dependencies
