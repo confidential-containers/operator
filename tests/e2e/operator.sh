@@ -18,6 +18,7 @@ source "${script_dir}/lib.sh"
 readonly op_ns="confidential-containers-system"
 # There should be a registry running locally on port 5000.
 export IMG=localhost:5000/cc-operator
+export PRE_INSTALL_IMG=localhost:5000/container-engine-for-cc-payload
 
 # Build the operator and push images to a local registry.
 #
@@ -39,6 +40,17 @@ build_operator () {
 	pushd "$project_dir" >/dev/null
 	make docker-build
 	make docker-push
+	popd >/dev/null
+}
+
+# Build the container-engine-for-cc-payload and push images to a local registry.
+#
+build_pre_install_img() {
+	start_local_registry
+
+	pushd "${project_dir}/install/pre-install-payload" >/dev/null
+	make containerd registry="${PRE_INSTALL_IMG}" \
+		extra_docker_manifest_flags="--insecure"
 	popd >/dev/null
 }
 
@@ -79,8 +91,16 @@ install_operator() {
 #
 install_ccruntime() {
 	local runtimeclass="${RUNTIMECLASS:-kata-qemu}"
-	pushd "$project_dir" >/dev/null
-	kubectl create -k config/samples/ccruntime/${ccruntime_overlay}
+	local ccruntime_overlay_dir="${project_dir}/config/samples/ccruntime"
+	local overlay_dir="${ccruntime_overlay_dir}/${ccruntime_overlay}"
+
+	# Use the built pre-install image
+	kustomization_set_image  "${ccruntime_overlay_dir}/default" \
+		"quay.io/confidential-containers/container-engine-for-cc-payload" \
+		"${PRE_INSTALL_IMG}"
+
+	pushd "$overlay_dir" >/dev/null
+	kubectl create -k .
 	popd >/dev/null
 
 	local pod=""
@@ -108,6 +128,31 @@ install_ccruntime() {
 	fi
 	# To keep operator running, we should resume registry stopped during containerd restart.
 	start_local_registry
+}
+
+# Set image on a kustomize's kustomization.yaml.
+#
+# Parameters:
+#	$1 - path to the overlay directory
+#	$2 - name of the old image
+#	$3 - name of the new image
+#
+kustomization_set_image() {
+	local overlay_dir="$1"
+	local old="$2"
+	local new="$3"
+
+	pushd "$overlay_dir" >/dev/null
+	# The kustomize tool will silently add a new image name if the old one does not exist,
+	# and this can introduce false-positive on the tests. So let's check the old image really
+	# exist.
+	if ! grep -q "name: ${old}$" ./kustomization.yaml; then
+		echo "ERROR: expected image ${old} in ${overlay_dir}/kustomization.yaml"
+		return 1
+	fi
+
+	kustomize edit set image "${old}=${new}"
+	popd >/dev/null
 }
 
 # Start a local registry where images can be stored.
@@ -159,11 +204,15 @@ main() {
 	if [ $# -eq 0 ]; then
 		build_operator
 		install_operator
+		build_pre_install_img
 		install_ccruntime
 	else
 		case $1 in
 			-h|--help) usage && exit 0;;
-			build) build_operator;;
+			build)
+				build_operator
+				build_pre_install_img
+				;;
 			install)
 				install_operator
 				install_ccruntime
