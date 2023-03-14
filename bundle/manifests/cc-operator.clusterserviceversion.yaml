@@ -55,11 +55,11 @@ metadata:
                   "name": "kata-artifacts"
                 },
                 {
-                  "mountPath": "/var/run/dbus",
+                  "mountPath": "/var/run/dbus/system_bus_socket",
                   "name": "dbus"
                 },
                 {
-                  "mountPath": "/run/systemd",
+                  "mountPath": "/run/systemd/system",
                   "name": "systemd"
                 },
                 {
@@ -84,14 +84,14 @@ metadata:
                 },
                 {
                   "hostPath": {
-                    "path": "/var/run/dbus",
+                    "path": "/var/run/dbus/system_bus_socket",
                     "type": ""
                   },
                   "name": "dbus"
                 },
                 {
                   "hostPath": {
-                    "path": "/run/systemd",
+                    "path": "/run/systemd/system",
                     "type": ""
                   },
                   "name": "systemd"
@@ -117,11 +117,11 @@ metadata:
                     "name": "etc-systemd-system"
                   },
                   {
-                    "mountPath": "/var/run/dbus",
+                    "mountPath": "/var/run/dbus/system_bus_socket",
                     "name": "dbus"
                   },
                   {
-                    "mountPath": "/run/systemd",
+                    "mountPath": "/run/systemd/system",
                     "name": "systemd"
                   }
                 ],
@@ -142,14 +142,14 @@ metadata:
                   },
                   {
                     "hostPath": {
-                      "path": "/var/run/dbus",
+                      "path": "/var/run/dbus/system_bus_socket",
                       "type": ""
                     },
                     "name": "dbus"
                   },
                   {
                     "hostPath": {
-                      "path": "/run/systemd",
+                      "path": "/run/systemd/system",
                       "type": ""
                     },
                     "name": "systemd"
@@ -168,11 +168,11 @@ metadata:
                     "name": "etc-systemd-system"
                   },
                   {
-                    "mountPath": "/var/run/dbus",
+                    "mountPath": "/var/run/dbus/system_bus_socket",
                     "name": "dbus"
                   },
                   {
-                    "mountPath": "/run/systemd",
+                    "mountPath": "/run/systemd/system",
                     "name": "systemd"
                   }
                 ],
@@ -193,14 +193,14 @@ metadata:
                   },
                   {
                     "hostPath": {
-                      "path": "/var/run/dbus",
+                      "path": "/var/run/dbus/system_bus_socket",
                       "type": ""
                     },
                     "name": "dbus"
                   },
                   {
                     "hostPath": {
-                      "path": "/run/systemd",
+                      "path": "/run/systemd/system",
                       "type": ""
                     },
                     "name": "systemd"

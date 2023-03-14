@@ -30,9 +30,9 @@ Following is an example for Kata runtime depicting the key attributes.
         name: containerd-conf
       - mountPath: /opt/confidential-containers/
         name: kata-artifacts
-      - mountPath: /var/run/dbus
+      - mountPath: /var/run/dbus/system_bus_socket
         name: dbus
-      - mountPath: /run/systemd
+      - mountPath: /run/systemd/system
         name: systemd
       - mountPath: /usr/local/bin/
         name: local-bin
@@ -46,11 +46,11 @@ Following is an example for Kata runtime depicting the key attributes.
           type: DirectoryOrCreate
         name: kata-artifacts
       - hostPath:
-          path: /var/run/dbus
+          path: /var/run/dbus/system_bus_socket
           type: ""
         name: dbus
       - hostPath:
-          path: /run/systemd
+          path: /run/systemd/system
           type: ""
         name: systemd
       - hostPath:
