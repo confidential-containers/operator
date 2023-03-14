@@ -9,7 +9,7 @@ spec:
       node-role.kubernetes.io/worker: ""
   config:
     installType: bundle
-    payloadImage: quay.io/confidential-containers/runtime-payload:enclave-cc-HW-v0.4.0
+    payloadImage: quay.io/confidential-containers/runtime-payload-ci:enclave-cc-HW-4370700439f5524a60cf7a31c7c4f92bbe4dd655
     installDoneLabel:
       confidentialcontainers.org/enclave-cc: "true"
     uninstallDoneLabel:
@@ -21,9 +21,9 @@ spec:
         name: enclave-cc-conf
       - mountPath: /opt/confidential-containers/
         name: enclave-cc-artifacts
-      - mountPath: /var/run/dbus
+      - mountPath: /var/run/dbus/system_bus_socket
         name: dbus
-      - mountPath: /run/systemd
+      - mountPath: /run/systemd/system
         name: systemd
       - mountPath: /usr/local/bin/
         name: local-bin
@@ -41,11 +41,11 @@ spec:
           type: DirectoryOrCreate
         name: enclave-cc-artifacts
       - hostPath:
-          path: /var/run/dbus
+          path: /var/run/dbus/system_bus_socket
           type: ""
         name: dbus
       - hostPath:
-          path: /run/systemd
+          path: /run/systemd/system
           type: ""
         name: systemd
       - hostPath:
@@ -63,9 +63,9 @@ spec:
           name: confidential-containers-artifacts
         - mountPath: /etc/systemd/system/
           name: etc-systemd-system
-        - mountPath: /var/run/dbus
+        - mountPath: /var/run/dbus/system_bus_socket
           name: dbus
-        - mountPath: /run/systemd
+        - mountPath: /run/systemd/system
           name: systemd
       volumes:
         - hostPath:
