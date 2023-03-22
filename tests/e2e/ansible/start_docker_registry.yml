@@ -25,7 +25,7 @@
       docker_container:
         name: "{{ local_registry_name }}"
         # TODO: docker.io is troublesome as we can hit the pull limits.
-        image: docker.io/library/registry:latest
+        image: docker.io/library/registry:2.8.1
         ports:
           - "{{ local_registry_port }}:{{ local_registry_port }}"
         state: started
