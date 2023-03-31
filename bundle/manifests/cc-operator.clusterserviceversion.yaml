@@ -215,7 +215,8 @@ metadata:
                 "kata-qemu",
                 "kata-qemu-sev",
                 "kata-qemu-tdx",
-                "kata-qemu-tdx-eaa-kbc"
+                "kata-qemu-tdx-eaa-kbc",
+                "kata-remote"
               ],
               "uninstallCmd": [
                 "/opt/kata-artifacts/scripts/kata-deploy.sh",
