@@ -6,10 +6,15 @@ nameSuffix: -s390x
 resources:
 - ../default
 
+images:
+- name: quay.io/confidential-containers/runtime-payload
+  newName: quay.io/confidential-containers/runtime-payload-ci
+  newTag: kata-containers-128f0282e11fb33f648c0ecf1d75a40f13985e01
+
 patches:
 - patch: |-
     - op: replace
       path: /spec/config/runtimeClassNames
-      value: ["kata", "kata-qemu"]
+      value: ["kata", "kata-qemu", "kata-qemu-se"]
   target:
     kind: CcRuntime
