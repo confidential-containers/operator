@@ -16,6 +16,8 @@ spec:
     uninstallDoneLabel:
       katacontainers.io/kata-runtime: "cleanup"
     installerVolumeMounts:
+      - mountPath: /etc/crio/
+        name: crio-conf
       - mountPath: /etc/containerd/
         name: containerd-conf
       - mountPath: /opt/confidential-containers/
@@ -27,6 +29,10 @@ spec:
       - mountPath: /usr/local/bin/
         name: local-bin
     installerVolumes:
+      - hostPath:
+          path: /etc/crio/
+          type: ""
+        name: crio-conf
       - hostPath:
           path: /etc/containerd/
           type: ""
