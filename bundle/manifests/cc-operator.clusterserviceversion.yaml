@@ -14,7 +14,7 @@ metadata:
           "spec": {
             "ccNodeSelector": {
               "matchLabels": {
-                "node-role.kubernetes.io/worker": ""
+                "node.kubernetes.io/worker": ""
               }
             },
             "config": {

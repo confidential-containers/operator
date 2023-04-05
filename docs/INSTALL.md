@@ -5,9 +5,9 @@
 - Only containerd runtime based Kubernetes clusters are supported with the current Confidential Containers (CoCo) release
 - The minimum Kubernetes version should be 1.24.
 - Ensure KUBECONFIG points to the target Kubernetes cluster.
-- Ensure at least one Kubernetes node in the cluster is having the label `node-role.kubernetes.io/worker=`
+- Ensure at least one Kubernetes node in the cluster is having the label `node.kubernetes.io/worker=`
   ```
-  kubectl label node $NODENAME node-role.kubernetes.io/worker=
+  kubectl label node $NODENAME node.kubernetes.io/worker=
   ```
 
 ## Deploy the Operator
