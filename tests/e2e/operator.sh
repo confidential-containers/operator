@@ -48,7 +48,7 @@ install_operator() {
 	start_local_registry
 
 	# The node should be 'worker' labeled
-	local label="node-role.kubernetes.io/worker"
+	local label="node.kubernetes.io/worker"
 	if ! kubectl get node "$(hostname)" -o jsonpath='{.metadata.labels}' \
 		| grep -q "$label"; then
 		kubectl label node "$(hostname)" "$label="

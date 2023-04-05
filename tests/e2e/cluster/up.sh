@@ -60,6 +60,8 @@ main() {
 		kubectl taint nodes "$(hostname)" \
 			"node-role.kubernetes.io/$role:NoSchedule-"
 	done
+
+	kubectl label node "$(hostname)" node.kubernetes.io/worker=
 }
 
 main "$@"

@@ -347,7 +347,7 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 
 	if r.ccRuntime.Spec.CcNodeSelector == nil {
 		r.ccRuntime.Spec.CcNodeSelector = &metav1.LabelSelector{
-			MatchLabels: map[string]string{"node-role.kubernetes.io/worker": ""},
+			MatchLabels: map[string]string{"node.kubernetes.io/worker": ""},
 		}
 	}
 
@@ -535,7 +535,7 @@ func (r *CcRuntimeReconciler) getAllNodes() (*corev1.NodeList, ctrl.Result, erro
 
 	if r.ccRuntime.Spec.CcNodeSelector == nil {
 		r.ccRuntime.Spec.CcNodeSelector = &metav1.LabelSelector{
-			MatchLabels: map[string]string{"node-role.kubernetes.io/worker": ""},
+			MatchLabels: map[string]string{"node.kubernetes.io/worker": ""},
 		}
 	}
 
@@ -629,7 +629,7 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		nodeSelector = r.ccRuntime.Spec.Config.UninstallDoneLabel
 	} else {
 		nodeSelector = map[string]string{
-			"node-role.kubernetes.io/worker": "",
+			"node.kubernetes.io/worker": "",
 		}
 	}
 
@@ -839,7 +839,7 @@ func (r *CcRuntimeReconciler) makeHookDaemonset(operation DaemonOperation) *apps
 		nodeSelector = r.ccRuntime.Spec.CcNodeSelector.MatchLabels
 	} else {
 		nodeSelector = map[string]string{
-			"node-role.kubernetes.io/worker": "",
+			"node.kubernetes.io/worker": "",
 		}
 	}
 
