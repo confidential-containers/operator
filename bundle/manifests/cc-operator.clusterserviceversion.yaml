@@ -215,6 +215,7 @@ metadata:
                 "kata-qemu",
                 "kata-qemu-sev",
                 "kata-qemu-se",
+                "kata-qemu-snp",
                 "kata-qemu-tdx",
                 "kata-qemu-tdx-eaa-kbc",
                 "kata-remote"
