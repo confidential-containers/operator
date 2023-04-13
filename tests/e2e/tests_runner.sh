@@ -123,8 +123,8 @@ main() {
 			run_non_tee_tests "$runtimeclass"
 			;;
 		kata-qemu-tdx)
-			echo "INFO: Running non-TEE tests for $runtimeclass using EAA KBC"
-			run_non_tee_tests "$runtimeclass" "eaa_kbc"
+			echo "INFO: Running non-TEE tests for $runtimeclass using CC KBC"
+			run_non_tee_tests "$runtimeclass" "cc_kbc"
 			;;
 		kata-qemu-sev)
 			echo "INFO: Running kata-qemu-sev tests for $runtimeclass"
