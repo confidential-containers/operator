@@ -10,8 +10,8 @@ images:
 - name: quay.io/confidential-containers/container-engine-for-cc-payload
   newTag: 98a790e8abdcc06c4b629b290ebaa217bf82e305
 - name: quay.io/confidential-containers/runtime-payload
-  newName: quay.io/confidential-containers/runtime-payload-ci
-  newTag: kata-containers-e58ccb632fd95b7d83bfe85fba5ad79b1c03baaf-x86_64
+  newName: quay.io/confidential-containers/runtime-payload
+  newTag: kata-containers-6abfb9deadc03154f91896e78ea024e55928c9f4-x86_64
 
 patches:
 - patch: |-
