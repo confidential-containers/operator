@@ -1,0 +1,111 @@
+From b1e6007315cd7b30e226da7469ee85525cabdbb2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Fabiano=20Fid=C3=AAncio?= <fabiano.fidencio@intel.com>
+Date: Fri, 14 Apr 2023 07:16:56 +0200
+Subject: [PATCH 1/3] kata-containers: Update payload to what will become
+ v0.5.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Fabiano Fidêncio <fabiano.fidencio@intel.com>
+---
+ config/samples/ccruntime/default/kustomization.yaml | 2 +-
+ config/samples/ccruntime/s390x/kustomization.yaml   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/config/samples/ccruntime/default/kustomization.yaml b/config/samples/ccruntime/default/kustomization.yaml
+index 9ec1e02..535f53d 100644
+--- a/config/samples/ccruntime/default/kustomization.yaml
++++ b/config/samples/ccruntime/default/kustomization.yaml
+@@ -11,7 +11,7 @@ images:
+   newTag: 98a790e8abdcc06c4b629b290ebaa217bf82e305
+ - name: quay.io/confidential-containers/runtime-payload
+   newName: quay.io/confidential-containers/runtime-payload-ci
+-  newTag: kata-containers-121892ec61cb7d50c662133bb6fbf25b50ab676e-x86_64
++  newTag: kata-containers-e58ccb632fd95b7d83bfe85fba5ad79b1c03baaf-x86_64
+ 
+ patches:
+ - patch: |-
+diff --git a/config/samples/ccruntime/s390x/kustomization.yaml b/config/samples/ccruntime/s390x/kustomization.yaml
+index 0df3cb4..9265c70 100644
+--- a/config/samples/ccruntime/s390x/kustomization.yaml
++++ b/config/samples/ccruntime/s390x/kustomization.yaml
+@@ -9,7 +9,7 @@ resources:
+ images:
+ - name: quay.io/confidential-containers/runtime-payload
+   newName: quay.io/confidential-containers/runtime-payload-ci
+-  newTag: kata-containers-121892ec61cb7d50c662133bb6fbf25b50ab676e-s390x
++  newTag: kata-containers-e58ccb632fd95b7d83bfe85fba5ad79b1c03baaf-s390x
+ - name: quay.io/confidential-containers/container-engine-for-cc-payload
+   newTag: 98a790e8abdcc06c4b629b290ebaa217bf82e305
+ 
+
+From a377c39485f37408a276106337985cdbaa9134da Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Fabiano=20Fid=C3=AAncio?= <fabiano.fidencio@intel.com>
+Date: Fri, 14 Apr 2023 07:18:19 +0200
+Subject: [PATCH 2/3] enclave-cc: Update payload to what will become v0.5.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Fabiano Fidêncio <fabiano.fidencio@intel.com>
+---
+ config/samples/enclave-cc/base/ccruntime-enclave-cc.yaml | 2 +-
+ config/samples/enclave-cc/sim/kustomization.yaml         | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/config/samples/enclave-cc/base/ccruntime-enclave-cc.yaml b/config/samples/enclave-cc/base/ccruntime-enclave-cc.yaml
+index bf3181f..e865dc4 100644
+--- a/config/samples/enclave-cc/base/ccruntime-enclave-cc.yaml
++++ b/config/samples/enclave-cc/base/ccruntime-enclave-cc.yaml
+@@ -9,7 +9,7 @@ spec:
+       node-role.kubernetes.io/worker: ""
+   config:
+     installType: bundle
+-    payloadImage: quay.io/confidential-containers/runtime-payload-ci:enclave-cc-HW-4370700439f5524a60cf7a31c7c4f92bbe4dd655
++    payloadImage: quay.io/confidential-containers/runtime-payload-ci:enclave-cc-HW-8f8592e0d4949556b3a896c2312e4ffe51309dab
+     installDoneLabel:
+       confidentialcontainers.org/enclave-cc: "true"
+     uninstallDoneLabel:
+diff --git a/config/samples/enclave-cc/sim/kustomization.yaml b/config/samples/enclave-cc/sim/kustomization.yaml
+index f81aaa4..c48af9e 100644
+--- a/config/samples/enclave-cc/sim/kustomization.yaml
++++ b/config/samples/enclave-cc/sim/kustomization.yaml
+@@ -5,4 +5,4 @@ nameSuffix: -sgx-mode-sim
+ 
+ images:
+ - name: quay.io/confidential-containers/runtime-payload-ci
+-  newTag: enclave-cc-SIM-4370700439f5524a60cf7a31c7c4f92bbe4dd655
++  newTag: enclave-cc-SIM-8f8592e0d4949556b3a896c2312e4ffe51309dab
+
+From 8f3eae1b5d03c6dd26810f4049b2620454c9a71e Mon Sep 17 00:00:00 2001
+From: "Wang, Arron" <arron.wang@intel.com>
+Date: Thu, 13 Apr 2023 09:08:55 +0800
+Subject: [PATCH 3/3] tests: Switch to cc_kbc for kata-qemu-tdx runtime
+
+CoCo v0.5.0 payload will install cc_kbc by default for kata-qemu-tdx runtime,
+operator CI tests also need updates accordingly.
+
+Fixes: #198
+Depends-on:github.com/confidential-containers/operator#169
+
+Signed-off-by: Wang, Arron <arron.wang@intel.com>
+---
+ tests/e2e/tests_runner.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tests/e2e/tests_runner.sh b/tests/e2e/tests_runner.sh
+index 99c3b32..6d2cd9d 100755
+--- a/tests/e2e/tests_runner.sh
++++ b/tests/e2e/tests_runner.sh
+@@ -123,8 +123,8 @@ main() {
+ 			run_non_tee_tests "$runtimeclass"
+ 			;;
+ 		kata-qemu-tdx)
+-			echo "INFO: Running non-TEE tests for $runtimeclass using EAA KBC"
+-			run_non_tee_tests "$runtimeclass" "eaa_kbc"
++			echo "INFO: Running non-TEE tests for $runtimeclass using CC KBC"
++			run_non_tee_tests "$runtimeclass" "cc_kbc"
+ 			;;
+ 		kata-qemu-sev)
+ 			echo "INFO: Running kata-qemu-sev tests for $runtimeclass"
