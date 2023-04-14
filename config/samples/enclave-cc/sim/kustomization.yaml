@@ -5,4 +5,4 @@ nameSuffix: -sgx-mode-sim
 
 images:
 - name: quay.io/confidential-containers/runtime-payload-ci
-  newTag: enclave-cc-SIM-4370700439f5524a60cf7a31c7c4f92bbe4dd655
+  newTag: enclave-cc-SIM-8f8592e0d4949556b3a896c2312e4ffe51309dab
