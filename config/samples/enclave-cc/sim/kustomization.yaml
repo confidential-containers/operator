@@ -4,5 +4,5 @@ resources:
 nameSuffix: -sgx-mode-sim
 
 images:
-- name: quay.io/confidential-containers/runtime-payload-ci
-  newTag: enclave-cc-SIM-8f8592e0d4949556b3a896c2312e4ffe51309dab
+- name: quay.io/confidential-containers/runtime-payload
+  newTag: enclave-cc-SIM-v0.5.0
