@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+nameSuffix: -sample
+
+resources:
+- ../base
+
+images:
+- name: quay.io/confidential-containers/container-engine-for-cc-payload
+  newTag: 98a790e8abdcc06c4b629b290ebaa217bf82e305
+- name: quay.io/confidential-containers/runtime-payload
+  newName: quay.io/confidential-containers/runtime-payload-ci
+  newTag: kata-containers-e58ccb632fd95b7d83bfe85fba5ad79b1c03baaf-x86_64
+
+patches:
+- patch: |-
+    - op: replace
+      path: /spec/config/runtimeClassNames
+      value: ["kata-remote"]
+  target:
+    kind: CcRuntime
