@@ -21,6 +21,12 @@
     - name: Install docker pip
       pip:
         name: docker
+    # Due to a bug in requests 2.29.0 we need to downgrade it
+    # see https://github.com/docker/docker-py/issues/3113 
+    - name: Downgrade requests
+      pip: 
+        name: requests
+        version: 2.28.1
     - name: Start a docker registry
       docker_container:
         name: "{{ local_registry_name }}"
