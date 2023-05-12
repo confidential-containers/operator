@@ -4,14 +4,7 @@ kind: Kustomization
 nameSuffix: -s390x
 
 resources:
-- ../base
-
-images:
-- name: quay.io/confidential-containers/runtime-payload
-  newName: quay.io/confidential-containers/runtime-payload-ci
-  newTag: kata-containers-latest
-- name: quay.io/confidential-containers/container-engine-for-cc-payload
-  newTag: latest
+- ../default
 
 patches:
 - patch: |-
