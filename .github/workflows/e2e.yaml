@@ -36,11 +36,11 @@ jobs:
         with:
           context: tests/e2e/kind
           load: true
-          tags: kindest/node:v1.26.0-coco
+          tags: kindest/node:v1.27.3-coco
 
       - name: Setup kind cluster
         run: |
-          kind create cluster --image "kindest/node:v1.26.0-coco" -n coco-sgx --config tests/e2e/enclave-cc-kind-config.yaml --wait 120s
+          kind create cluster --image "kindest/node:v1.27.3-coco" -n coco-sgx --config tests/e2e/enclave-cc-kind-config.yaml --wait 120s
           kubectl label node coco-sgx-worker node.kubernetes.io/worker=
 
       - name: Deploy operator from the local registry
