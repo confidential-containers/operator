@@ -53,7 +53,7 @@ jobs:
       - name: Install enclave-cc sim
         run: |
           cd config/samples/enclave-cc/sim
-          latest_ci_tag=$(curl -s -X GET "https://quay.io/api/v1/repository/confidential-containers/runtime-payload-ci/tag/" | jq -r -n 'first(inputs | .tags[].name | select(test("enclave-cc-SIM-[a-f0-9]{40}")))')
+          latest_ci_tag=$(curl -s -X GET "https://quay.io/api/v1/repository/confidential-containers/runtime-payload-ci/tag/" | jq -r -n 'first(inputs | .tags[].name | select(test("enclave-cc-SIM-sample-kbc-[a-f0-9]{40}")))')
           kustomize edit set image quay.io/confidential-containers/runtime-payload=quay.io/confidential-containers/runtime-payload-ci:$latest_ci_tag
           echo "Testing Enclave CC using the following CI tag: ${latest_ci_tag}"
           kubectl apply -k .
