@@ -24,9 +24,12 @@
     # Due to a bug in requests 2.29.0 we need to downgrade it
     # see https://github.com/docker/docker-py/issues/3113 
     - name: Downgrade requests
-      pip: 
-        name: requests
-        version: 2.28.1
+      shell: |
+        actual_version="$(pip3 show requests | grep Version | cut -d: -f2 | xargs)"
+        version_ge="$(echo -e "2.29.0\n$actual_version" | sort -V | head -1)"
+        if [ "$version_ge" = "2.29.0" ]; then
+            pip3 install requests==2.28.1
+        fi
     - name: Start a docker registry
       docker_container:
         name: "{{ local_registry_name }}"
