@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 
@@ -24,13 +25,16 @@ import (
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 
 	ccv1beta1 "github.com/confidential-containers/operator/api/v1beta1"
 	"github.com/confidential-containers/operator/controllers"
@@ -86,6 +90,12 @@ func main() {
 		ns = ccRuntimeNamespace
 	}
 
+	err = labelNamespace(context.TODO(), mgr, ns)
+	if err != nil {
+		setupLog.Error(err, "unable to add labels to namespace")
+		os.Exit(1)
+	}
+
 	if err = (&controllers.CcRuntimeReconciler{
 		Client:    mgr.GetClient(),
 		Scheme:    mgr.GetScheme(),
@@ -110,4 +120,27 @@ func main() {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+}
+
+func labelNamespace(ctx context.Context, mgr manager.Manager, nsName string) error {
+
+	ns := &corev1.Namespace{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: nsName,
+		},
+	}
+	err := mgr.GetAPIReader().Get(ctx, client.ObjectKeyFromObject(ns), ns)
+	if err != nil {
+		setupLog.Error(err, "Unable to add label to the namespace")
+		return err
+	}
+
+	setupLog.Info("Labelling Namespace")
+	setupLog.Info("Labels: ", "Labels", ns.ObjectMeta.Labels)
+	// Add namespace label to allow privilege pods via Pod Security Admission controller
+	ns.ObjectMeta.Labels["pod-security.kubernetes.io/enforce"] = "privileged"
+	ns.ObjectMeta.Labels["pod-security.kubernetes.io/audit"] = "privileged"
+	ns.ObjectMeta.Labels["pod-security.kubernetes.io/warn"] = "privileged"
+
+	return mgr.GetClient().Update(ctx, ns)
 }

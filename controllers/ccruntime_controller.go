@@ -63,6 +63,7 @@ type CcRuntimeReconciler struct {
 //+kubebuilder:rbac:groups=core,resources=nodes,verbs=get;list;watch;patch;update
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;delete;update;patch
 //+kubebuilder:rbac:groups=node.k8s.io,resources=runtimeclasses,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups="",resources=namespaces,verbs=get;update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
