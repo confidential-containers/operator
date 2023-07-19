@@ -135,6 +135,7 @@ kata-clh-tdx    kata-clh-tdx    9m55s
 kata-qemu       kata-qemu       9m55s
 kata-qemu-tdx   kata-qemu-tdx   9m55s
 kata-qemu-sev   kata-qemu-sev   9m55s
+kata-qemu-snp   kata-qemu-snp   9m55s
 ```
 
 ## Changing Runtime bundle

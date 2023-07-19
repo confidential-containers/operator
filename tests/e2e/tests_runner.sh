@@ -99,6 +99,11 @@ run_kata_qemu_sev_tests() {
 
 }
 
+# Tests for CC with QEMU on SNP HW
+run_kata_qemu_snp_tests() {
+	bats "snp.bats"
+}
+
 main() {
 
 	parse_args $@
@@ -133,6 +138,10 @@ main() {
 		kata-qemu-sev)
 			echo "INFO: Running kata-qemu-sev tests for $runtimeclass"
 			run_kata_qemu_sev_tests
+			;;
+		kata-qemu-snp)
+			echo "INFO: Running kata-qemu-snp tests for $runtimeclass"
+			run_kata_qemu_snp_tests
 			;;
 		*)
 			echo "ERROR: no known tests for runtime class ${runtimeclass} "
