@@ -28,7 +28,6 @@ import (
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	"sigs.k8s.io/controller-runtime/pkg/source"
 
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
@@ -739,10 +738,10 @@ func (r *CcRuntimeReconciler) getNodesWithLabels(nodeLabels map[string]string) (
 	return nil, nodes
 }
 
-func (r *CcRuntimeReconciler) mapCcRuntimeToRequests(ccRuntimeObj client.Object) []reconcile.Request {
+func (r *CcRuntimeReconciler) mapCcRuntimeToRequests(ctx context.Context, ccRuntimeObj client.Object) []reconcile.Request {
 	ccRuntimeList := &ccv1beta1.CcRuntimeList{}
 
-	err := r.Client.List(context.TODO(), ccRuntimeList)
+	err := r.Client.List(ctx, ccRuntimeList)
 	if err != nil {
 		return []reconcile.Request{}
 	}
@@ -763,7 +762,7 @@ func (r *CcRuntimeReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&ccv1beta1.CcRuntime{}).
 		Watches(
-			&source.Kind{Type: &corev1.Node{}},
+			&corev1.Node{},
 			handler.EnqueueRequestsFromMapFunc(r.mapCcRuntimeToRequests)).
 		Complete(r)
 }
