@@ -48,13 +48,17 @@ make uninstall && make undeploy
 
 ## Using Kind Kubernetes cluster
 
-You can use a [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/) cluster running on non-TEE hardware 
+You can use a [Kind](https://kind.sigs.k8s.io/docs/user/quick-start/) cluster running on non-TEE hardware
 for development purposes.
 
-Kind version `v0.16.0` have been successfully tested on the following Linux distros.
+Refer to the `.github/workflows/enclave-cc-cicd.yaml` file for guidance about building
+a `kindest/node` image that includes D-Bus and starting the Kind cluster with the image.
+
+Kind version `v0.16.0` runs with the following Linux distributions:
+
 - `CentOS Stream 8`
 - `RHEL9`
 - `Ubuntu 20.04`
 - `Ubuntu 22.04`
 
->**Note**: Only `kata-clh` runtimeclass works with Kind cluster.
+> Only the `kata-clh` runtime class works with Kind cluster.
