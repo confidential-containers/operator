@@ -51,7 +51,7 @@ metadata:
                   "name": "containerd-conf"
                 },
                 {
-                  "mountPath": "/opt/confidential-containers/",
+                  "mountPath": "/opt/kata/",
                   "name": "kata-artifacts"
                 },
                 {
@@ -77,7 +77,7 @@ metadata:
                 },
                 {
                   "hostPath": {
-                    "path": "/opt/confidential-containers/",
+                    "path": "/opt/kata/",
                     "type": "DirectoryOrCreate"
                   },
                   "name": "kata-artifacts"

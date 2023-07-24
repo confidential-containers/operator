@@ -81,7 +81,7 @@ run_non_tee_tests() {
 	# to get the path to kata's configuration.toml and image files. Without this
 	# they will change the default configuration.toml, which doesn't correspond to
 	# the one used by the runtimeclass, therefore, performing bogus changes.
-	local runtime_config_file="/opt/confidential-containers/share/defaults/kata-containers/"
+	local runtime_config_file="/opt/kata/share/defaults/kata-containers/"
 	runtime_config_file+="configuration-${runtimeclass/kata-/}.toml"
 	sed -i "s#kata-runtime kata-env#kata-runtime --config $runtime_config_file kata-env#g" \
 		../../../lib/common.bash
@@ -118,7 +118,7 @@ main() {
 	# Test scripts rely on kata-runtime so it should be reacheable on PATH.
 	# Re-export PATH is error prone as some calls to kata-runtime use sudo,
 	# so let's create a symlink.
-	ln -sf /opt/confidential-containers/bin/kata-runtime \
+	ln -sf /opt/kata/bin/kata-runtime \
 		/usr/local/bin/kata-runtime
 
 	# Run tests.
