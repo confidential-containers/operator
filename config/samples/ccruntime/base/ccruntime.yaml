@@ -20,7 +20,7 @@ spec:
         name: crio-conf
       - mountPath: /etc/containerd/
         name: containerd-conf
-      - mountPath: /opt/confidential-containers/
+      - mountPath: /opt/kata/
         name: kata-artifacts
       - mountPath: /var/run/dbus/system_bus_socket
         name: dbus
@@ -38,7 +38,7 @@ spec:
           type: ""
         name: containerd-conf
       - hostPath:
-          path: /opt/confidential-containers/
+          path: /opt/kata/
           type: DirectoryOrCreate
         name: kata-artifacts
       - hostPath:
