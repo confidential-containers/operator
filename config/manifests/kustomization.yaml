@@ -2,8 +2,8 @@
 # used to generate the 'manifests/' directory in a bundle.
 resources:
 - bases/cc-operator.clusterserviceversion.yaml
-- ../default
-- ../samples
+- ../release
+- ../samples/ccruntime/default
 - ../scorecard
 
 # [WEBHOOK] To enable webhooks, uncomment all the sections with [WEBHOOK] prefix.
