@@ -7,7 +7,7 @@ spec:
   runtimeName: kata
   ccNodeSelector:
     matchLabels:
-      node.kubernetes.io/worker: ""
+      node-role.kubernetes.io/worker: ""
   config:
     installType: bundle
     payloadImage: quay.io/confidential-containers/runtime-payload:kata-containers

@@ -6,7 +6,7 @@ spec:
   runtimeName: enclave-cc
   ccNodeSelector:
     matchLabels:
-      node.kubernetes.io/worker: ""
+      node-role.kubernetes.io/worker: ""
   config:
     installType: bundle
     payloadImage: quay.io/confidential-containers/runtime-payload:enclave-cc-HW-cc-kbc-v0.7.0
