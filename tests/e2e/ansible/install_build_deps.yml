@@ -25,12 +25,6 @@
           src: /usr/local/go/bin/go
           dest: /usr/local/bin/go
           state: link
-    - name: Install the operator-sdk
-      get_url:
-        # TODO: use facts
-        url: https://github.com/operator-framework/operator-sdk/releases/download/{{ operator_sdk_version }}/operator-sdk_linux_{{ target_arch }}
-        dest: /usr/local/bin/operator-sdk
-        mode: '+x'
     - import_tasks: "install_docker.yml"
       # Docker buildx relies on qemu-user-static to multi-arch builds, but
       # qemu-user-static is not packaged for CentOS. Let's get it installed via
@@ -50,10 +44,6 @@
     - name: Uninstall build dependencies
       tags: undo
       block:
-        - name: Uninstall operator-sdk
-          file:
-            path: /usr/local/bin/operator-sdk
-            state: absent
         - name: Uninstall go
           file:
             path: "{{ item }}"
