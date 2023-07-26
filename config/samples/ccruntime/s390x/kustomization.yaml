@@ -9,7 +9,7 @@ resources:
 images:
 - name: quay.io/confidential-containers/runtime-payload
   newName: quay.io/confidential-containers/runtime-payload-ci
-  newTag: kata-containers-128f0282e11fb33f648c0ecf1d75a40f13985e01
+  newTag: kata-containers-latest
 
 patches:
 - patch: |-
