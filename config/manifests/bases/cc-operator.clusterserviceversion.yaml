@@ -43,12 +43,12 @@ spec:
   - name: Confidential Containers
     url: https://github.com/confidential-containers
   maintainers:
-  - email: fidenco
-    name: Fabiano
-  - email: jensfr
-    name: Jens
-  - email: bpradipt
-    name: Pradipta
+  - email: cncf-ccontainers-maintainers@lists.cncf.io
+    name: Fabiano Fidencio
+  - email: cncf-ccontainers-maintainers@lists.cncf.io
+    name: Jens Freimann
+  - email: cncf-ccontainers-maintainers@lists.cncf.io
+    name: Pradipta Banerjee
   maturity: alpha
   provider:
     name: Confidential Containers Community
