@@ -18,5 +18,8 @@ patches:
     - op: replace
       path: /spec/config/runtimeClassNames
       value: ["kata-remote"]
+    - op: add
+      path: /spec/config/debug
+      value: false
   target:
     kind: CcRuntime
