@@ -162,6 +162,12 @@ type CcInstallConfig struct {
 	// +optional
 	RuntimeClassNames []string `json:"runtimeClassNames,omitempty"`
 
+	// This specifies the RuntimeClass to be used as the default one
+	// If not set, the default "kata" runtime class will NOT be created. Otherwise, the default "kata" runtime class will be created
+	// as as "alias" for the value set here
+	// +optional
+	DefaultRuntimeClassName string `json:"defaultRuntimeClassName,omitempty"`
+
 	// This specifies whether the CcRuntime (kata or enclave-cc) will be running on debug mode
 	// +optional
 	Debug bool `json:"debug,omitempty"`
