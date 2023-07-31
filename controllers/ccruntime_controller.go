@@ -654,10 +654,26 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 
 	var debug = strconv.FormatBool(r.ccRuntime.Spec.Config.Debug)
 
+	var defaultShim = ""
+	var createDefaultRuntimeClass = "false"
+	if strings.HasPrefix(r.ccRuntime.Spec.Config.DefaultRuntimeClassName, "kata-") {
+		// Remove the "kata-" prefix from DefaultRuntimeClassName
+		defaultShim = strings.TrimPrefix(r.ccRuntime.Spec.Config.DefaultRuntimeClassName, "kata-")
+		createDefaultRuntimeClass = "true"
+	}
+
 	var envVars = []corev1.EnvVar{
 		{
 			Name:  "DEBUG",
 			Value: debug,
+		},
+		{
+			Name:  "DEFAULT_SHIM",
+			Value: defaultShim,
+		},
+		{
+			Name:  "CREATE_DEFAULT_RUNTIMECLASS",
+			Value: createDefaultRuntimeClass,
 		},
 	}
 	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)
