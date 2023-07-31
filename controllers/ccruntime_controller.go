@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -651,6 +652,16 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		containerCommand = r.ccRuntime.Spec.Config.UninstallCmd
 	}
 
+	var debug = strconv.FormatBool(r.ccRuntime.Spec.Config.Debug)
+
+	var envVars = []corev1.EnvVar{
+		{
+			Name:  "DEBUG",
+			Value: debug,
+		},
+	}
+	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)
+
 	return &appsv1.DaemonSet{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "apps/v1",
@@ -692,7 +703,7 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 								RunAsUser:  &runAsUser,
 							},
 							Command:      containerCommand,
-							Env:          r.ccRuntime.Spec.Config.EnvironmentVariables,
+							Env:          envVars,
 							VolumeMounts: r.ccRuntime.Spec.Config.InstallerVolumeMounts,
 						},
 					},

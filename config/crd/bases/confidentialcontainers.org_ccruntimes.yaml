@@ -102,6 +102,10 @@ spec:
                     items:
                       type: string
                     type: array
+                  debug:
+                    description: This specifies whether the CcRuntime (kata or enclave-cc)
+                      will be running on debug mode
+                    type: boolean
                   environmentVariables:
                     description: This specifies the environment variables required
                       by the daemon set

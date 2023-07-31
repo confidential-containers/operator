@@ -162,6 +162,10 @@ type CcInstallConfig struct {
 	// +optional
 	RuntimeClassNames []string `json:"runtimeClassNames,omitempty"`
 
+	// This specifies whether the CcRuntime (kata or enclave-cc) will be running on debug mode
+	// +optional
+	Debug bool `json:"debug,omitempty"`
+
 	// This specifies the environment variables required by the daemon set
 	// +optional
 	EnvironmentVariables []corev1.EnvVar `json:"environmentVariables,omitempty"`
