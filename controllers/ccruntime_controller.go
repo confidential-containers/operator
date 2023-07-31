@@ -33,7 +33,6 @@ import (
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	nodeapi "k8s.io/api/node/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -464,10 +463,6 @@ func (r *CcRuntimeReconciler) monitorCcRuntimeInstallation() (ctrl.Result, error
 
 	// If the installation of the binaries is successful on all nodes, proceed with creating the runtime classes
 	if r.allNodesInstalled() {
-		rs, err := r.setRuntimeClass()
-		if err != nil {
-			return rs, err
-		}
 		// Add finalizer for this CR
 		if !contains(r.ccRuntime.GetFinalizers(), RuntimeConfigFinalizer) {
 			if err := r.addFinalizer(); err != nil {
@@ -557,63 +552,6 @@ func (r *CcRuntimeReconciler) allNodesInstalled() bool {
 		r.ccRuntime.Status.InstallationStatus.Completed.CompletedNodesCount == r.ccRuntime.Status.TotalNodesCount
 }
 
-func (r *CcRuntimeReconciler) setRuntimeClass() (ctrl.Result, error) {
-	runtimeClassNames := []string{"kata-clh", "kata-qemu", "kata"}
-
-	if r.ccRuntime.Spec.Config.RuntimeClassNames != nil {
-		r.Log.Info("Setting RuntimeClassNames from CRD")
-		runtimeClassNames = r.ccRuntime.Spec.Config.RuntimeClassNames
-	}
-
-	for _, runtimeClassName := range runtimeClassNames {
-		rc := func() *nodeapi.RuntimeClass {
-			rc := &nodeapi.RuntimeClass{
-				TypeMeta: metav1.TypeMeta{
-					APIVersion: "node.k8s.io/v1",
-					Kind:       "RuntimeClass",
-				},
-				ObjectMeta: metav1.ObjectMeta{
-					Name: runtimeClassName,
-				},
-				Handler: runtimeClassName,
-			}
-
-			if r.ccRuntime.Spec.CcNodeSelector != nil {
-				rc.Scheduling = &nodeapi.Scheduling{
-					NodeSelector: r.ccRuntime.Spec.CcNodeSelector.MatchLabels,
-				}
-			}
-			return rc
-		}()
-
-		// Set CcRuntime r.ccRuntime as the owner and controller
-		if err := controllerutil.SetControllerReference(r.ccRuntime, rc, r.Scheme); err != nil {
-			return ctrl.Result{}, err
-		}
-
-		foundRc := &nodeapi.RuntimeClass{}
-		err := r.Client.Get(context.TODO(), types.NamespacedName{Name: rc.Name}, foundRc)
-		if err != nil && errors.IsNotFound(err) {
-			r.Log.Info("Creating a new RuntimeClass", "rc.Name", rc.Name)
-			err = r.Client.Create(context.TODO(), rc)
-			if err != nil {
-				return ctrl.Result{}, err
-			}
-		}
-
-	}
-
-	r.ccRuntime.Status.RuntimeClass = strings.Join(runtimeClassNames, ",")
-	err := r.Client.Status().Update(context.TODO(), r.ccRuntime)
-	if (err != nil && !errors.IsConflict(err)) ||
-		(err != nil && !errors.IsAlreadyExists(err)) {
-		r.Log.Error(err, "can't set runtimeclass")
-		return ctrl.Result{}, err
-	}
-
-	return ctrl.Result{}, nil
-}
-
 func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv1.DaemonSet {
 	runPrivileged := true
 	var runAsUser int64 = 0
@@ -662,6 +600,9 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		createDefaultRuntimeClass = "true"
 	}
 
+	var runtimeClasses = strings.Join(r.ccRuntime.Spec.Config.RuntimeClassNames, " ")
+	var shims = strings.ReplaceAll(runtimeClasses, "kata-", "")
+
 	var envVars = []corev1.EnvVar{
 		{
 			Name:  "DEBUG",
@@ -674,6 +615,14 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		{
 			Name:  "CREATE_DEFAULT_RUNTIMECLASS",
 			Value: createDefaultRuntimeClass,
+		},
+		{
+			Name:  "CREATE_RUNTIMECLASSES",
+			Value: "true",
+		},
+		{
+			Name:  "SHIMS",
+			Value: shims,
 		},
 	}
 	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)
