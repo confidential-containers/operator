@@ -1,0 +1,18 @@
+resources:
+- ../../../default
+- ../crd
+
+patches:
+- path: peerpodsconfig-ctrl-role.yaml
+  target:
+    group: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: manager-role
+    version: v1
+- path: peerpods-namespace.yaml
+- path: enable-peerpods.yaml
+  target:
+    group: apps
+    kind: Deployment
+    name: controller-manager
+    version: v1

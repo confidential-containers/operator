@@ -21,6 +21,8 @@ import (
 	"flag"
 	"os"
 
+	peerpodconfigcontrollers "github.com/confidential-containers/cloud-api-adaptor/peerpodconfig-ctrl/controllers"
+
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -36,6 +38,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
+	peerpodconfig "github.com/confidential-containers/cloud-api-adaptor/peerpodconfig-ctrl/api/v1alpha1"
+
 	ccv1beta1 "github.com/confidential-containers/operator/api/v1beta1"
 	"github.com/confidential-containers/operator/controllers"
 	//+kubebuilder:scaffold:imports
@@ -50,6 +54,8 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(ccv1beta1.AddToScheme(scheme))
+
+	utilruntime.Must(peerpodconfig.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -58,12 +64,15 @@ func main() {
 	var enableLeaderElection bool
 	var probeAddr string
 	var ccRuntimeNamespace string
+	var enablePeerPodControllers bool
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.StringVar(&ccRuntimeNamespace, "cc-runtime-namespace", metav1.NamespaceSystem, "The namespace where CcRuntime secondary resources are created")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
+	flag.BoolVar(&enablePeerPodControllers, "peer-pods", false,
+		"Enable Peerpod controllers.")
 	opts := zap.Options{
 		Development: true,
 	}
@@ -103,6 +112,17 @@ func main() {
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "CcRuntime")
 		os.Exit(1)
+	}
+
+	if enablePeerPodControllers {
+		if err = (&peerpodconfigcontrollers.PeerPodConfigReconciler{
+			Client: mgr.GetClient(),
+			Log:    ctrl.Log.WithName("controllers").WithName("RemotePodConfig"),
+			Scheme: mgr.GetScheme(),
+		}).SetupWithManager(mgr); err != nil {
+			setupLog.Error(err, "unable to create peerpod config controller", "controller", "PeerPodConfig")
+			os.Exit(1)
+		}
 	}
 	//+kubebuilder:scaffold:builder
 

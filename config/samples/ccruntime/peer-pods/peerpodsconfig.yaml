@@ -1,0 +1,9 @@
+apiVersion: confidentialcontainers.org/v1alpha1
+kind: PeerPodConfig
+metadata:
+  name: coco-config
+  namespace: confidential-containers-system
+spec:
+  cloudSecretName: "peer-pods-secret"
+  configMapName:   "peer-pods-cm"
+  limit: "1"
