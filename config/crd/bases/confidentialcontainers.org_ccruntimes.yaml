@@ -5705,6 +5705,11 @@ spec:
                 - installType
                 - payloadImage
                 type: object
+              enablePeerPods:
+                default: false
+                description: EnablePeerPods is used to transparently create pods on
+                  a remote system.
+                type: boolean
               runtimeName:
                 enum:
                 - kata

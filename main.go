@@ -21,6 +21,8 @@ import (
 	"flag"
 	"os"
 
+	peerpodconfigcontrollers "github.com/confidential-containers/cloud-api-adaptor/peerpodconfig-ctrl/controllers"
+
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
@@ -36,6 +38,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
+	peerpodconfig "github.com/confidential-containers/cloud-api-adaptor/peerpodconfig-ctrl/api/v1alpha1"
+
 	ccv1beta1 "github.com/confidential-containers/operator/api/v1beta1"
 	"github.com/confidential-containers/operator/controllers"
 	//+kubebuilder:scaffold:imports
@@ -50,6 +54,8 @@ func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
 	utilruntime.Must(ccv1beta1.AddToScheme(scheme))
+
+	utilruntime.Must(peerpodconfig.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -104,6 +110,16 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "CcRuntime")
 		os.Exit(1)
 	}
+
+	if err = (&peerpodconfigcontrollers.PeerPodConfigReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("RemotePodConfig"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create RemotePodConfig controller for OpenShift cluster", "controller", "RemotePodConfig")
+		os.Exit(1)
+	}
+
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {

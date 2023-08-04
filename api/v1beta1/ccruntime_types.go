@@ -38,6 +38,11 @@ type CcRuntimeSpec struct {
 	RuntimeName CcRuntimeName `json:"runtimeName"`
 
 	Config CcInstallConfig `json:"config"`
+
+	// EnablePeerPods is used to transparently create pods on a remote system.
+	// +optional
+	// +kubebuilder:default:=false
+	EnablePeerPods bool `json:"enablePeerPods"`
 }
 
 // +kubebuilder:validation:Enum=bundle;osnative

@@ -6,6 +6,7 @@ kind: Kustomization
 # It should be run by config/default
 resources:
 - bases/confidentialcontainers.org_ccruntimes.yaml
+- bases/confidentialcontainers.org_peerpodconfigs.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patches:

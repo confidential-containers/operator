@@ -40,6 +40,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
+	"github.com/confidential-containers/cloud-api-adaptor/peerpodconfig-ctrl/api/v1alpha1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -58,6 +59,11 @@ type CcRuntimeReconciler struct {
 	Namespace string
 }
 
+const (
+	peerpodConfigCRName = "peerpodconfig-coco"
+	DEFAULT_PEER_PODS   = "10"
+)
+
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=ccruntimes,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=ccruntimes/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=confidentialcontainers.org,resources=ccruntimes/finalizers,verbs=update
@@ -65,6 +71,12 @@ type CcRuntimeReconciler struct {
 //+kubebuilder:rbac:groups=apps,resources=daemonsets,verbs=get;list;watch;create;delete;update;patch
 //+kubebuilder:rbac:groups=node.k8s.io,resources=runtimeclasses,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="",resources=namespaces,verbs=get;update
+//+kubebuilder:rbac:groups="",resources=nodes/status,verbs=patch
+//+kubebuilder:rbac:groups=confidentialcontainers.org,resources=peerpodconfigs,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=confidentialcontainers.org,resources=peerpodconfigs/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=confidentialcontainers.org,resources=peerpodconfigs/finalizers,verbs=update
+//+kubebuilder:rbac:groups="",resources=configmaps,verbs=create;get;update;list;watch
+//+kubebuilder:rbac:groups="",resources=secrets,verbs=create;get;update;list;watch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -235,6 +247,14 @@ func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, erro
 						return result, err
 					}
 					result, err = r.deleteUninstallDaemonsets()
+					if r.ccRuntime.Spec.EnablePeerPods {
+						r.Log.Info("Disable peerpods")
+						// We are explicitly ignoring any errors in peerpodconfig removal as
+						// these can be removed manually if needed and this is not in the critical path
+						// of operator functionality
+						_ = r.disablePeerPods()
+					}
+
 					prepostLabels := map[string]string{}
 					if r.ccRuntime.Spec.Config.PreInstall.Image != "" {
 						prepostLabels[PreInstallDoneLabel[0]] = PreInstallDoneLabel[1]
@@ -416,7 +436,16 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 		} else if err != nil {
 			return ctrl.Result{}, err
 		}
-
+		// create PeerPodConfig CR for peerpods
+		if r.ccRuntime.Spec.EnablePeerPods {
+			r.Log.Info("Enable peerpods")
+			err = r.enablePeerPodsMiscConfigs()
+			if err != nil {
+				r.Log.Info("Enabling peerpodconfig CR, runtimeclass etc", "err", err)
+				// Give sometime for the error to go away before reconciling again
+				return reconcile.Result{Requeue: true, RequeueAfter: 15 * time.Second}, err
+			}
+		}
 	}
 	return r.monitorCcRuntimeInstallation()
 
@@ -917,4 +946,45 @@ func (r *CcRuntimeReconciler) removeNodeLabels(nodesList *corev1.NodeList) (ctrl
 		}
 	}
 	return ctrl.Result{}, nil
+}
+
+// Create the PeerPodConfig CRs and misc configs required for peer-pods
+func (r *CcRuntimeReconciler) enablePeerPodsMiscConfigs() error {
+	peerPodConfig := v1alpha1.PeerPodConfig{
+		TypeMeta: metav1.TypeMeta{},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      peerpodConfigCRName,
+			Namespace: "confidential-containers-system",
+		},
+		Spec: v1alpha1.PeerPodConfigSpec{
+			CloudSecretName: "peer-pods-secret",
+			ConfigMapName:   "peer-pods-cm",
+			Limit:           DEFAULT_PEER_PODS,
+		},
+	}
+
+	err := r.Client.Create(context.TODO(), &peerPodConfig)
+	if err != nil && !errors.IsAlreadyExists(err) {
+		r.Log.Info("Error creating peerpodconfig CR", "err", err)
+		return err
+	}
+
+	return nil
+}
+
+func (r *CcRuntimeReconciler) disablePeerPods() error {
+	peerPodConfig := v1alpha1.PeerPodConfig{
+		TypeMeta: metav1.TypeMeta{},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      peerpodConfigCRName,
+			Namespace: "confidential-containers-system",
+		},
+	}
+	err := r.Client.Delete(context.TODO(), &peerPodConfig)
+	if err != nil {
+		// error during removing peerpodconfig. Just log the error and move on.
+		r.Log.Info("Error found deleting PeerPodConfig. If the PeerPodConfig object exists after uninstallation it can be safely deleted manually", "err", err)
+	}
+
+	return nil
 }

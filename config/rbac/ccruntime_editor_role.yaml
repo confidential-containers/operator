@@ -6,8 +6,10 @@ metadata:
 rules:
 - apiGroups:
   - confidentialcontainers.org
+  - peerpodconfiguration.confidentialcontainers.org
   resources:
   - ccruntimes
+  - peerpodconfigs
   verbs:
   - create
   - delete
@@ -18,7 +20,9 @@ rules:
   - watch
 - apiGroups:
   - confidentialcontainers.org
+  - peerpodconfiguration.confidentialcontainers.org
   resources:
   - ccruntimes/status
+  - peerpodconfigs/status
   verbs:
   - get

@@ -8,10 +8,36 @@ rules:
 - apiGroups:
   - ""
   resources:
+  - configmaps
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
   - namespaces
   verbs:
   - get
   - update
+- apiGroups:
+  - ""
+  resources:
+  - nodes/status
+  verbs:
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
 - apiGroups:
   - apps
   resources:
@@ -46,6 +72,32 @@ rules:
   - confidentialcontainers.org
   resources:
   - ccruntimes/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - confidentialcontainers.org
+  resources:
+  - peerpodconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - confidentialcontainers.org
+  resources:
+  - peerpodconfigs/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - confidentialcontainers.org
+  resources:
+  - peerpodconfigs/status
   verbs:
   - get
   - patch

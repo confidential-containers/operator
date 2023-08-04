@@ -6,15 +6,19 @@ metadata:
 rules:
 - apiGroups:
   - confidentialcontainers.org
+  - peerpodconfiguration.confidentialcontainers.org
   resources:
   - ccruntimes
+  - peerpodconfigs
   verbs:
   - get
   - list
   - watch
 - apiGroups:
   - confidentialcontainers.org
+  - peerpodconfiguration.confidentialcontainers.org
   resources:
   - ccruntimes/status
+  - peerpodconfigs/status
   verbs:
   - get

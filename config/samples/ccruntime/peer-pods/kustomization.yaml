@@ -21,5 +21,8 @@ patches:
     - op: add
       path: /spec/config/debug
       value: false
+    - op: add
+      path: /spec/enablePeerPods
+      value: true
   target:
     kind: CcRuntime

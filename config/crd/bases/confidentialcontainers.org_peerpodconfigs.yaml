@@ -1,0 +1,78 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.10.0
+  creationTimestamp: null
+  name: peerpodconfigs.confidentialcontainers.org
+spec:
+  group: confidentialcontainers.org
+  names:
+    kind: PeerPodConfig
+    listKind: PeerPodConfigList
+    plural: peerpodconfigs
+    singular: peerpodconfig
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: PeerPodConfig is the Schema for the peerpodconfigs API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: PeerPodConfigSpec defines the desired state of PeerPodConfig
+            properties:
+              cloudSecretName:
+                default: peer-pods-secret
+                description: CloudSecretName is the name of the secret that holds
+                  the credentials for the cloud provider
+                type: string
+              configMapName:
+                default: peer-pods-cm
+                description: ConfigMapName is the name of the configmap that holds
+                  cloud provider specific environment Variables
+                type: string
+              instanceType:
+                description: InstanceType describes the name of the instance type
+                  of the chosen cloud provider
+                type: string
+              limit:
+                description: Limit is the max number of peer pods. This is exposed
+                  as extended resource on nodes
+                type: string
+              nodeSelector:
+                additionalProperties:
+                  type: string
+                description: NodeSelector selects the nodes on which to run the cloud-api-adaptor
+                  pods
+                type: object
+            required:
+            - cloudSecretName
+            - configMapName
+            type: object
+          status:
+            description: PeerPodConfigStatus defines the observed state of PeerPodConfig
+            properties:
+              setupCompleted:
+                description: SetupCompleted is set to true when all components have
+                  been deployed/created
+                type: boolean
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

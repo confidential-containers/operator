@@ -19,14 +19,21 @@ COPY main.go main.go
 COPY api/ api/
 COPY controllers/ controllers/
 
+# The container running the operator/controllers needs the libvirt libraries as
+# as the peerpod-ctrl needs to dynamically link with libvirt
+RUN apt-get update -y && apt-get install -y libvirt-dev
+
 # Build
-RUN CGO_ENABLED=0 GOOS=linux go build -a -o manager main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -tags=libvirt -a -o manager main.go
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+# FROM gcr.io/distroless/static:nonroot
+
+# Libvirt cannot be installed to distroless for packaging so remove it for now
+FROM ${IMG_NAME:-golang}:${IMG_VERSION:-1.18}
+RUN apt-get update -y && apt-get install -y libvirt-dev
 WORKDIR /
 COPY --from=builder /workspace/manager .
-USER 65532:65532
 
 ENTRYPOINT ["/manager"]
