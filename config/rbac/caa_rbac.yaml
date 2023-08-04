@@ -1,0 +1,29 @@
+# This file is based on https://github.com/confidential-containers/cloud-api-adaptor/blob/staging/install/rbac/peer-pod.yaml
+# It adds the required rules to the default SA which is used by CAA DA
+# when owner reference is both object must be on the same namespace, hence,
+# caa should have cluster-wide permissions to support any pod namespace
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: caa-role
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/finalizers"]
+  verbs: ["get","create", "patch", "update"]
+- apiGroups: ["confidentialcontainers.org"]
+  resources: ["peerpods", "pods"]
+  verbs: ["create", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: caa-rolebinding
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: system
+roleRef:
+  kind: ClusterRole
+  name: caa-role
+  apiGroup: rbac.authorization.k8s.io

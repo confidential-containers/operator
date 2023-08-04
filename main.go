@@ -21,6 +21,7 @@ import (
 	"flag"
 	"os"
 
+	peerpodcontrollers "github.com/confidential-containers/cloud-api-adaptor/peerpod-ctrl/controllers"
 	peerpodconfigcontrollers "github.com/confidential-containers/cloud-api-adaptor/peerpodconfig-ctrl/controllers"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -38,6 +39,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
+	peerpod "github.com/confidential-containers/cloud-api-adaptor/peerpod-ctrl/api/v1alpha1"
 	peerpodconfig "github.com/confidential-containers/cloud-api-adaptor/peerpodconfig-ctrl/api/v1alpha1"
 
 	ccv1beta1 "github.com/confidential-containers/operator/api/v1beta1"
@@ -56,6 +58,8 @@ func init() {
 	utilruntime.Must(ccv1beta1.AddToScheme(scheme))
 
 	utilruntime.Must(peerpodconfig.AddToScheme(scheme))
+
+	utilruntime.Must(peerpod.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -120,6 +124,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	if err = (&peerpodcontrollers.PeerPodReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+		// setting nil will delegate Provider creation to reconcile time, make sure RBAC permits:
+		//+kubebuilder:rbac:groups="",resourceNames=peer-pods-cm;peer-pods-secret,resources=configmaps;secrets,verbs=get
+		Provider: nil,
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create peerpod resources controller", "controller", "PeerPod")
+		os.Exit(1)
+	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {

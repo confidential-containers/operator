@@ -10,6 +10,7 @@ rules:
   resources:
   - ccruntimes
   - peerpodconfigs
+  - peerpods
   verbs:
   - get
   - list
@@ -20,5 +21,6 @@ rules:
   resources:
   - ccruntimes/status
   - peerpodconfigs/status
+  - peerpods/status
   verbs:
   - get

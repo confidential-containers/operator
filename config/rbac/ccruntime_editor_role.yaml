@@ -10,6 +10,7 @@ rules:
   resources:
   - ccruntimes
   - peerpodconfigs
+  - peerpods
   verbs:
   - create
   - delete
@@ -24,5 +25,6 @@ rules:
   resources:
   - ccruntimes/status
   - peerpodconfigs/status
+  - peerpods/status
   verbs:
   - get

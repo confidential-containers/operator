@@ -16,3 +16,6 @@ resources:
 - auth_proxy_role.yaml
 - auth_proxy_role_binding.yaml
 - auth_proxy_client_clusterrole.yaml
+# the following is custom rbac manifests required for
+# cloud-api-adaptor when peerpod-ctrl is used
+- caa_rbac.yaml

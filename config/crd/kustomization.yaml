@@ -7,6 +7,7 @@ kind: Kustomization
 resources:
 - bases/confidentialcontainers.org_ccruntimes.yaml
 - bases/confidentialcontainers.org_peerpodconfigs.yaml
+- bases/confidentialcontainers.org_peerpods.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patches:

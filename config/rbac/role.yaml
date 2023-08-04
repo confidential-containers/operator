@@ -103,6 +103,32 @@ rules:
   - patch
   - update
 - apiGroups:
+  - confidentialcontainers.org
+  resources:
+  - peerpods
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - confidentialcontainers.org
+  resources:
+  - peerpods/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - confidentialcontainers.org
+  resources:
+  - peerpods/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - ""
   resources:
   - nodes
