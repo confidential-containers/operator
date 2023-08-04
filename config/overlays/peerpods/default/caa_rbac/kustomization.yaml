@@ -1,0 +1,4 @@
+namePrefix: cc-operator-
+
+resources:
+- caa_rbac.yaml

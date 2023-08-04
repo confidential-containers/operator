@@ -143,8 +143,10 @@ run: manifests generate fmt vet ## Run a controller from your host.
 docker-build: test ## Build docker image with the manager.
 ifneq (, $(PEERPODS))
 	@echo PEERPODS is enabled
-endif
+	docker build -t ${IMG} -f Dockerfile.peerpods-libvirt .
+else
 	docker build -t ${IMG} .
+endif
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.

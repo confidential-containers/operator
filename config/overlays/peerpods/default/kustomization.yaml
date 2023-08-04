@@ -1,8 +1,18 @@
 resources:
 - ../../../default
 - ../crd
+- ./caa_rbac
 
 patches:
+- path: runasnonroot.yaml
+- path: ssh-volume.yaml
+- path: ssh-mount.yaml
+- path: peerpods-ctrl-role.yaml
+  target:
+    group: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: manager-role
+    version: v1
 - path: peerpodsconfig-ctrl-role.yaml
   target:
     group: rbac.authorization.k8s.io
