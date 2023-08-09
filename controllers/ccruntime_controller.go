@@ -669,6 +669,7 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 				Spec: corev1.PodSpec{
 					ServiceAccountName: "cc-operator-controller-manager",
 					NodeSelector:       nodeSelector,
+					HostPID:            true,
 					Containers: []corev1.Container{
 						{
 							Name:            "cc-runtime-install-pod",
@@ -861,6 +862,7 @@ func (r *CcRuntimeReconciler) makeHookDaemonset(operation DaemonOperation) *apps
 				Spec: corev1.PodSpec{
 					ServiceAccountName: "cc-operator-controller-manager",
 					NodeSelector:       nodeSelector,
+					HostPID:            true,
 					Containers: []corev1.Container{
 						{
 							Name:            "cc-runtime-" + string(operation) + "-pod",
