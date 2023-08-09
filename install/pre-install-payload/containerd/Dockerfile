@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ARG ARCH
 ARG VERSION
@@ -16,7 +16,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN \
 apt-get update && \
-apt-get install -y --no-install-recommends apt-transport-https ca-certificates curl xz-utils systemd && \
+apt-get install -y --no-install-recommends apt-transport-https ca-certificates curl xz-utils && \
 apt-get clean && rm -rf /var/lib/apt/lists/ && \
 curl -fL --progress-bar -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl && \
 chmod +x /usr/bin/kubectl && \
