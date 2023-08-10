@@ -14,6 +14,7 @@ jobs:
     services:
       registry:
         image: registry:2
+        options: --name registry
         ports:
           - 5000:5000
     steps:
@@ -42,6 +43,7 @@ jobs:
         run: |
           kind create cluster --image "kindest/node:v1.27.3-coco" -n coco-sgx --config tests/e2e/enclave-cc-kind-config.yaml --wait 120s
           kubectl label node coco-sgx-worker node.kubernetes.io/worker=
+          docker network connect kind registry
 
       - name: Deploy operator from the local registry
         run: |
