@@ -33,6 +33,7 @@ import (
 	"github.com/go-logr/logr"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	nodeapi "k8s.io/api/node/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -463,6 +464,18 @@ func (r *CcRuntimeReconciler) monitorCcRuntimeInstallation() (ctrl.Result, error
 
 	// If the installation of the binaries is successful on all nodes, proceed with creating the runtime classes
 	if r.allNodesInstalled() {
+		// Update runtimeClass field
+		runtimeClassNames := r.ccRuntime.Spec.Config.RuntimeClassNames
+		for _, runtimeClassName := range runtimeClassNames {
+			foundRc := &nodeapi.RuntimeClass{}
+			err := r.Client.Get(context.TODO(), types.NamespacedName{Name: runtimeClassName}, foundRc)
+			if errors.IsNotFound(err) {
+				r.Log.Info("The runtime payload failed to create the runtime class named %s", runtimeClassName)
+				return ctrl.Result{}, err
+			}
+		}
+		r.ccRuntime.Status.RuntimeClass = strings.Join(runtimeClassNames, ",")
+
 		// Add finalizer for this CR
 		if !contains(r.ccRuntime.GetFinalizers(), RuntimeConfigFinalizer) {
 			if err := r.addFinalizer(); err != nil {
