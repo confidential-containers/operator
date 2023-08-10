@@ -603,6 +603,8 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 	var runtimeClasses = strings.Join(r.ccRuntime.Spec.Config.RuntimeClassNames, " ")
 	var shims = strings.ReplaceAll(runtimeClasses, "kata-", "")
 
+	var usingNFD = strconv.FormatBool(r.ccRuntime.Spec.Config.UsingNFD)
+
 	var envVars = []corev1.EnvVar{
 		{
 			Name:  "DEBUG",
@@ -623,6 +625,10 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		{
 			Name:  "SHIMS",
 			Value: shims,
+		},
+		{
+			Name:  "USING_NFD",
+			Value: usingNFD,
 		},
 	}
 	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)

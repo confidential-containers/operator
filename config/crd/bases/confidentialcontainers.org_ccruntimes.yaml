@@ -5701,6 +5701,10 @@ spec:
                     description: This specifies the label that the uninstall daemonset
                       adds to nodes when the uninstallation  is done
                     type: object
+                  usingNFD:
+                    description: This specified whether NodeFeatureDiscovery is being
+                      used or not, and relies on its feataures in case it is.
+                    type: boolean
                 required:
                 - installType
                 - payloadImage
