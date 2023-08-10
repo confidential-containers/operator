@@ -46,10 +46,12 @@ jobs:
       - name: Deploy operator from the local registry
         run: |
           cd config/default
-          kustomize edit set image localhost:5000/cc-operator:latest
+          kustomize edit set image quay.io/confidential-containers/operator=localhost:5000/cc-operator:latest
           kubectl apply -k .
           sleep 1
           kubectl wait --for=jsonpath='{.status.conditions[0].status}'=True deployments/cc-operator-controller-manager -n confidential-containers-system
+          img=$(kubectl get deployments/cc-operator-controller-manager -n confidential-containers-system -o jsonpath='{.spec.template.spec.containers[?(@.name == "manager")].image}')
+          [ "${img}" = "localhost:5000/cc-operator:latest" ]
 
       - name: Install enclave-cc sim
         run: |
