@@ -15,6 +15,12 @@ patches:
 - patch: |-
     - op: replace
       path: /spec/config/runtimeClassNames
-      value: ["kata", "kata-qemu", "kata-qemu-se"]
+      value: ["kata-qemu", "kata-qemu-se"]
+    - op: add
+      path: /spec/config/defaultRuntimeClassName
+      value: "kata-qemu"
+    - op: add
+      path: /spec/config/debug
+      value: false
   target:
     kind: CcRuntime

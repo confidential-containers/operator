@@ -21,10 +21,6 @@ spec:
         name: enclave-cc-conf
       - mountPath: /opt/confidential-containers/
         name: enclave-cc-artifacts
-      - mountPath: /var/run/dbus/system_bus_socket
-        name: dbus
-      - mountPath: /run/systemd/system
-        name: systemd
       - mountPath: /usr/local/bin/
         name: local-bin
     installerVolumes:
@@ -40,14 +36,6 @@ spec:
           path: /opt/confidential-containers/
           type: DirectoryOrCreate
         name: enclave-cc-artifacts
-      - hostPath:
-          path: /var/run/dbus/system_bus_socket
-          type: ""
-        name: dbus
-      - hostPath:
-          path: /run/systemd/system
-          type: ""
-        name: systemd
       - hostPath:
           path: /usr/local/bin/
           type: ""

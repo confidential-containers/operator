@@ -102,6 +102,16 @@ spec:
                     items:
                       type: string
                     type: array
+                  debug:
+                    description: This specifies whether the CcRuntime (kata or enclave-cc)
+                      will be running on debug mode
+                    type: boolean
+                  defaultRuntimeClassName:
+                    description: This specifies the RuntimeClass to be used as the
+                      default one If not set, the default "kata" runtime class will
+                      NOT be created. Otherwise, the default "kata" runtime class
+                      will be created as as "alias" for the value set here
+                    type: string
                   environmentVariables:
                     description: This specifies the environment variables required
                       by the daemon set

@@ -22,10 +22,6 @@ spec:
         name: containerd-conf
       - mountPath: /opt/kata/
         name: kata-artifacts
-      - mountPath: /var/run/dbus/system_bus_socket
-        name: dbus
-      - mountPath: /run/systemd/system
-        name: systemd
       - mountPath: /usr/local/bin/
         name: local-bin
     installerVolumes:
@@ -41,14 +37,6 @@ spec:
           path: /opt/kata/
           type: DirectoryOrCreate
         name: kata-artifacts
-      - hostPath:
-          path: /var/run/dbus/system_bus_socket
-          type: ""
-        name: dbus
-      - hostPath:
-          path: /run/systemd/system
-          type: ""
-        name: systemd
       - hostPath:
           path: /usr/local/bin/
           type: ""
@@ -67,10 +55,6 @@ spec:
           name: confidential-containers-artifacts
         - mountPath: /etc/systemd/system/
           name: etc-systemd-system
-        - mountPath: /var/run/dbus/system_bus_socket
-          name: dbus
-        - mountPath: /run/systemd/system
-          name: systemd
       volumes:
         - hostPath:
             path: /opt/confidential-containers/
@@ -80,14 +64,6 @@ spec:
             path: /etc/systemd/system/
             type: ""
           name: etc-systemd-system
-        - hostPath:
-            path: /var/run/dbus/system_bus_socket
-            type: ""
-          name: dbus
-        - hostPath:
-            path: /run/systemd/system
-            type: ""
-          name: systemd
     preInstall:
       image: quay.io/confidential-containers/container-engine-for-cc-payload
       volumeMounts:
@@ -95,10 +71,6 @@ spec:
           name: confidential-containers-artifacts
         - mountPath: /etc/systemd/system/
           name: etc-systemd-system
-        - mountPath: /var/run/dbus/system_bus_socket
-          name: dbus
-        - mountPath: /run/systemd/system
-          name: systemd
       volumes:
         - hostPath:
             path: /opt/confidential-containers/
@@ -108,14 +80,6 @@ spec:
             path: /etc/systemd/system/
             type: ""
           name: etc-systemd-system
-        - hostPath:
-            path: /var/run/dbus/system_bus_socket
-            type: ""
-          name: dbus
-        - hostPath:
-            path: /run/systemd/system
-            type: ""
-          name: systemd
     environmentVariables:
       - name: NODE_NAME
         valueFrom:

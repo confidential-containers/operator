@@ -10,6 +10,10 @@ die() {
 	exit 1
 }
 
+function host_systemctl() {
+	nsenter --target 1 --mount systemctl "${@}"
+}
+
 function get_container_engine() {
 	local container_engine=$(kubectl get node "$NODE_NAME" -o jsonpath='{.status.nodeInfo.containerRuntimeVersion}' | awk -F '[:]' '{print $1}')
 	if [ "${container_engine}" != "containerd" ]; then
@@ -52,9 +56,9 @@ function uninstall_artifacts() {
 }
 
 function restart_systemd_service() {
-	systemctl daemon-reload
+	host_systemctl daemon-reload
 	echo "Restarting ${container_engine}"
-	systemctl restart "${container_engine}"
+	host_systemctl restart "${container_engine}"
 }
 
 label_node() {
