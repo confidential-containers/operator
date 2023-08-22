@@ -16,8 +16,10 @@ images:
 patches:
 - patch: |-
     - op: replace
-      path: /spec/config/runtimeClassNames
-      value: ["kata-remote"]
+      path: /spec/config/runtimeClasses
+      value:
+      - name: "kata-remote"
+        snapshotter: "overlayfs"
     - op: add
       path: /spec/config/debug
       value: false
