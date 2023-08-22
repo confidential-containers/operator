@@ -158,9 +158,9 @@ type CcInstallConfig struct {
 	// +optional
 	CleanupCmd []string `json:"cleanupCmd,omitempty"`
 
-	// This specifies the RuntimeClasses that needs to be created
+	// This specifies the RuntimeClasses that need to be created, with its name and an associated snapshotter to be used
 	// +optional
-	RuntimeClassNames []string `json:"runtimeClassNames,omitempty"`
+	RuntimeClasses []RuntimeClass `json:"runtimeClasses,omitempty"`
 
 	// This specifies the RuntimeClass to be used as the default one
 	// If not set, the default "kata" runtime class will NOT be created. Otherwise, the default "kata" runtime class will be created
@@ -311,6 +311,14 @@ type FailedNodeStatus struct {
 	Name string `json:"name"`
 	// Error message of the failed node reported by the installation daemon
 	Error string `json:"error"`
+}
+
+// RuntimeClass holds the name and the snapshotter to be used by a runtime class
+type RuntimeClass struct {
+	// Name of the runtime class
+	Name string `json:"name"`
+	// The snapshotter to be used by the runtime class
+	Snapshotter string `json:"snapshotter"`
 }
 
 func init() {
