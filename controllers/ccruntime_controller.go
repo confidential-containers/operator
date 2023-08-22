@@ -465,14 +465,16 @@ func (r *CcRuntimeReconciler) monitorCcRuntimeInstallation() (ctrl.Result, error
 	// If the installation of the binaries is successful on all nodes, proceed with creating the runtime classes
 	if r.allNodesInstalled() {
 		// Update runtimeClass field
-		runtimeClassNames := r.ccRuntime.Spec.Config.RuntimeClassNames
-		for _, runtimeClassName := range runtimeClassNames {
+		var runtimeClassNames []string
+		runtimeClasses := r.ccRuntime.Spec.Config.RuntimeClasses
+		for _, runtimeClass := range runtimeClasses {
 			foundRc := &nodeapi.RuntimeClass{}
-			err := r.Client.Get(context.TODO(), types.NamespacedName{Name: runtimeClassName}, foundRc)
+			err := r.Client.Get(context.TODO(), types.NamespacedName{Name: runtimeClass.Name}, foundRc)
 			if errors.IsNotFound(err) {
-				r.Log.Info("The runtime payload failed to create the runtime class named %s", runtimeClassName)
+				r.Log.Info("The runtime payload failed to create the runtime class named %s", runtimeClass.Name)
 				return ctrl.Result{}, err
 			}
+			runtimeClassNames = append(runtimeClassNames, runtimeClass.Name)
 		}
 		r.ccRuntime.Status.RuntimeClass = strings.Join(runtimeClassNames, ",")
 
@@ -613,7 +615,19 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		createDefaultRuntimeClass = "true"
 	}
 
-	var runtimeClasses = strings.Join(r.ccRuntime.Spec.Config.RuntimeClassNames, " ")
+	var runtimeClassNames []string
+	var snapshotter = ""
+	for _, runtimeClass := range r.ccRuntime.Spec.Config.RuntimeClasses {
+		runtimeClassNames = append(runtimeClassNames, runtimeClass.Name)
+		// FIXME: This will need to be changed by the moment the kata-containers
+		//        payload script supports setting one snapshotter per runtime handler.
+		//        For now, for the v0.8.0 release, we're fine assuming that all the
+		//        set snapshotters are going to be the same.
+		if snapshotter != "" {
+			snapshotter = runtimeClass.Snapshotter
+		}
+	}
+	var runtimeClasses = strings.Join(runtimeClassNames, " ")
 	var shims = strings.ReplaceAll(runtimeClasses, "kata-", "")
 
 	var envVars = []corev1.EnvVar{
@@ -636,6 +650,10 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		{
 			Name:  "SHIMS",
 			Value: shims,
+		},
+		{
+			Name:  "SNAPSHOTTER",
+			Value: snapshotter,
 		},
 	}
 	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)
