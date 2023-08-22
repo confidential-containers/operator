@@ -16,8 +16,20 @@ images:
 patches:
 - patch: |-
     - op: replace
-      path: /spec/config/runtimeClassNames
-      value: ["kata-clh", "kata-clh-tdx", "kata-qemu", "kata-qemu-tdx", "kata-qemu-sev", "kata-qemu-snp"]
+      path: /spec/config/runtimeClasses
+      value:
+      - name: "kata-clh"
+        snapshotter: "overlayfs"
+      - name: "kata-clh-tdx"
+        snapshotter: "overlayfs"
+      - name: "kata-qemu"
+        snapshotter: "overlayfs"
+      - name: "kata-qemu-tdx"
+        snapshotter: "overlayfs"
+      - name: "kata-qemu-sev"
+        snapshotter: "overlayfs"
+      - name: "kata-qemu-snp"
+        snapshotter: "overlayfs"
     - op: add
       path: /spec/config/defaultRuntimeClassName
       value: "kata-qemu"

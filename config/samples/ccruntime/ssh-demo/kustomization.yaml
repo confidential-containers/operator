@@ -15,8 +15,14 @@ images:
 patches:
 - patch: |-
     - op: replace
-      path: /spec/config/runtimeClassNames
-      value: ["kata", "kata-clh", "kata-qemu"]
+      path: /spec/config/runtimeClasses
+      value:
+      - name: "kata"
+        snapshotter: "overlayfs"
+      - name: "kata-clh"
+        snapshotter: "overlayfs"
+      - name: "kata-qemu"
+        snapshotter: "overlayfs"
   target:
     kind: CcRuntime
 
