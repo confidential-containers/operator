@@ -12,6 +12,10 @@ official_containerd_repo=${official_containerd_repo:-"https://github.com/contain
 official_containerd_version=${official_containerd_version:-"1.7.0"}
 vfio_gpu_containerd_repo=${vfio_gpu_containerd_repo:-"https://github.com/confidential-containers/containerd"}
 vfio_gpu_containerd_version=${vfio_gpu_containerd_version:-"1.7.0.0"}
+nydus_snapshotter_repo=${nydus_snapshotter_repo:-"https://github.com/containerd/nydus-snapshotter"}
+nydus_snapshotter_version=${nydus_snapshotter_version:-"v0.13.0"}
+nydus_repo=${nydus_repo:-"https://github.com/dragonflyoss/image-service"}
+nydus_version=${nydus_version:-"v2.3.0-alpha.0"}
 containerd_dir="$(mktemp -d -t containerd-XXXXXXXXXX)/containerd"
 extra_docker_manifest_flags="${extra_docker_manifest_flags:-}"
 
@@ -19,34 +23,33 @@ registry="${registry:-quay.io/confidential-containers/reqs-payload}"
 
 supported_arches=(
 	"linux/amd64"
-	"linux/s390x"
 )
 
 function setup_env_for_arch() {
 	case "$1" in
-		"linux/amd64") 
-			kernel_arch="x86_64"
-			golang_arch="amd64"
-			;;
-		"linux/s390x")
-			kernel_arch="s390x"
-			golang_arch="s390x"
-			;;
-		(*) echo "$1 is not supported" > /dev/stderr && exit 1
+	"linux/amd64")
+		kernel_arch="x86_64"
+		golang_arch="amd64"
+		;;
+	"linux/s390x")
+		kernel_arch="s390x"
+		golang_arch="s390x"
+		;;
+	*) echo "$1 is not supported" >/dev/stderr && exit 1 ;;
 	esac
-		
+
 }
 
 function purge_previous_manifests() {
 	manifest=${1}
-	
+
 	# We need to sanitise the name by:
 	# * Replacing:
 	#   * '/' by '_'
 	#   * ':' by '-'
-	
+
 	sanitised_manifest="$(echo ${manifest} | sed 's|/|_|g' | sed 's|:|-|g')"
-	rm -rf ${HOME}/.docker/manifests/${sanitised_manifest}
+	rm -rf ${HOME}/.docker/manifests/${sanitised_manifest} || true
 }
 
 function build_payload() {
@@ -66,6 +69,10 @@ function build_payload() {
 			--build-arg OFFICIAL_CONTAINERD_REPO="${official_containerd_repo}" \
 			--build-arg VFIO_GPU_CONTAINERD_VERSION="${vfio_gpu_containerd_version}" \
 			--build-arg VFIO_GPU_CONTAINERD_REPO="${vfio_gpu_containerd_repo}" \
+			--build-arg NYDUS_SNAPSHOTTER_VERSION="${nydus_snapshotter_version}" \
+			--build-arg NYDUS_SNAPSHOTTER_REPO="${nydus_snapshotter_repo}" \
+			--build-arg NYDUS_VERSION="${nydus_version}" \
+			--build-arg NYDUS_REPO="${nydus_repo}" \
 			-t "${registry}:${kernel_arch}-${tag}" \
 			--platform="${arch}" \
 			--load \
@@ -73,7 +80,7 @@ function build_payload() {
 		docker push "${registry}:${kernel_arch}-${tag}"
 	done
 
-	purge_previous_manifests ${registry}:${tag}
+	purge_previous_manifests ${registry}:${tag} 
 	purge_previous_manifests ${registry}:latest
 
 	docker manifest create ${extra_docker_manifest_flags} \

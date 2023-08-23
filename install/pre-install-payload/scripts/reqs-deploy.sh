@@ -4,6 +4,8 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+containerd_config="/etc/containerd/config.toml"
+
 die() {
 	msg="$*"
 	echo "ERROR: $msg" >&2
@@ -20,7 +22,7 @@ function get_container_engine() {
 		die "${container_engine} is not yet supported"
 	fi
 
-	echo "$container_engine"	
+	echo "$container_engine"
 }
 
 function set_container_engine() {
@@ -38,7 +40,6 @@ function install_containerd_artefacts() {
 
 	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/${flavour}-containerd /opt/confidential-containers/bin/containerd
 	install -D -m 644 ${artifacts_dir}/etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf /etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf
-
 }
 
 function install_coco_containerd_artefacts() {
@@ -53,6 +54,23 @@ function install_vfio_gpu_containerd_artefacts() {
 	install_containerd_artefacts "vfio-gpu"
 }
 
+function install_nydus_snapshotter_artefacts() {
+	echo "Copying nydus-snapshotter artifacts onto host"
+	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/containerd-nydus-grpc /opt/confidential-containers/bin/containerd-nydus-grpc
+	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/nydus-overlayfs /opt/confidential-containers/bin/nydus-overlayfs
+	#NOTE: symlink nydus-overlayfs to /usr/local/bin or /usr/bin
+	ln -s /opt/confidential-containers/bin/nydus-overlayfs /usr/bin/nydus-overlayfs
+	if [ "$(uname -m)" != "s390x" ]; then
+		install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/nydus-image /opt/confidential-containers/bin/nydus-image
+	fi
+	install -D -m 644 ${artifacts_dir}/opt/confidential-containers/share/nydus-snapshotter/config-coco-host-sharing.toml /opt/confidential-containers/share/nydus-snapshotter/config-coco-host-sharing.toml
+	install -D -m 644 ${artifacts_dir}/opt/confidential-containers/share/nydus-snapshotter/config-coco-host-sharing.toml /opt/confidential-containers/share/nydus-snapshotter/config-coco-host-sharing.toml
+
+	configure_nydus_snapshotter_for_containerd
+
+	restart_systemd_service
+}
+
 function install_artifacts() {
 	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ]; then
 		install_coco_containerd_artefacts
@@ -65,6 +83,10 @@ function install_artifacts() {
 	if [ "${INSTALL_VFIO_GPU_CONTAINERD}" = "true" ]; then
 		install_vfio_gpu_containerd_artefacts
 	fi
+
+	if [ "${INSTALL_NYDUS_SNAPSHOTTER}" = "true" ]; then
+		install_nydus_snapshotter_artefacts
+	fi
 }
 
 function uninstall_containerd_artefacts() {
@@ -76,7 +98,7 @@ function uninstall_containerd_artefacts() {
 	if [ -d /etc/systemd/system/${container_engine}.service.d ]; then
 		rmdir --ignore-fail-on-non-empty /etc/systemd/system/${container_engine}.service.d
 	fi
-	
+
 	restart_systemd_service
 
 	echo "Removing the containerd binary"
@@ -86,6 +108,24 @@ function uninstall_containerd_artefacts() {
 		rmdir --ignore-fail-on-non-empty -p /opt/confidential-containers/bin
 	fi
 }
+
+function uninstall_nydus_snapshotter_artefacts() {
+	remove_nydus_snapshotter_from_containerd
+
+	restart_systemd_service
+
+	echo "Removing nydus-snapshotter artifacts from host"
+	rm -f /opt/confidential-containers/bin/containerd-nydus-grpc
+	rm -f /opt/confidential-containers/bin/nydus-overlayfs
+	#NOTE: remove the link of nydus-overlayfs in /usr/local/bin or /usr/bin
+	rm /usr/bin/nydus-overlayfs
+	if [ "$(uname -m)" != "s390x" ]; then
+		rm -f /opt/confidential-containers/bin/nydus-image
+	fi
+	rm -f /opt/confidential-containers/share/remote-snapshotter/config-coco-host-sharing.toml
+	rm -f /opt/confidential-containers/share/remote-snapshotter/config-coco-guest-pulling.toml
+}	
+
 
 function uninstall_artifacts() {
 	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ] || [ "${INSTALL_OFFICIAL_CONTAINERD}" = "true" ] || [ "${INSTALL_VFIO_GPU_CONTAINERD}" = "true" ]; then
@@ -97,6 +137,33 @@ function restart_systemd_service() {
 	host_systemctl daemon-reload
 	echo "Restarting ${container_engine}"
 	host_systemctl restart "${container_engine}"
+}
+
+function configure_nydus_snapshotter_for_containerd() {
+	echo "configure nydus snapshotter for containerd"
+
+	if [ ! -f "$containerd_config" ]; then
+		die "failed to find containerd config"
+	fi
+
+	if [ "${INSTALL_NYDUS_SNAPSHOTTER}" = "true" ]; then
+		echo "Plug nydus snapshotter into containerd"
+		snapshotter_socket="/run/containerd-nydus/containerd-nydus-grpc.sock"
+	fi
+	proxy_config="  [proxy_plugins.$SNAPSHOTTER]\n    type = \"snapshot\"\n    address = \"${snapshotter_socket}\""
+
+	if grep -q "\[proxy_plugins\]" "$containerd_config"; then
+		sed -i '/\[proxy_plugins\]/a\'"$proxy_config" "$containerd_config"
+	else
+		echo -e "[proxy_plugins]" >>"$containerd_config"
+		echo -e "$proxy_config" >>"$containerd_config"
+	fi
+}
+
+function remove_nydus_snapshotter_from_containerd() {
+	echo "Remove nydus snapshotter from containerd"
+
+	sed -i '/\[proxy_plugins.nydus\]/,/address = "\/run\/containerd-nydus\/containerd-nydus-grpc\.sock"/d' "$containerd_config"
 }
 
 label_node() {
@@ -120,6 +187,7 @@ function main() {
 	echo "INSTALL_COCO_CONTAINERD: ${INSTALL_COCO_CONTAINERD}"
 	echo "INSTALL_OFFICIAL_CONTAINERD: ${INSTALL_OFFICIAL_CONTAINERD}"
 	echo "INSTALL_VFIO_GPU_CONTAINERD: ${INSTALL_VFIO_GPU_CONTAINERD}"
+	echo "INSTALL_NYDUS_SNAPSHOTTER: ${INSTALL_NYDUS_SNAPSHOTTER}"
 
 	# script requires that user is root
 	local euid=$(id -u)
