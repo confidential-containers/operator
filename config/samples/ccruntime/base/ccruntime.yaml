@@ -55,6 +55,8 @@ spec:
           name: confidential-containers-artifacts
         - mountPath: /etc/systemd/system/
           name: etc-systemd-system
+        - mountPath: /etc/containerd/
+          name: containerd-conf
       volumes:
         - hostPath:
             path: /opt/confidential-containers/
@@ -64,6 +66,10 @@ spec:
             path: /etc/systemd/system/
             type: ""
           name: etc-systemd-system
+        - hostPath:
+            path: /etc/containerd/
+            type: ""
+          name: containerd-conf
       environmentVariables:
         # If set to true, this will install the CoCo fork of the containerd,
         # the one allowing images to be pulled inside the guest and has patches
@@ -80,6 +86,11 @@ spec:
         # default: false
         - name: "INSTALL_VFIO_GPU_CONTAINERD"
           value: "false"
+        # If set to true, this will install nydus-snapshotter and nydus-image
+        # on the node
+        # default: false
+        - name: "INSTALL_NYDUS_SNAPSHOTTER"
+          value: "false"
     preInstall:
       image: quay.io/confidential-containers/reqs-payload
       volumeMounts:
@@ -87,6 +98,8 @@ spec:
           name: confidential-containers-artifacts
         - mountPath: /etc/systemd/system/
           name: etc-systemd-system
+        - mountPath: /etc/containerd/
+          name: containerd-conf
       volumes:
         - hostPath:
             path: /opt/confidential-containers/
@@ -96,6 +109,10 @@ spec:
             path: /etc/systemd/system/
             type: ""
           name: etc-systemd-system
+        - hostPath:
+            path: /etc/containerd/
+            type: ""
+          name: containerd-conf
       environmentVariables:
         # If set to true, this will install the CoCo fork of the containerd,
         # the one allowing images to be pulled inside the guest and has patches
@@ -110,6 +127,11 @@ spec:
         # the one that has patches for handling GPU / VFIO, on the node
         # default: false
         - name: "INSTALL_VFIO_GPU_CONTAINERD"
+          value: "false"
+        # If set to true, this will install nydus-snapshotter and nydus-image
+        # on the node
+        # default: false
+        - name: "INSTALL_NYDUS_SNAPSHOTTER"
           value: "false"
     environmentVariables:
       - name: NODE_NAME
