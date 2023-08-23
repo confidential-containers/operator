@@ -52,7 +52,6 @@ function uninstall_artifacts() {
 	rm -f /opt/confidential-containers/bin/containerd
 	echo "Removing the /opt/confidential-containers directory"
 	[ -d /opt/confidential-containers/bin ] && rmdir --ignore-fail-on-non-empty -p /opt/confidential-containers/bin
-	[ -d /opt/confidential-containers ] && rmdir --ignore-fail-on-non-empty -p /opt/confidential-containers
 }
 
 function restart_systemd_service() {
