@@ -44,14 +44,18 @@ function uninstall_artifacts() {
 	echo "Removing the systemd drop-in file"
 	rm -f /etc/systemd/system/${container_engine}.service.d/${container_engine}-for-cc-override.conf
 	echo "Removing the systemd drop-in file's directory, if empty"
-	[ -d /etc/systemd/system/${container_engine}.service.d ] && rmdir --ignore-fail-on-non-empty /etc/systemd/system/${container_engine}.service.d
+	if [ -d /etc/systemd/system/${container_engine}.service.d ]; then
+		rmdir --ignore-fail-on-non-empty /etc/systemd/system/${container_engine}.service.d
+	fi
 	
 	restart_systemd_service
 
 	echo "Removing the containerd binary"
 	rm -f /opt/confidential-containers/bin/containerd
 	echo "Removing the /opt/confidential-containers/bin directory"
-	[ -d /opt/confidential-containers/bin ] && rmdir --ignore-fail-on-non-empty -p /opt/confidential-containers/bin
+	if [ -d /opt/confidential-containers/bin ]; then
+		rmdir --ignore-fail-on-non-empty -p /opt/confidential-containers/bin
+	fi
 }
 
 function restart_systemd_service() {
