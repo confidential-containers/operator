@@ -1,3 +1,7 @@
 images:
 - path: spec/config/payloadImage
   kind: CcRuntime
+- path: spec/config/preInstall/image
+  kind: CcRuntime
+- path: spec/config/postUninstall/image
+  kind: CcRuntime

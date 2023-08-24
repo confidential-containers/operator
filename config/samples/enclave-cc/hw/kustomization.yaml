@@ -5,3 +5,6 @@ resources:
 - ../base
 
 nameSuffix: -sgx-mode-hw
+
+- name: quay.io/confidential-containers/container-engine-for-cc-payload
+  newTag: 98a790e8abdcc06c4b629b290ebaa217bf82e305
