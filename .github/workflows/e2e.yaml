@@ -25,12 +25,20 @@ jobs:
         with:
           driver-opts: network=host
 
-      - name: Build and push to local registry
+      - name: Build and push the operator image to local registry
         run: |
           make docker-build
           make docker-push
         env:
           IMG: localhost:5000/cc-operator:latest
+
+      - name: Build and push the pre-install to local registry
+        run: |
+          pushd install/pre-install-payload
+          make containerd registry="${REGISTRY}" extra_docker_manifest_flags="--insecure"
+          popd
+        env:
+          REGISTRY: localhost:5000/container-engine-for-cc-payload
 
       - name: Build custom kind node image
         uses: docker/build-push-action@v4
@@ -57,7 +65,9 @@ jobs:
 
       - name: Install enclave-cc sim
         run: |
-          kubectl apply -k config/samples/enclave-cc/sim
+          cd config/samples/enclave-cc/sim
+          kustomize edit set image quay.io/confidential-containers/container-engine-for-cc-payload=localhost:5000/container-engine-for-cc-payload:latest
+          kubectl apply -k . 
           sleep 1
           kubectl wait --for=jsonpath='{.status.runtimeClass}'=enclave-cc ccruntime/ccruntime-enclave-cc-sgx-mode-sim --timeout=90s
 
