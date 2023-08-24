@@ -33,6 +33,18 @@ function setup_env_for_arch() {
 		
 }
 
+function purge_previous_manifests() {
+	manifest=${1}
+	
+	# We need to sanitise the name by:
+	# * Replacing:
+	#   * '/' by '_'
+	#   * ':' by '-'
+	
+	sanitised_manifest="$(echo ${manifest} | sed 's|/|_|g' | sed 's|:|-|g')"
+	rm -rf ${HOME}/.docker/manifests/${sanitised_manifest}
+}
+
 function build_containerd_payload() {
 	pushd "${script_dir}/.."
 
@@ -52,6 +64,9 @@ function build_containerd_payload() {
 			.
 		docker push "${registry}:${kernel_arch}-${tag}"
 	done
+
+	purge_previous_manifests ${registry}:${tag}
+	purge_previous_manifests ${registry}:latest
 
 	docker manifest create ${extra_docker_manifest_flags} \
 		${registry}:${tag} \
