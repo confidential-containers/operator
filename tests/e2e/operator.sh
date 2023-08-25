@@ -18,7 +18,7 @@ source "${script_dir}/lib.sh"
 readonly op_ns="confidential-containers-system"
 # There should be a registry running locally on port 5000.
 export IMG=localhost:5000/cc-operator
-export PRE_INSTALL_IMG=localhost:5000/container-engine-for-cc-payload
+export PRE_INSTALL_IMG=localhost:5000/reqs-payload
 
 # Build the operator and push images to a local registry.
 #
@@ -43,7 +43,7 @@ build_operator () {
 	popd >/dev/null
 }
 
-# Build the container-engine-for-cc-payload and push images to a local registry.
+# Build the reqs-payload and push images to a local registry.
 #
 build_pre_install_img() {
 	start_local_registry
@@ -96,7 +96,7 @@ install_ccruntime() {
 
 	# Use the built pre-install image
 	kustomization_set_image  "${ccruntime_overlay_dir}/default" \
-		"quay.io/confidential-containers/container-engine-for-cc-payload" \
+		"quay.io/confidential-containers/reqs-payload" \
 		"${PRE_INSTALL_IMG}"
 
 	pushd "$overlay_dir" >/dev/null

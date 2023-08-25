@@ -47,7 +47,7 @@ spec:
     - name: "enclave-cc"
       snapshotter: "overlayfs"
     postUninstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload
+      image: quay.io/confidential-containers/reqs-payload
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts
@@ -75,7 +75,7 @@ spec:
             type: ""
           name: systemd
     preInstall:
-      image: quay.io/confidential-containers/container-engine-for-cc-payload
+      image: quay.io/confidential-containers/reqs-payload
       volumeMounts:
         - mountPath: /opt/confidential-containers/
           name: confidential-containers-artifacts

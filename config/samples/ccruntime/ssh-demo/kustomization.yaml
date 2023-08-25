@@ -9,7 +9,7 @@ resources:
 images:
 - name: quay.io/confidential-containers/runtime-payload
   newTag: kata-containers-ssh-demo-v0.2.0
-- name: quay.io/confidential-containers/container-engine-for-cc-payload
+- name: quay.io/confidential-containers/reqs-payload
   newTag: 1def978fdf6b0cb2383d43970c3dc484df3cad54
 
 patches:

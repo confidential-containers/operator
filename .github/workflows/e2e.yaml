@@ -38,7 +38,7 @@ jobs:
           make reqs-image registry="${REGISTRY}" extra_docker_manifest_flags="--insecure"
           popd
         env:
-          REGISTRY: localhost:5000/container-engine-for-cc-payload
+          REGISTRY: localhost:5000/reqs-payload
 
       - name: Build custom kind node image
         uses: docker/build-push-action@v4
@@ -66,7 +66,7 @@ jobs:
       - name: Install enclave-cc sim
         run: |
           cd config/samples/enclave-cc/sim
-          kustomize edit set image quay.io/confidential-containers/container-engine-for-cc-payload=localhost:5000/container-engine-for-cc-payload:latest
+          kustomize edit set image quay.io/confidential-containers/reqs-payload=localhost:5000/reqs-payload:latest
           kubectl apply -k . 
           sleep 1
           kubectl wait --for=jsonpath='{.status.runtimeClass}'=enclave-cc ccruntime/ccruntime-enclave-cc-sgx-mode-sim --timeout=90s
