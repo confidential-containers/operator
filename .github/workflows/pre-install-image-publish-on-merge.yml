@@ -1,4 +1,4 @@
-name: Publish container-engine-for-cc-payload latest image on push to main
+name: Publish reqs-payload latest image on push to main
 
 # When an push to `main` happens and changed the files under install/pre-install-payload/,
 # build and push the multi-arch image to latest
