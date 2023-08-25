@@ -35,7 +35,7 @@ jobs:
       - name: Build and push the pre-install to local registry
         run: |
           pushd install/pre-install-payload
-          make containerd registry="${REGISTRY}" extra_docker_manifest_flags="--insecure"
+          make reqs-image registry="${REGISTRY}" extra_docker_manifest_flags="--insecure"
           popd
         env:
           REGISTRY: localhost:5000/container-engine-for-cc-payload

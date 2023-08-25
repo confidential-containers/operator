@@ -49,7 +49,7 @@ build_pre_install_img() {
 	start_local_registry
 
 	pushd "${project_dir}/install/pre-install-payload" >/dev/null
-	make containerd registry="${PRE_INSTALL_IMG}" \
+	make reqs-image registry="${PRE_INSTALL_IMG}" \
 		extra_docker_manifest_flags="--insecure"
 	popd >/dev/null
 }
