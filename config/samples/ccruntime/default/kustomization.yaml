@@ -7,8 +7,8 @@ resources:
 - ../base
 
 images:
-- name: quay.io/confidential-containers/container-engine-for-cc-payload
-  newTag: c80c3e7392c1562841e75072d227e07f98cab2bd
+- name: quay.io/confidential-containers/reqs-payload
+  newTag: 4ad0978b8e9f1acb857fe2c76f1494c55bf28e05
 - name: quay.io/confidential-containers/runtime-payload
   newName: quay.io/confidential-containers/runtime-payload-ci
   newTag: kata-containers-latest
