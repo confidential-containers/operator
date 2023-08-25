@@ -46,7 +46,7 @@ function purge_previous_manifests() {
 }
 
 function build_containerd_payload() {
-	pushd "${script_dir}/.."
+	pushd "${script_dir}"
 
 	tag=$(git rev-parse HEAD)
 
@@ -57,7 +57,6 @@ function build_containerd_payload() {
 		docker buildx build \
 			--build-arg ARCH="${golang_arch}" \
 			--build-arg VERSION="${containerd_version}" \
-			-f "containerd/Dockerfile" \
 			-t "${registry}:${kernel_arch}-${tag}" \
 			--platform="${arch}" \
 			--load \
