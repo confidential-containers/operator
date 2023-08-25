@@ -56,7 +56,7 @@ function build_payload() {
 		echo "Building containerd payload image for ${arch}"
 		docker buildx build \
 			--build-arg ARCH="${golang_arch}" \
-			--build-arg VERSION="${containerd_version}" \
+			--build-arg COCO_CONTAINERD_VERSION="${containerd_version}" \
 			-t "${registry}:${kernel_arch}-${tag}" \
 			--platform="${arch}" \
 			--load \
