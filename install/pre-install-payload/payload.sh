@@ -45,7 +45,7 @@ function purge_previous_manifests() {
 	rm -rf ${HOME}/.docker/manifests/${sanitised_manifest}
 }
 
-function build_containerd_payload() {
+function build_payload() {
 	pushd "${script_dir}"
 
 	tag=$(git rev-parse HEAD)
@@ -84,7 +84,7 @@ function build_containerd_payload() {
 }
 
 function main() {
-	build_containerd_payload
+	build_payload
 }
 
 main "$@"
