@@ -15,6 +15,7 @@ registry="${registry:-quay.io/confidential-containers/container-engine-for-cc-pa
 supported_arches=(
 	"linux/amd64"
 	"linux/s390x"
+	"linux/ppc64le"
 )
 
 function setup_env_for_arch() {
@@ -26,6 +27,10 @@ function setup_env_for_arch() {
 		"linux/s390x")
 			kernel_arch="s390x"
 			golang_arch="s390x"
+			;;
+		"linux/ppc64le")
+			kernel_arch="ppc64le"
+			golang_arch="ppc64le"
 			;;
 		(*) echo "$1 is not supported" > /dev/stderr && exit 1
 	esac
@@ -55,12 +60,14 @@ function build_containerd_payload() {
 	docker manifest create \
 		${registry}:${tag} \
 		--amend ${registry}:x86_64-${tag} \
-		--amend ${registry}:s390x-${tag}
+		--amend ${registry}:s390x-${tag} \
+		--amend ${registry}:ppc64le-${tag}
 
 	docker manifest create \
 		${registry}:latest \
 		--amend ${registry}:x86_64-${tag} \
-		--amend ${registry}:s390x-${tag}
+		--amend ${registry}:s390x-${tag} \
+		--amend ${registry}:ppc64le-${tag}
 
 	docker manifest push ${registry}:${tag}
 	docker manifest push ${registry}:latest
