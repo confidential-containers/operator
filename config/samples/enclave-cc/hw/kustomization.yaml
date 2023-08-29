@@ -7,4 +7,4 @@ resources:
 nameSuffix: -sgx-mode-hw
 
 - name: quay.io/confidential-containers/reqs-payload
-  newTag: 4ad0978b8e9f1acb857fe2c76f1494c55bf28e05
+  newTag: e45d4e84c3ce4ae116f3f4d6c123c4829606026f
