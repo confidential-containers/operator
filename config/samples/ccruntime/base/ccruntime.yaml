@@ -75,6 +75,11 @@ spec:
         # default: false
         - name: "INSTALL_OFFICIAL_CONTAINERD"
           value: "false"
+        # If set to true, this will install the CoCo fork of the containerd,
+        # the one that has patches for handling GPU / VFIO, on the node
+        # default: false
+        - name: "INSTALL_VFIO_GPU_CONTAINERD"
+          value: "false"
     preInstall:
       image: quay.io/confidential-containers/reqs-payload
       volumeMounts:
@@ -100,6 +105,11 @@ spec:
         # If set to true, this will install the v1.7.0 release of containerd on the node.
         # default: false
         - name: "INSTALL_OFFICIAL_CONTAINERD"
+          value: "false"
+        # If set to true, this will install the CoCo fork of the containerd,
+        # the one that has patches for handling GPU / VFIO, on the node
+        # default: false
+        - name: "INSTALL_VFIO_GPU_CONTAINERD"
           value: "false"
     environmentVariables:
       - name: NODE_NAME
