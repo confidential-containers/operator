@@ -36,6 +36,25 @@ RUN \
 	tar xvzpf containerd-${OFFICIAL_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz -C ${NODE_DESTINATION} && \
 	rm containerd-${OFFICIAL_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz
 
+#### Confidential Containers forked containerd for VFIO / GPU stuff
+
+FROM base as vfio-gpu-containerd-binary-downloader
+
+ARG ARCH
+ARG VFIO_GPU_CONTAINERD_VERSION
+ARG VFIO_GPU_CONTAINERD_REPO
+
+ARG DESTINATION=/opt/confidential-containers-pre-install-artifacts
+ARG NODE_DESTINATION=${DESTINATION}/opt/confidential-containers
+
+RUN \
+	mkdir -p ${NODE_DESTINATION} && \
+	apk --no-cache add curl && \
+	curl -fOL --progress-bar ${VFIO_GPU_CONTAINERD_REPO}/releases/download/v${VFIO_GPU_CONTAINERD_VERSION}/containerd-${VFIO_GPU_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz && \
+	tar xvzpf containerd-${VFIO_GPU_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz -C ${NODE_DESTINATION} && \
+	rm containerd-${VFIO_GPU_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz
+
+
 #### kubectl
 
 FROM base as kubectl-binary-downloader
@@ -62,6 +81,7 @@ ARG CONTAINERD_SYSTEMD_ARTIFACTS=./containerd/containerd-for-cc-override.conf
 
 COPY --from=coco-containerd-binary-downloader ${NODE_DESTINATION}/bin/containerd ${NODE_DESTINATION}/bin/coco-containerd
 COPY --from=official-containerd-binary-downloader ${NODE_DESTINATION}/bin/containerd ${NODE_DESTINATION}/bin/official-containerd
+COPY --from=vfio-gpu-containerd-binary-downloader ${NODE_DESTINATION}/bin/containerd ${NODE_DESTINATION}/bin/vfio-gpu-containerd
 COPY --from=kubectl-binary-downloader /usr/bin/kubectl /usr/bin/kubectl
 COPY ${CONTAINERD_SYSTEMD_ARTIFACTS} ${NODE_CONTAINERD_SYSTEMD_DESTINATION}
 

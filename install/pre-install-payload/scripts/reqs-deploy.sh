@@ -49,6 +49,10 @@ function install_official_containerd_artefacts() {
 	install_containerd_artefacts "official"
 }
 
+function install_vfio_gpu_containerd_artefacts() {
+	install_containerd_artefacts "vfio-gpu"
+}
+
 function install_artifacts() {
 	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ]; then
 		install_coco_containerd_artefacts
@@ -56,6 +60,10 @@ function install_artifacts() {
 
 	if [ "${INSTALL_OFFICIAL_CONTAINERD}" = "true" ]; then
 		install_coco_containerd_artefacts
+	fi
+
+	if [ "${INSTALL_VFIO_GPU_CONTAINERD}" = "true" ]; then
+		install_vfio_gpu_containerd_artefacts
 	fi
 }
 
@@ -80,7 +88,7 @@ function uninstall_containerd_artefacts() {
 }
 
 function uninstall_artifacts() {
-	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ] || [ "${INSTALL_OFFICIAL_CONTAINERD}" = "true" ]; then
+	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ] || [ "${INSTALL_OFFICIAL_CONTAINERD}" = "true" ] || [ "${INSTALL_VFIO_GPU_CONTAINERD}" = "true" ]; then
 		uninstall_containerd_artefacts
 	fi
 }
@@ -111,6 +119,7 @@ function print_help() {
 function main() {
 	echo "INSTALL_COCO_CONTAINERD: ${INSTALL_COCO_CONTAINERD}"
 	echo "INSTALL_OFFICIAL_CONTAINERD: ${INSTALL_OFFICIAL_CONTAINERD}"
+	echo "INSTALL_VFIO_GPU_CONTAINERD: ${INSTALL_VFIO_GPU_CONTAINERD}"
 
 	# script requires that user is root
 	local euid=$(id -u)
