@@ -6,8 +6,8 @@ set -o nounset
 
 script_dir=$(dirname "$(readlink -f "$0")")
 
-containerd_repo=${containerd_repo:-"https://github.com/confidential-containers/containerd"}
-containerd_version=${containerd_version:-"v1.6.6.0"}
+coco_containerd_repo=${coco_containerd_repo:-"https://github.com/confidential-containers/containerd"}
+coco_containerd_version=${coco_containerd_version:-"v1.6.6.0"}
 containerd_dir="$(mktemp -d -t containerd-XXXXXXXXXX)/containerd"
 extra_docker_manifest_flags="${extra_docker_manifest_flags:-}"
 
@@ -56,7 +56,7 @@ function build_payload() {
 		echo "Building containerd payload image for ${arch}"
 		docker buildx build \
 			--build-arg ARCH="${golang_arch}" \
-			--build-arg COCO_CONTAINERD_VERSION="${containerd_version}" \
+			--build-arg COCO_CONTAINERD_VERSION="${coco_containerd_version}" \
 			-t "${registry}:${kernel_arch}-${tag}" \
 			--platform="${arch}" \
 			--load \
