@@ -41,7 +41,7 @@ ARG NODE_CONTAINERD_SYSTEMD_DESTINATION=${DESTINATION}/etc/systemd/system/contai
 
 ARG CONTAINERD_SYSTEMD_ARTIFACTS=./containerd/containerd-for-cc-override.conf
 
-COPY --from=coco-containerd-binary-downloader ${NODE_DESTINATION}/bin/ ${NODE_DESTINATION}/bin/
+COPY --from=coco-containerd-binary-downloader ${NODE_DESTINATION}/bin/containerd ${NODE_DESTINATION}/bin/coco-containerd
 COPY --from=kubectl-binary-downloader /usr/bin/kubectl /usr/bin/kubectl
 COPY ${CONTAINERD_SYSTEMD_ARTIFACTS} ${NODE_CONTAINERD_SYSTEMD_DESTINATION}
 

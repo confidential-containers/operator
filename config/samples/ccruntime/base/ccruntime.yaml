@@ -64,6 +64,13 @@ spec:
             path: /etc/systemd/system/
             type: ""
           name: etc-systemd-system
+      environmentVariables:
+        # If set to true, this will install the CoCo fork of the containerd,
+        # the one allowing images to be pulled inside the guest and has patches
+        # for handling GPU / VFIO, on the node
+        # default: true
+        - name: "INSTALL_COCO_CONTAINERD"
+          value: "true"
     preInstall:
       image: quay.io/confidential-containers/reqs-payload
       volumeMounts:
@@ -80,6 +87,12 @@ spec:
             path: /etc/systemd/system/
             type: ""
           name: etc-systemd-system
+      environmentVariables:
+        # If set to true, this will install the CoCo fork of the containerd,
+        # the one allowing images to be pulled inside the guest and has patches
+        # for handling GPU / VFIO, on the node
+        - name: "INSTALL_COCO_CONTAINERD"
+          value: "true"
     environmentVariables:
       - name: NODE_NAME
         valueFrom:
