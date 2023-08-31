@@ -67,6 +67,10 @@ spec:
         # default: true
         - name: "INSTALL_COCO_CONTAINERD"
           value: "true"
+        # If set to true, this will install the v1.7.0 release of containerd on the node.
+        # default: false
+        - name: "INSTALL_OFFICIAL_CONTAINERD"
+          value: "false"
     preInstall:
       image: quay.io/confidential-containers/reqs-payload
       volumeMounts:
@@ -88,6 +92,10 @@ spec:
         # default: true
         - name: "INSTALL_COCO_CONTAINERD"
           value: "true"
+        # If set to true, this will install the v1.7.0 release of containerd on the node.
+        # default: false
+        - name: "INSTALL_OFFICIAL_CONTAINERD"
+          value: "false"
     environmentVariables:
       - name: NODE_NAME
         valueFrom:
