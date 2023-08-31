@@ -7,7 +7,7 @@ set -o nounset
 script_dir=$(dirname "$(readlink -f "$0")")
 
 coco_containerd_repo=${coco_containerd_repo:-"https://github.com/confidential-containers/containerd"}
-coco_containerd_version=${coco_containerd_version:-"v1.6.6.0"}
+coco_containerd_version=${coco_containerd_version:-"1.6.8.2"}
 official_containerd_repo=${official_containerd_repo:-"https://github.com/containerd/containerd"}
 official_containerd_version=${official_containerd_version:-"1.7.0"}
 containerd_dir="$(mktemp -d -t containerd-XXXXXXXXXX)/containerd"
