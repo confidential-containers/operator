@@ -53,10 +53,6 @@ spec:
           name: confidential-containers-artifacts
         - mountPath: /etc/systemd/system/
           name: etc-systemd-system
-        - mountPath: /var/run/dbus/system_bus_socket
-          name: dbus
-        - mountPath: /run/systemd/system
-          name: systemd
       volumes:
         - hostPath:
             path: /opt/confidential-containers/
@@ -66,14 +62,6 @@ spec:
             path: /etc/systemd/system/
             type: ""
           name: etc-systemd-system
-        - hostPath:
-            path: /var/run/dbus/system_bus_socket
-            type: ""
-          name: dbus
-        - hostPath:
-            path: /run/systemd/system
-            type: ""
-          name: systemd
       environmentVariables:
         # If set to true, this will install the CoCo fork of the containerd on the node.
         # default: true
@@ -86,10 +74,6 @@ spec:
           name: confidential-containers-artifacts
         - mountPath: /etc/systemd/system/
           name: etc-systemd-system
-        - mountPath: /var/run/dbus/system_bus_socket
-          name: dbus
-        - mountPath: /run/systemd/system
-          name: systemd
       volumes:
         - hostPath:
             path: /opt/confidential-containers/
@@ -99,14 +83,6 @@ spec:
             path: /etc/systemd/system/
             type: ""
           name: etc-systemd-system
-        - hostPath:
-            path: /var/run/dbus/system_bus_socket
-            type: ""
-          name: dbus
-        - hostPath:
-            path: /run/systemd/system
-            type: ""
-          name: systemd
       environmentVariables:
         # If set to true, this will install the CoCo fork of the containerd on the node.
         # default: true
