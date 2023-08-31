@@ -8,6 +8,8 @@ script_dir=$(dirname "$(readlink -f "$0")")
 
 coco_containerd_repo=${coco_containerd_repo:-"https://github.com/confidential-containers/containerd"}
 coco_containerd_version=${coco_containerd_version:-"v1.6.6.0"}
+official_containerd_repo=${official_containerd_repo:-"https://github.com/containerd/containerd"}
+official_containerd_version=${official_containerd_version:-"1.7.0"}
 containerd_dir="$(mktemp -d -t containerd-XXXXXXXXXX)/containerd"
 extra_docker_manifest_flags="${extra_docker_manifest_flags:-}"
 
@@ -57,6 +59,9 @@ function build_payload() {
 		docker buildx build \
 			--build-arg ARCH="${golang_arch}" \
 			--build-arg COCO_CONTAINERD_VERSION="${coco_containerd_version}" \
+			--build-arg COCO_CONTAINERD_REPO="${coco_containerd_repo}" \
+			--build-arg OFFICIAL_CONTAINERD_VERSION="${official_containerd_version}" \
+			--build-arg OFFICIAL_CONTAINERD_REPO="${official_containerd_repo}" \
 			-t "${registry}:${kernel_arch}-${tag}" \
 			--platform="${arch}" \
 			--load \
