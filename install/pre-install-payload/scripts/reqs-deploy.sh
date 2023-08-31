@@ -29,16 +29,29 @@ function set_container_engine() {
 	container_engine=$(get_container_engine)
 }
 
-function install_artifacts() {
-	echo "Copying containerd-for-cc artifacts onto host"
+function install_containerd_artefacts() {
+	flavour=${1}
+
+	echo "Copying ${flavour} containerd-for-cc artifacts onto host"
 
 	local artifacts_dir="/opt/confidential-containers-pre-install-artifacts"
 
-	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/containerd /opt/confidential-containers/bin/containerd
+	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/${flavour}-containerd /opt/confidential-containers/bin/containerd
 	install -D -m 644 ${artifacts_dir}/etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf /etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf
+
 }
 
-function uninstall_artifacts() {
+function install_coco_containerd_artefacts() {
+	install_containerd_artefacts "coco"
+}
+
+function install_artifacts() {
+	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ]; then
+		install_coco_containerd_artefacts
+	fi
+}
+
+function uninstall_containerd_artefacts() {
 	echo "Removing containerd-for-cc artifacts from host"
 
 	echo "Removing the systemd drop-in file"
@@ -55,6 +68,12 @@ function uninstall_artifacts() {
 	echo "Removing the /opt/confidential-containers/bin directory"
 	if [ -d /opt/confidential-containers/bin ]; then
 		rmdir --ignore-fail-on-non-empty -p /opt/confidential-containers/bin
+	fi
+}
+
+function uninstall_artifacts() {
+	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ]; then
+		uninstall_containerd_artefacts
 	fi
 }
 
@@ -82,6 +101,8 @@ function print_help() {
 }
 
 function main() {
+	echo "INSTALL_COCO_CONTAINERD: ${INSTALL_COCO_CONTAINERD}"
+
 	# script requires that user is root
 	local euid=$(id -u)
 	if [ ${euid} -ne 0 ]; then
