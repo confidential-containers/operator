@@ -10,7 +10,7 @@ permissions:
 jobs:
   e2e:
     name: operator enclave-cc e2e tests
-    runs-on: ubuntu-22.04
+    runs-on: az-ubuntu-2204
     services:
       registry:
         image: registry:2
