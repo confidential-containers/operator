@@ -470,7 +470,7 @@ func (r *CcRuntimeReconciler) monitorCcRuntimeInstallation() (ctrl.Result, error
 			foundRc := &nodeapi.RuntimeClass{}
 			err := r.Client.Get(context.TODO(), types.NamespacedName{Name: runtimeClass.Name}, foundRc)
 			if errors.IsNotFound(err) {
-				r.Log.Info("The runtime payload failed to create the runtime class named %s", runtimeClass.Name)
+				r.Log.Info("The runtime payload failed to create the runtime class", "runtimeClassName", runtimeClass.Name)
 				return ctrl.Result{}, err
 			}
 			runtimeClassNames = append(runtimeClassNames, runtimeClass.Name)
