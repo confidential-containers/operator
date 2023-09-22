@@ -5,6 +5,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+# Normalize system hostname to the usual kubectl node name
+export SAFE_HOST_NAME=$(hostname | tr '[:upper:]' '[:lower:]')
+
 # Wait until the node is ready. It is set a timeout of 180 seconds.
 #
 check_node_is_ready() {

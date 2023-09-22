@@ -87,9 +87,9 @@ install_operator() {
 
 	# The node should be 'worker' labeled
 	local label="node.kubernetes.io/worker"
-	if ! kubectl get node "$(hostname)" -o jsonpath='{.metadata.labels}' \
+	if ! kubectl get node "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}' \
 		| grep -q "$label"; then
-		kubectl label node "$(hostname)" "$label="
+		kubectl label node "$SAFE_HOST_NAME" "$label="
 	fi
 
 	handle_older_containerd
@@ -182,10 +182,10 @@ uninstall_ccruntime() {
 	! kubectl get --no-headers runtimeclass 2>/dev/null | grep -q kata
 
 	# Labels should be gone
-	if kubectl get nodes "$(hostname)" -o jsonpath='{.metadata.labels}' | \
+	if kubectl get nodes "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}' | \
 		grep -q -e cc-preinstall -e katacontainers.io; then
 		echo "ERROR: there are labels left behind"
-		kubectl get nodes "$(hostname)" -o jsonpath='{.metadata.labels}'
+		kubectl get nodes "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}'
 
 		return 1
 	fi
