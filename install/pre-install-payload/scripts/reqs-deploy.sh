@@ -61,6 +61,10 @@ function install_nydus_snapshotter_artefacts() {
 	#NOTE: symlink nydus-overlayfs to /usr/local/bin or /usr/bin
 	ln -s /opt/confidential-containers/bin/nydus-overlayfs /usr/bin/nydus-overlayfs
 	install -D -m 644 ${artifacts_dir}/opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml /opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml
+	install -D -m 644 ${artifacts_dir}/etc/systemd/system/nydus-snapshotter.service /etc/systemd/system/nydus-snapshotter.service
+
+	host_systemctl daemon-reload
+	host_systemctl enable nydus-snapshotter.service
 
 	configure_nydus_snapshotter_for_containerd
 
@@ -107,6 +111,11 @@ function uninstall_containerd_artefacts() {
 
 function uninstall_nydus_snapshotter_artefacts() {
 	remove_nydus_snapshotter_from_containerd
+
+	host_systemctl disable nydus-snapshotter.service
+	host_systemctl daemon-reload
+
+	rm -rf /etc/systemd/system/nydus-snapshotter.service
 
 	restart_systemd_service
 

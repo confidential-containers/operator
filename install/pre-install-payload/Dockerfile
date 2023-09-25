@@ -102,9 +102,11 @@ RUN apk --no-cache add bash
 ARG DESTINATION=/opt/confidential-containers-pre-install-artifacts
 ARG NODE_DESTINATION=${DESTINATION}/opt/confidential-containers
 ARG NODE_CONTAINERD_SYSTEMD_DESTINATION=${DESTINATION}/etc/systemd/system/containerd.service.d/
+ARG NODE_NYDUS_SNAPSHOTTER_SYSTEMD_DESTINATION=${DESTINATION}/etc/systemd/system/nydus-snapshotter.service
 
 ARG CONTAINERD_SYSTEMD_ARTIFACTS=./containerd/containerd-for-cc-override.conf
-ARG NYDUS_SNAPSHOTTER_ARTIFACTS=./remote-snapshotter/nydus-snapshotter
+ARG NYDUS_SNAPSHOTTER_SYSTEMD_ARTIFACTS=./remote-snapshotter/nydus-snapshotter/nydus-snapshotter.service
+ARG NYDUS_SNAPSHOTTER_ARTIFACTS=./remote-snapshotter/nydus-snapshotter/config-coco-guest-pulling.toml
 
 COPY --from=coco-containerd-binary-downloader ${NODE_DESTINATION}/bin/containerd ${NODE_DESTINATION}/bin/coco-containerd
 COPY --from=official-containerd-binary-downloader ${NODE_DESTINATION}/bin/containerd ${NODE_DESTINATION}/bin/official-containerd
@@ -114,7 +116,8 @@ COPY --from=nydus-binary-downloader ${NODE_DESTINATION}/bin/* ${NODE_DESTINATION
 
 COPY --from=kubectl-binary-downloader /usr/bin/kubectl /usr/bin/kubectl
 COPY ${CONTAINERD_SYSTEMD_ARTIFACTS} ${NODE_CONTAINERD_SYSTEMD_DESTINATION}
-COPY ${NYDUS_SNAPSHOTTER_ARTIFACTS}/* ${NODE_DESTINATION}/share/nydus-snapshotter/
+COPY ${NYDUS_SNAPSHOTTER_SYSTEMD_ARTIFACTS} ${NODE_NYDUS_SNAPSHOTTER_SYSTEMD_DESTINATION}
+COPY ${NYDUS_SNAPSHOTTER_ARTIFACTS} ${NODE_DESTINATION}/share/nydus-snapshotter/config-coco-guest-pulling.toml
 
 ARG CONTAINER_ENGINE_ARTIFACTS=./scripts
 COPY ${CONTAINER_ENGINE_ARTIFACTS}/* ${DESTINATION}/scripts/
