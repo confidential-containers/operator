@@ -60,11 +60,7 @@ function install_nydus_snapshotter_artefacts() {
 	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/nydus-overlayfs /opt/confidential-containers/bin/nydus-overlayfs
 	#NOTE: symlink nydus-overlayfs to /usr/local/bin or /usr/bin
 	ln -s /opt/confidential-containers/bin/nydus-overlayfs /usr/bin/nydus-overlayfs
-	if [ "$(uname -m)" != "s390x" ]; then
-		install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/nydus-image /opt/confidential-containers/bin/nydus-image
-	fi
 	install -D -m 644 ${artifacts_dir}/opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml /opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml
-	install -D -m 644 ${artifacts_dir}/opt/confidential-containers/share/nydus-snapshotter/config-coco-host-sharing.toml /opt/confidential-containers/share/nydus-snapshotter/config-coco-host-sharing.toml
 
 	configure_nydus_snapshotter_for_containerd
 
@@ -119,10 +115,6 @@ function uninstall_nydus_snapshotter_artefacts() {
 	rm -f /opt/confidential-containers/bin/nydus-overlayfs
 	#NOTE: remove the link of nydus-overlayfs in /usr/local/bin or /usr/bin
 	rm /usr/bin/nydus-overlayfs
-	if [ "$(uname -m)" != "s390x" ]; then
-		rm -f /opt/confidential-containers/bin/nydus-image
-	fi
-	rm -f /opt/confidential-containers/share/remote-snapshotter/config-coco-host-sharing.toml
 	rm -f /opt/confidential-containers/share/remote-snapshotter/config-coco-guest-pulling.toml
 }	
 

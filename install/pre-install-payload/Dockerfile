@@ -79,14 +79,6 @@ RUN mkdir -p ${NODE_DESTINATION}/bin && \
 	mv /nydus-snapshotter/bin/nydus-overlayfs ${NODE_DESTINATION}/bin && \
     rm -rf /nydus-snapshotter 
 
-RUN if [ "${ARCH}" != "s390x" ]; then \
-    curl -fOL --progress-bar ${NYDUS_REPO}/releases/download/${NYDUS_VERSION}/nydus-static-${NYDUS_VERSION}-linux-${ARCH}.tgz && \
-    tar xvzpf nydus-static-${NYDUS_VERSION}-linux-${ARCH}.tgz -C / && \
-    chmod +x /nydus-static/nydus-image && \
-    mv /nydus-static/nydus-image ${NODE_DESTINATION}/bin && \
-    rm -rf /nydus-static /nydus-static-${NYDUS_VERSION}-linux-${ARCH}.tgz; \
-    fi
-
 RUN apk del build-base git curl
 
 #### kubectl
