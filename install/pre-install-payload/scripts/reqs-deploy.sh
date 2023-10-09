@@ -5,6 +5,7 @@ set -o pipefail
 set -o nounset
 
 containerd_config="/etc/containerd/config.toml"
+artifacts_dir="/opt/confidential-containers-pre-install-artifacts"
 
 die() {
 	msg="$*"
@@ -36,7 +37,6 @@ function install_containerd_artefacts() {
 
 	echo "Copying ${flavour} containerd-for-cc artifacts onto host"
 
-	local artifacts_dir="/opt/confidential-containers-pre-install-artifacts"
 
 	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/${flavour}-containerd /opt/confidential-containers/bin/containerd
 	install -D -m 644 ${artifacts_dir}/etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf /etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf
@@ -56,6 +56,7 @@ function install_vfio_gpu_containerd_artefacts() {
 
 function install_nydus_snapshotter_artefacts() {
 	echo "Copying nydus-snapshotter artifacts onto host"
+
 	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/containerd-nydus-grpc /opt/confidential-containers/bin/containerd-nydus-grpc
 	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/nydus-overlayfs /opt/confidential-containers/bin/nydus-overlayfs
 	#NOTE: symlink nydus-overlayfs to /usr/local/bin or /usr/bin
