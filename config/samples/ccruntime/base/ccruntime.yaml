@@ -143,3 +143,5 @@ spec:
         value: "yes"
       - name: "DEBUG"
         value: "true"
+      - name: "SNAPSHOTTER"
+        value: "nydus"
