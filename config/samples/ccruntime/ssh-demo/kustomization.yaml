@@ -18,11 +18,11 @@ patches:
       path: /spec/config/runtimeClasses
       value:
       - name: "kata"
-        snapshotter: "overlayfs"
+        snapshotter: "nydus"
       - name: "kata-clh"
-        snapshotter: "overlayfs"
+        snapshotter: "nydus"
       - name: "kata-qemu"
-        snapshotter: "overlayfs"
+        snapshotter: "nydus"
   target:
     kind: CcRuntime
 

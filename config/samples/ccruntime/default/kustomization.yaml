@@ -19,17 +19,17 @@ patches:
       path: /spec/config/runtimeClasses
       value:
       - name: "kata-clh"
-        snapshotter: "overlayfs"
+        snapshotter: "nydus"
       - name: "kata-clh-tdx"
-        snapshotter: "overlayfs"
+        snapshotter: "nydus"
       - name: "kata-qemu"
-        snapshotter: "overlayfs"
+        snapshotter: "nydus"
       - name: "kata-qemu-tdx"
-        snapshotter: "overlayfs"
+        snapshotter: "nydus"
       - name: "kata-qemu-sev"
-        snapshotter: "overlayfs"
+        snapshotter: "nydus"
       - name: "kata-qemu-snp"
-        snapshotter: "overlayfs"
+        snapshotter: "nydus"
     - op: add
       path: /spec/config/defaultRuntimeClassName
       value: "kata-qemu"
