@@ -141,3 +141,5 @@ spec:
             fieldPath: spec.nodeName
       - name: "CONFIGURE_CC"
         value: "yes"
+      - name: "DEBUG"
+        value: "true"
