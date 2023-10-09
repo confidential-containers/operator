@@ -152,7 +152,7 @@ function configure_nydus_snapshotter_for_containerd() {
 		echo "Plug nydus snapshotter into containerd"
 		snapshotter_socket="/run/containerd-nydus/containerd-nydus-grpc.sock"
 	fi
-	proxy_config="  [proxy_plugins.$SNAPSHOTTER]\n    type = \"snapshot\"\n    address = \"${snapshotter_socket}\""
+	proxy_config="  [proxy_plugins.nydus]\n    type = \"snapshot\"\n    address = \"${snapshotter_socket}\""
 
 	if grep -q "\[proxy_plugins\]" "$containerd_config"; then
 		sed -i '/\[proxy_plugins\]/a\'"$proxy_config" "$containerd_config"
