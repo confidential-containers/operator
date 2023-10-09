@@ -17,11 +17,11 @@ nydus_snapshotter_version=${nydus_snapshotter_version:-"v0.12.0"}
 containerd_dir="$(mktemp -d -t containerd-XXXXXXXXXX)/containerd"
 extra_docker_manifest_flags="${extra_docker_manifest_flags:-}"
 
-registry="${registry:-quay.io/confidential-containers/reqs-payload}"
+#registry="${registry:-quay.io/confidential-containers/reqs-payload}"
 
 supported_arches=(
 	"linux/amd64"
-	"linux/s390x"
+#	"linux/s390x"
 )
 
 function setup_env_for_arch() {
@@ -82,13 +82,15 @@ function build_payload() {
 
 	docker manifest create ${extra_docker_manifest_flags} \
 		${registry}:${tag} \
-		--amend ${registry}:x86_64-${tag} \
-		--amend ${registry}:s390x-${tag}
+		--amend ${registry}:x86_64-${tag} 
+#		--amend ${registry}:x86_64-${tag} \
+#		--amend ${registry}:s390x-${tag}
 
 	docker manifest create ${extra_docker_manifest_flags} \
 		${registry}:latest \
-		--amend ${registry}:x86_64-${tag} \
-		--amend ${registry}:s390x-${tag}
+		--amend ${registry}:x86_64-${tag}
+#		--amend ${registry}:x86_64-${tag} \
+#		--amend ${registry}:s390x-${tag}
 
 	docker manifest push ${extra_docker_manifest_flags} ${registry}:${tag}
 	docker manifest push ${extra_docker_manifest_flags} ${registry}:latest
