@@ -622,7 +622,7 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		//        payload script supports setting one snapshotter per runtime handler.
 		//        For now, for the v0.8.0 release, we're fine assuming that all the
 		//        set snapshotters are going to be the same.
-		if snapshotter != "" {
+		if snapshotter == "" && runtimeClass.Snapshotter != "" {
 			snapshotter = runtimeClass.Snapshotter
 		}
 	}
