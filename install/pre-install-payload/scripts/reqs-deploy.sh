@@ -148,24 +148,34 @@ function configure_nydus_snapshotter_for_containerd() {
 		die "failed to find containerd config"
 	fi
 
-	if [ "${INSTALL_NYDUS_SNAPSHOTTER}" = "true" ]; then
-		echo "Plug nydus snapshotter into containerd"
-		snapshotter_socket="/run/containerd-nydus/containerd-nydus-grpc.sock"
-	fi
-	proxy_config="  [proxy_plugins.nydus]\n    type = \"snapshot\"\n    address = \"${snapshotter_socket}\""
+	containerd_imports_path="/etc/containerd/config.toml.d"
 
-	if grep -q "\[proxy_plugins\]" "$containerd_config"; then
-		sed -i '/\[proxy_plugins\]/a\'"$proxy_config" "$containerd_config"
+	echo "Create ${containerd_imports_path}"
+	mkdir -p "${containerd_imports_path}"
+
+	echo "Drop-in the nydus configuration"
+	cat << EOF | tee "${containerd_imports_path}"/nydus-snapshotter.toml
+[proxy_plugins]
+  [proxy_plugins.nydus]
+    type = "snapshot"
+    address = "/run/containerd-nydus/containerd-nydus-grpc.sock"
+EOF
+	if grep -q "^imports = " "$containerd_config"; then
+		sed -i -e "s|^imports = \[\(.*\)\]|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\", \1]|g" ${containerd_config}
+		sed -i -e "s|, ]|]|g" ${containerd_config}
 	else
-		echo -e "[proxy_plugins]" >>"$containerd_config"
-		echo -e "$proxy_config" >>"$containerd_config"
+		sed -i -e "1s|^|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\"]\n|" ${containerd_config}
 	fi
 }
 
 function remove_nydus_snapshotter_from_containerd() {
 	echo "Remove nydus snapshotter from containerd"
 
-	sed -i '/\[proxy_plugins.nydus\]/,/address = "\/run\/containerd-nydus\/containerd-nydus-grpc\.sock"/d' "$containerd_config"
+	containerd_imports_path="/etc/containerd/config.toml.d"
+
+	rm -f "${containerd_imports_path}/nydus-snapshotter.toml"
+	sed -i -e "s|\"${containerd_imports_path}/nydus-snapshotter.toml\"||g" ${containerd_config}
+	sed -i -e "s|, ]|]|g" ${containerd_config}
 }
 
 label_node() {
