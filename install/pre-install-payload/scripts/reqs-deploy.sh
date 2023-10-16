@@ -60,7 +60,7 @@ function install_nydus_snapshotter_artefacts() {
 	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/containerd-nydus-grpc /opt/confidential-containers/bin/containerd-nydus-grpc
 	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/nydus-overlayfs /opt/confidential-containers/bin/nydus-overlayfs
 	#NOTE: symlink nydus-overlayfs to /usr/local/bin or /usr/bin
-	ln -s /opt/confidential-containers/bin/nydus-overlayfs /usr/bin/nydus-overlayfs
+	ln -sf /opt/confidential-containers/bin/nydus-overlayfs /usr/local/bin/nydus-overlayfs
 	install -D -m 644 ${artifacts_dir}/opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml /opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml
 	install -D -m 644 ${artifacts_dir}/etc/systemd/system/nydus-snapshotter.service /etc/systemd/system/nydus-snapshotter.service
 
@@ -124,7 +124,7 @@ function uninstall_nydus_snapshotter_artefacts() {
 	rm -f /opt/confidential-containers/bin/containerd-nydus-grpc
 	rm -f /opt/confidential-containers/bin/nydus-overlayfs
 	#NOTE: remove the link of nydus-overlayfs in /usr/local/bin or /usr/bin
-	rm /usr/bin/nydus-overlayfs
+	rm -f /usr/local/bin/nydus-overlayfs
 	rm -f /opt/confidential-containers/share/remote-snapshotter/config-coco-guest-pulling.toml
 }	
 

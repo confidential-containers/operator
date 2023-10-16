@@ -57,6 +57,8 @@ spec:
           name: etc-systemd-system
         - mountPath: /etc/containerd/
           name: containerd-conf
+        - mountPath: /usr/local/bin/
+          name: local-bin
       volumes:
         - hostPath:
             path: /opt/confidential-containers/
@@ -70,6 +72,10 @@ spec:
             path: /etc/containerd/
             type: ""
           name: containerd-conf
+        - hostPath:
+            path: /usr/local/bin/
+            type: ""
+          name: local-bin
       environmentVariables:
         # If set to true, this will install the CoCo fork of the containerd,
         # the one allowing images to be pulled inside the guest and has patches
@@ -100,6 +106,8 @@ spec:
           name: etc-systemd-system
         - mountPath: /etc/containerd/
           name: containerd-conf
+        - mountPath: /usr/local/bin/
+          name: local-bin
       volumes:
         - hostPath:
             path: /opt/confidential-containers/
@@ -113,6 +121,10 @@ spec:
             path: /etc/containerd/
             type: ""
           name: containerd-conf
+        - hostPath:
+            path: /usr/local/bin/
+            type: ""
+          name: local-bin
       environmentVariables:
         # If set to true, this will install the CoCo fork of the containerd,
         # the one allowing images to be pulled inside the guest and has patches
