@@ -166,6 +166,8 @@ EOF
 	else
 		sed -i -e "1s|^|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\"]\n|" ${containerd_config}
 	fi
+
+	sed -i -e "s|disable_snapshot_annotations = true|disable_snapshot_annotations = false|" ${containerd_config}
 }
 
 function remove_nydus_snapshotter_from_containerd() {
@@ -176,6 +178,8 @@ function remove_nydus_snapshotter_from_containerd() {
 	rm -f "${containerd_imports_path}/nydus-snapshotter.toml"
 	sed -i -e "s|\"${containerd_imports_path}/nydus-snapshotter.toml\"||g" ${containerd_config}
 	sed -i -e "s|, ]|]|g" ${containerd_config}
+
+	sed -i -e "s|disable_snapshot_annotations = false|disable_snapshot_annotations = true|" ${containerd_config}
 }
 
 label_node() {
