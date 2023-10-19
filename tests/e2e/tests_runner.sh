@@ -30,12 +30,12 @@ runtimeclass="kata-qemu"
 export TESTS_CONFIGURE_CC_CONTAINERD=no
 
 clone_kata_tests() {
-	local cc_branch="topic/CC-set-io.containerd.cri.runtime.handler-annotation"
+	local cc_branch="tests-iterate-on-key-already-exists-error"
 
 	# TODO: checkout on the exact sha1 where the kata-deploy was created
 	# so that we ensure the same tests are used here.
 	git clone --branch="$cc_branch" \
-		https://github.com/fidencio/kata-tests "$tests_repo_dir"
+		https://github.com/portersrc/tests "$tests_repo_dir"
 }
 
 cleanup() {
