@@ -1,0 +1,10 @@
+[Unit]
+Description=Nydus snapshotter
+After=network.target local-fs.target
+Before=containerd.service
+
+[Service]
+ExecStart=/opt/confidential-containers/bin/containerd-nydus-grpc --config /opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml --log-to-stdout
+
+[Install]
+RequiredBy=containerd.service
