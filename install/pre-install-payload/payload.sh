@@ -46,7 +46,7 @@ function purge_previous_manifests() {
 	#   * ':' by '-'
 	
 	sanitised_manifest="$(echo ${manifest} | sed 's|/|_|g' | sed 's|:|-|g')"
-	rm -rf ${HOME}/.docker/manifests/${sanitised_manifest}
+	rm -rf ${HOME}/.docker/manifests/${sanitised_manifest} || true
 }
 
 function build_payload() {
