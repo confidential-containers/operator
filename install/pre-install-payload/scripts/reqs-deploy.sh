@@ -126,6 +126,7 @@ function uninstall_nydus_snapshotter_artefacts() {
 	#NOTE: remove the link of nydus-overlayfs in /usr/local/bin or /usr/bin
 	rm -f /usr/local/bin/nydus-overlayfs
 	rm -f /opt/confidential-containers/share/remote-snapshotter/config-coco-guest-pulling.toml
+	rm -rf /var/lib/containerd-nydus
 }	
 
 
