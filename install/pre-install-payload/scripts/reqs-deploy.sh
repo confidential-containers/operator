@@ -59,7 +59,7 @@ function install_artifacts() {
 	fi
 
 	if [ "${INSTALL_OFFICIAL_CONTAINERD}" = "true" ]; then
-		install_coco_containerd_artefacts
+		install_official_containerd_artefacts
 	fi
 
 	if [ "${INSTALL_VFIO_GPU_CONTAINERD}" = "true" ]; then
