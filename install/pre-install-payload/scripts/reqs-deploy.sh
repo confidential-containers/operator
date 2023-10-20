@@ -4,6 +4,9 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+containerd_config="/etc/containerd/config.toml"
+artifacts_dir="/opt/confidential-containers-pre-install-artifacts"
+
 die() {
 	msg="$*"
 	echo "ERROR: $msg" >&2
@@ -34,11 +37,9 @@ function install_containerd_artefacts() {
 
 	echo "Copying ${flavour} containerd-for-cc artifacts onto host"
 
-	local artifacts_dir="/opt/confidential-containers-pre-install-artifacts"
 
 	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/${flavour}-containerd /opt/confidential-containers/bin/containerd
 	install -D -m 644 ${artifacts_dir}/etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf /etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf
-
 }
 
 function install_coco_containerd_artefacts() {
@@ -53,6 +54,24 @@ function install_vfio_gpu_containerd_artefacts() {
 	install_containerd_artefacts "vfio-gpu"
 }
 
+function install_nydus_snapshotter_artefacts() {
+	echo "Copying nydus-snapshotter artifacts onto host"
+
+	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/containerd-nydus-grpc /opt/confidential-containers/bin/containerd-nydus-grpc
+	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/nydus-overlayfs /opt/confidential-containers/bin/nydus-overlayfs
+	ln -sf /opt/confidential-containers/bin/nydus-overlayfs /usr/local/bin/nydus-overlayfs
+
+	install -D -m 644 ${artifacts_dir}/opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml /opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml
+	install -D -m 644 ${artifacts_dir}/etc/systemd/system/nydus-snapshotter.service /etc/systemd/system/nydus-snapshotter.service
+
+	host_systemctl daemon-reload
+	host_systemctl enable nydus-snapshotter.service
+
+	configure_nydus_snapshotter_for_containerd
+
+	restart_systemd_service
+}
+
 function install_artifacts() {
 	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ]; then
 		install_coco_containerd_artefacts
@@ -64,6 +83,10 @@ function install_artifacts() {
 
 	if [ "${INSTALL_VFIO_GPU_CONTAINERD}" = "true" ]; then
 		install_vfio_gpu_containerd_artefacts
+	fi
+
+	if [ "${INSTALL_NYDUS_SNAPSHOTTER}" = "true" ]; then
+		install_nydus_snapshotter_artefacts
 	fi
 }
 
@@ -87,7 +110,31 @@ function uninstall_containerd_artefacts() {
 	fi
 }
 
+function uninstall_nydus_snapshotter_artefacts() {
+	if host_systemctl list-units | grep -q nydus-snapshotter; then
+		remove_nydus_snapshotter_from_containerd
+		host_systemctl disable --now nydus-snapshotter.service
+		rm -rf /etc/systemd/system/nydus-snapshotter.service
+
+		restart_systemd_service
+	fi
+
+	echo "Removing nydus-snapshotter artifacts from host"
+	for i in `ctr -n k8s.io snapshot --snapshotter nydus list | grep -v KEY | cut -d' ' -f1`; do
+		ctr -n k8s.io snapshot --snapshotter nydus rm $i || true
+	done
+	rm -f /opt/confidential-containers/bin/containerd-nydus-grpc
+	rm -f /opt/confidential-containers/bin/nydus-overlayfs
+	rm -f /usr/local/bin/nydus-overlayfs
+	rm -f /opt/confidential-containers/share/remote-snapshotter/config-coco-guest-pulling.toml
+	rm -rf /var/lib/containerd-nydus/*
+}	
+
 function uninstall_artifacts() {
+	if [ "${INSTALL_NYDUS_SNAPSHOTTER}" = "true" ]; then
+		uninstall_nydus_snapshotter_artefacts
+	fi
+
 	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ] || [ "${INSTALL_OFFICIAL_CONTAINERD}" = "true" ] || [ "${INSTALL_VFIO_GPU_CONTAINERD}" = "true" ]; then
 		uninstall_containerd_artefacts
 	fi
@@ -97,6 +144,47 @@ function restart_systemd_service() {
 	host_systemctl daemon-reload
 	echo "Restarting ${container_engine}"
 	host_systemctl restart "${container_engine}"
+}
+
+function configure_nydus_snapshotter_for_containerd() {
+	echo "configure nydus snapshotter for containerd"
+
+	if [ ! -f "$containerd_config" ]; then
+		die "failed to find containerd config"
+	fi
+
+	containerd_imports_path="/etc/containerd/config.toml.d"
+
+	echo "Create ${containerd_imports_path}"
+	mkdir -p "${containerd_imports_path}"
+
+	echo "Drop-in the nydus configuration"
+	cat << EOF | tee "${containerd_imports_path}"/nydus-snapshotter.toml
+[proxy_plugins]
+  [proxy_plugins.nydus]
+    type = "snapshot"
+    address = "/run/containerd-nydus/containerd-nydus-grpc.sock"
+EOF
+	if grep -q "^imports = " "$containerd_config"; then
+		sed -i -e "s|^imports = \[\(.*\)\]|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\", \1]|g" ${containerd_config}
+		sed -i -e "s|, ]|]|g" ${containerd_config}
+	else
+		sed -i -e "1s|^|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\"]\n|" ${containerd_config}
+	fi
+
+	sed -i -e "s|disable_snapshot_annotations = true|disable_snapshot_annotations = false|" ${containerd_config}
+}
+
+function remove_nydus_snapshotter_from_containerd() {
+	echo "Remove nydus snapshotter from containerd"
+
+	containerd_imports_path="/etc/containerd/config.toml.d"
+
+	rm -f "${containerd_imports_path}/nydus-snapshotter.toml"
+	sed -i -e "s|\"${containerd_imports_path}/nydus-snapshotter.toml\"||g" ${containerd_config}
+	sed -i -e "s|, ]|]|g" ${containerd_config}
+
+	sed -i -e "s|disable_snapshot_annotations = false|disable_snapshot_annotations = true|" ${containerd_config}
 }
 
 label_node() {
@@ -120,6 +208,7 @@ function main() {
 	echo "INSTALL_COCO_CONTAINERD: ${INSTALL_COCO_CONTAINERD}"
 	echo "INSTALL_OFFICIAL_CONTAINERD: ${INSTALL_OFFICIAL_CONTAINERD}"
 	echo "INSTALL_VFIO_GPU_CONTAINERD: ${INSTALL_VFIO_GPU_CONTAINERD}"
+	echo "INSTALL_NYDUS_SNAPSHOTTER: ${INSTALL_NYDUS_SNAPSHOTTER}"
 
 	# script requires that user is root
 	local euid=$(id -u)
