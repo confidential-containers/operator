@@ -32,7 +32,7 @@ function setup_env_for_arch() {
 			kernel_arch="s390x"
 			golang_arch="s390x"
 			;;
-		(*) echo "$1 is not supported" > /dev/stderr && exit 1
+		*) echo "$1 is not supported" >/dev/stderr && exit 1 ;;
 	esac
 		
 }
