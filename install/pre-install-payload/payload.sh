@@ -12,6 +12,8 @@ official_containerd_repo=${official_containerd_repo:-"https://github.com/contain
 official_containerd_version=${official_containerd_version:-"1.7.0"}
 vfio_gpu_containerd_repo=${vfio_gpu_containerd_repo:-"https://github.com/confidential-containers/containerd"}
 vfio_gpu_containerd_version=${vfio_gpu_containerd_version:-"1.7.0.0"}
+nydus_snapshotter_repo=${nydus_snapshotter_repo:-"https://github.com/containerd/nydus-snapshotter"}
+nydus_snapshotter_version=${nydus_snapshotter_version:-"v0.13.3"}
 containerd_dir="$(mktemp -d -t containerd-XXXXXXXXXX)/containerd"
 extra_docker_manifest_flags="${extra_docker_manifest_flags:-}"
 
@@ -66,6 +68,8 @@ function build_payload() {
 			--build-arg OFFICIAL_CONTAINERD_REPO="${official_containerd_repo}" \
 			--build-arg VFIO_GPU_CONTAINERD_VERSION="${vfio_gpu_containerd_version}" \
 			--build-arg VFIO_GPU_CONTAINERD_REPO="${vfio_gpu_containerd_repo}" \
+			--build-arg NYDUS_SNAPSHOTTER_VERSION="${nydus_snapshotter_version}" \
+			--build-arg NYDUS_SNAPSHOTTER_REPO="${nydus_snapshotter_repo}" \
 			-t "${registry}:${kernel_arch}-${tag}" \
 			--platform="${arch}" \
 			--load \
