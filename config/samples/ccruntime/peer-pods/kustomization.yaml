@@ -19,7 +19,7 @@ patches:
       path: /spec/config/runtimeClasses
       value:
       - name: "kata-remote"
-        snapshotter: "overlayfs"
+        snapshotter: "nydus"
     - op: add
       path: /spec/config/debug
       value: false
