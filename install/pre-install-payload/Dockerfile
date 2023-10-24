@@ -68,14 +68,12 @@ ARG NODE_DESTINATION=${DESTINATION}/opt/confidential-containers
 ENV GOARCH=${ARCH}
 
 RUN mkdir -p ${NODE_DESTINATION}/bin && \
-    apk add --no-cache ca-certificates build-base git curl && \
-    git clone ${NYDUS_SNAPSHOTTER_REPO} -b ${NYDUS_SNAPSHOTTER_VERSION} /nydus-snapshotter && \
-    sed -i -e '/{STATIC_OPTIMIZER_SERVER_BIN}/d' /nydus-snapshotter/Makefile && \
-    make -C /nydus-snapshotter static-release && \
-    chmod +x /nydus-snapshotter/bin/containerd-nydus-grpc && \
-	chmod +x /nydus-snapshotter/bin/nydus-overlayfs && \
-    mv /nydus-snapshotter/bin/containerd-nydus-grpc ${NODE_DESTINATION}/bin && \
-	mv /nydus-snapshotter/bin/nydus-overlayfs ${NODE_DESTINATION}/bin && \
+    apk add --no-cache curl && \
+    if [ "${ARCH}" = "amd64" ]; then ARCH=x86_64; fi && \
+    curl -fOL --progress-bar ${NYDUS_SNAPSHOTTER_REPO}/releases/download/${NYDUS_SNAPSHOTTER_VERSION}/nydus-snapshotter-${NYDUS_SNAPSHOTTER_VERSION}-${ARCH}.tgz && \
+    tar xvzpf nydus-snapshotter-${NYDUS_SNAPSHOTTER_VERSION}-${ARCH}.tgz -C / && \
+    rm nydus-snapshotter-${NYDUS_SNAPSHOTTER_VERSION}-${ARCH}.tgz && \
+    mv /nydus-snapshotter/* ${NODE_DESTINATION}/bin/ && \
     rm -rf /nydus-snapshotter
 
 #### kubectl
