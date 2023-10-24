@@ -32,9 +32,9 @@ ARG NODE_DESTINATION=${DESTINATION}/opt/confidential-containers
 RUN \
 	mkdir -p ${NODE_DESTINATION} && \
 	apk --no-cache add curl && \
-	curl -fOL --progress-bar ${OFFICIAL_CONTAINERD_REPO}/releases/download/v${OFFICIAL_CONTAINERD_VERSION}/containerd-${OFFICIAL_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz && \
-	tar xvzpf containerd-${OFFICIAL_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz -C ${NODE_DESTINATION} && \
-	rm containerd-${OFFICIAL_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz
+	curl -fOL --progress-bar ${OFFICIAL_CONTAINERD_REPO}/releases/download/v${OFFICIAL_CONTAINERD_VERSION}/containerd-static-${OFFICIAL_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz && \
+	tar xvzpf containerd-static-${OFFICIAL_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz -C ${NODE_DESTINATION} && \
+	rm containerd-static-${OFFICIAL_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz
 
 #### Confidential Containers forked containerd for VFIO / GPU stuff
 
@@ -50,9 +50,9 @@ ARG NODE_DESTINATION=${DESTINATION}/opt/confidential-containers
 RUN \
 	mkdir -p ${NODE_DESTINATION} && \
 	apk --no-cache add curl && \
-	curl -fOL --progress-bar ${VFIO_GPU_CONTAINERD_REPO}/releases/download/v${VFIO_GPU_CONTAINERD_VERSION}/containerd-${VFIO_GPU_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz && \
-	tar xvzpf containerd-${VFIO_GPU_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz -C ${NODE_DESTINATION} && \
-	rm containerd-${VFIO_GPU_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz
+	curl -fOL --progress-bar ${VFIO_GPU_CONTAINERD_REPO}/releases/download/v${VFIO_GPU_CONTAINERD_VERSION}/containerd-static-${VFIO_GPU_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz && \
+	tar xvzpf containerd-static-${VFIO_GPU_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz -C ${NODE_DESTINATION} && \
+	rm containerd-static-${VFIO_GPU_CONTAINERD_VERSION}-linux-${ARCH}.tar.gz
 
 
 #### kubectl
