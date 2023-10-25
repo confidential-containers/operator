@@ -226,6 +226,20 @@ func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, erro
 			if r.ccRuntime.Spec.Config.PostUninstall.Image == "" {
 				controllerutil.RemoveFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
 			} else if r.ccRuntime.Spec.Config.PostUninstall.Image != "" {
+				// FXIME: This should be treated in a better way, as just having the sleep
+				//        here won't do us any good in the future.
+				//
+				//        What's basically happening, and forcing us to do this, is the
+				//        fact that the Uninstall and postUninstall daemonsets are being
+				//        started at exactly the same time, leading to a race condition
+				//        when changing the containerd configuration.
+				//
+				//        When looking at the kata-containers payload code, we see that the
+				//        the label is only set after containerd is successfully reconfigured,
+				//        and looking at this function we see we shouldn't reach this part
+				//        before the label is set.  However, that's not what we're facing ...
+				time.Sleep(time.Second * 60)
+
 				result, err = handlePostUninstall(r)
 				if !result.Requeue {
 					controllerutil.RemoveFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
