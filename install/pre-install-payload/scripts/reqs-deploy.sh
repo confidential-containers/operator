@@ -149,10 +149,6 @@ function restart_systemd_service() {
 function configure_nydus_snapshotter_for_containerd() {
 	echo "configure nydus snapshotter for containerd"
 
-	if [ ! -f "$containerd_config" ]; then
-		die "failed to find containerd config"
-	fi
-
 	containerd_imports_path="/etc/containerd/config.toml.d"
 
 	echo "Create ${containerd_imports_path}"
@@ -219,6 +215,11 @@ function main() {
 	local action=${1:-}
 	if [ -z "${action}" ]; then
 		print_help && die ""
+	fi
+
+	if [ ! -f "${containerd_config}" ]; then
+		mkdir -p /etc/containerd
+		containerd config default > /etc/containerd/config.toml
 	fi
 
 	set_container_engine
