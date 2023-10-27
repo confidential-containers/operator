@@ -92,7 +92,7 @@ RUN \
 
 FROM base
 
-RUN apk --no-cache add bash
+RUN apk --no-cache add bash gcompat
 
 ARG DESTINATION=/opt/confidential-containers-pre-install-artifacts
 ARG NODE_DESTINATION=${DESTINATION}/opt/confidential-containers
