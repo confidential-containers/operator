@@ -23,5 +23,13 @@ patches:
     - op: add
       path: /spec/config/debug
       value: false
+    - op: add
+      path: /spec/config/environmentVariables
+      value:
+        # It means that we're relying on the cluster to already have
+        # containerd v1.7+ running.  If you know for sure that's not
+        # the case, please, set this variable to `true`
+        - name: "INSTALL_OFFICIAL_CONTAINERD"
+          value: "false"
   target:
     kind: CcRuntime
