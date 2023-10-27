@@ -4,6 +4,11 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+INSTALL_COCO_CONTAINERD=${INSTALL_COCO_CONTAINERD:-false}
+INSTALL_OFFICIAL_CONTAINERD=${INSTALL_OFFICIAL_CONTAINERD:-true}
+INSTALL_VFIO_GPU_CONTAINERD=${INSTALL_VFIO_GPU_CONTAINERD:-false}
+INSTALL_NYDUS_SNAPSHOTTER=${INSTALL_NYDUS_SNAPSHOTTER:-true}
+
 containerd_config="/etc/containerd/config.toml"
 artifacts_dir="/opt/confidential-containers-pre-install-artifacts"
 
