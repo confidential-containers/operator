@@ -645,6 +645,14 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 
 	var envVars = []corev1.EnvVar{
 		{
+			Name: "NODE_NAME",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "spec.nodeName",
+				},
+			},
+		},
+		{
 			Name:  "DEBUG",
 			Value: debug,
 		},
