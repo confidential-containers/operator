@@ -830,6 +830,8 @@ func (r *CcRuntimeReconciler) makeHookDaemonset(operation DaemonOperation) *apps
 		}
 	)
 
+	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)
+
 	switch operation {
 	case PreInstallOperation:
 		dsName = "cc-operator-pre-install-daemon"
