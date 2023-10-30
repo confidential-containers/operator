@@ -54,6 +54,31 @@ build_pre_install_img() {
 	popd >/dev/null
 }
 
+# CoCo 0.8.0 onward requires containerd 1.7+ and the operator will rely on the
+# system's installed version by default. Optionally, switching the
+# INSTALL_OFFICIAL_CONTAINERD environment variable to "true" tells the pre-reqs
+# script to install an official containerd that matches the 1.7+ requirement.
+# Because some of our CI systems are running on Ubuntu 20.04 and CentOS Stream8,
+# and those OSes comes with containerd 1.6, this function is used to flip the
+# INSTALL_OFFICIAL_CONTAINERD's value to true, i.e., tells the operator to
+# installation to deploy containerd too.
+#
+handle_older_containerd() {
+        command -v containerd >/dev/null || return
+        local version
+        version=$(containerd -v | awk '{ print $3 }')
+        echo "system's containerd version: $version"
+        if [[ "$version" =~ ^1.6 || "$version" =~ ^1.5 ]]; then
+                echo "Old system's containerd ($version). Configuring the operator to install a newer one"
+                pushd "$project_dir" >/dev/null
+                for kfile in $(find config/ -name "kustomization.yaml" \
+                        -exec grep -l INSTALL_OFFICIAL_CONTAINERD {} \;);do
+                        sed -i '/INSTALL_OFFICIAL_CONTAINERD/!b;n;s/false/true/;' $kfile
+                done
+                popd >/dev/null
+        fi
+}
+
 # Install the operator.
 #
 install_operator() {
@@ -65,6 +90,8 @@ install_operator() {
 		| grep -q "$label"; then
 		kubectl label node "$(hostname)" "$label="
 	fi
+
+	handle_older_containerd
 
 	pushd "$project_dir" >/dev/null
 	# We should use a locally built image for operator.
