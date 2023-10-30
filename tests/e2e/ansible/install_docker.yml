@@ -12,7 +12,7 @@
   shell: command -v docker >/dev/null 2>&1
   register: docker_exist
   ignore_errors: yes
-- name: Handle docker installation on Ubuntu
+- name: Handle docker installation on Ubuntu 20.04
   block:
     - name: Install docker dependencies
       package:
@@ -45,7 +45,20 @@
         name: docker
         state: present
       # TODO: add regular non-root users to docker group
-  when: docker_exist.rc != 0 and ansible_distribution == "Ubuntu"
+  when: docker_exist.rc != 0 and ansible_distribution == "Ubuntu" and ansible_distribution_version == "20.04"
+- name: Handle docker installation on Ubuntu 22.04
+  block:
+    - name: Install docker packages
+      package:
+        name:
+          - docker.io
+          - docker-buildx
+        state: present
+    - name: Create the docker group
+      group:
+        name: docker
+        state: present
+  when: docker_exist.rc != 0 and ansible_distribution == "Ubuntu" and ansible_distribution_version == "22.04"
 - name: Handle docker installation on CentOS.
   block:
     - name: Install yum-utils
