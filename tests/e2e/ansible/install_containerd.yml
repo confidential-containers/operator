@@ -9,9 +9,9 @@
 - hosts: all
   become: yes
   tasks:
-    - name: Install containerd.io from distro
+    - name: Install containerd from distro
       package:
-        name: "containerd.io"
+        name: "{{ 'containerd.io' if ansible_distribution_version != '22.04' else 'containerd' }}"
         state: present
     # The docker package overwrite the /etc/containerd/config.toml installed
     # by the containerd.io package. As a result we are hit by the following
@@ -26,7 +26,9 @@
     # Those issues are solved by re-generating the containerd configuration
     # file with its defaults.
     - name: Re-create containerd config
-      shell: containerd config default > /etc/containerd/config.toml
+      shell: |
+        mkdir -p /etc/containerd/
+        containerd config default > /etc/containerd/config.toml
       args:
         executable: /bin/bash
     - name: Restart containerd service
