@@ -116,6 +116,3 @@ COPY ${NYDUS_SNAPSHOTTER_ARTIFACTS} ${NODE_DESTINATION}/share/nydus-snapshotter/
 
 ARG CONTAINER_ENGINE_ARTIFACTS=./scripts
 COPY ${CONTAINER_ENGINE_ARTIFACTS}/* ${DESTINATION}/scripts/
-
-# Also copy `ctr` to our final image, so we can use it to remove nydus snapshots
-COPY --from=official-containerd-binary-downloader ${NODE_DESTINATION}/bin/ctr /usr/bin/ctr

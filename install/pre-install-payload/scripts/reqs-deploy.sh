@@ -13,6 +13,10 @@ die() {
 	exit 1
 }
 
+function host_ctr() {
+	nsenter --target 1 --mount ctr "${@}"
+}
+
 function host_systemctl() {
 	nsenter --target 1 --mount systemctl "${@}"
 }
@@ -112,8 +116,8 @@ function uninstall_containerd_artefacts() {
 
 function uninstall_nydus_snapshotter_artefacts() {
 	if host_systemctl list-units | grep -q nydus-snapshotter; then
-		for i in `ctr -n k8s.io snapshot --snapshotter nydus list | grep -v KEY | cut -d' ' -f1`; do
-			ctr -n k8s.io snapshot --snapshotter nydus rm $i || true
+		for i in `host_ctr -n k8s.io snapshot --snapshotter nydus list | grep -v KEY | cut -d' ' -f1`; do
+			host_ctr -n k8s.io snapshot --snapshotter nydus rm $i || true
 		done
 
 		remove_nydus_snapshotter_from_containerd
