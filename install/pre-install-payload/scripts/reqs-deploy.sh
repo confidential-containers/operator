@@ -126,7 +126,12 @@ function uninstall_nydus_snapshotter_artefacts() {
 	rm -f /opt/confidential-containers/bin/containerd-nydus-grpc
 	rm -f /opt/confidential-containers/bin/nydus-overlayfs
 	rm -f /usr/local/bin/nydus-overlayfs
-	rm -f /opt/confidential-containers/share/remote-snapshotter/config-coco-guest-pulling.toml
+	rm -f /opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml
+
+	# We can do this here as we're sure that only the nydus-snapshotter is
+	# installing something in the /opt/confidential-containers/share
+	# directory
+	rm -rf /opt/confidential-containers/share
 	rm -rf /var/lib/containerd-nydus/*
 }	
 
