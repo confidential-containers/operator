@@ -11,7 +11,7 @@ images:
   newTag: fad6ef4607e929c2d30d16dc8c62fbb29881a44c
 - name: quay.io/confidential-containers/runtime-payload
   newName: quay.io/confidential-containers/runtime-payload-ci
-  newTag: kata-containers-latest
+  newTag: kata-containers-424de1cbfa4e1da9ecf9a56b1d1e1a11a4f339cd
 
 patches:
 - patch: |-
