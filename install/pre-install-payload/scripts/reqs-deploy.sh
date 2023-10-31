@@ -112,6 +112,10 @@ function uninstall_containerd_artefacts() {
 
 function uninstall_nydus_snapshotter_artefacts() {
 	if host_systemctl list-units | grep -q nydus-snapshotter; then
+		for i in `ctr -n k8s.io snapshot --snapshotter nydus list | grep -v KEY | cut -d' ' -f1`; do
+			ctr -n k8s.io snapshot --snapshotter nydus rm $i || true
+		done
+
 		remove_nydus_snapshotter_from_containerd
 		host_systemctl disable --now nydus-snapshotter.service
 		rm -rf /etc/systemd/system/nydus-snapshotter.service
@@ -120,9 +124,6 @@ function uninstall_nydus_snapshotter_artefacts() {
 	fi
 
 	echo "Removing nydus-snapshotter artifacts from host"
-	for i in `ctr -n k8s.io snapshot --snapshotter nydus list | grep -v KEY | cut -d' ' -f1`; do
-		ctr -n k8s.io snapshot --snapshotter nydus rm $i || true
-	done
 	rm -f /opt/confidential-containers/bin/containerd-nydus-grpc
 	rm -f /opt/confidential-containers/bin/nydus-overlayfs
 	rm -f /usr/local/bin/nydus-overlayfs
