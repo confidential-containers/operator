@@ -12,14 +12,18 @@ set -o pipefail
 script_dir="$(dirname "$(readlink -f "$0")")"
 project_dir="$(readlink -f ${script_dir}/../..)"
 
-export GOPATH="$(mktemp -d)"
-tests_repo_dir="$GOPATH/src/github.com/kata-containers/tests"
-export CI=true
+# It will be either be cloned or passed via environment variable
+tests_repo_dir=""
+export CI=${CI:-true}
 
 # TODO: Debug should be enabled in order for some tests to enable the console
 # debug and search for patterns on agent logs. Probably console debug should
 # be enabled always.
 export DEBUG=true
+
+export FILTER_TESTS="${FILTER_TESTS:-}"
+
+export KATA_TESTS_REPO_DIR="${KATA_TESTS_REPO_DIR:-}"
 
 # The container runtime class (e.g. kata, kata-qemu, kata-clh) test pods should
 # be created with.
@@ -32,6 +36,14 @@ export TESTS_CONFIGURE_CC_CONTAINERD=no
 clone_kata_tests() {
 	local cc_branch="CCv0"
 
+	# Do not clone if an existing repo.
+	if [ -n "$KATA_TESTS_REPO_DIR" ]; then
+		tests_repo_dir="$KATA_TESTS_REPO_DIR"
+		return
+	fi
+
+	export GOPATH="$(mktemp -d)"
+	tests_repo_dir="$GOPATH/src/github.com/kata-containers/tests"
 	# TODO: checkout on the exact sha1 where the kata-deploy was created
 	# so that we ensure the same tests are used here.
 	git clone --branch="$cc_branch" \
@@ -41,7 +53,9 @@ clone_kata_tests() {
 cleanup() {
 	[ ! -s "/usr/local/bin/kata-runtime" ] || \
 		unlink /usr/local/bin/kata-runtime
-	rm -rf "$tests_repo_dir" || true
+	if [ -z "$KATA_TESTS_REPO_DIR" ]; then
+		rm -rf "$tests_repo_dir" || true
+	fi
 }
 
 trap cleanup EXIT
@@ -64,7 +78,24 @@ usage() {
 	-h | --help : show this usage
 	-r RUNTIMECLASS: run tests for RUNTIMECLASS (e.g. kata-clh).
 	                 Defaults to "kata-qemu".
+	Environment variables:
+	    CI: some tests will skip teardown (i.e. resources won't be removed)
+	        if CI=false. Defaults to "true".
+	    FILTER_TESTS: use to filter tests. Pass a regex expression
+	                  to match the tests names to run.
+	    KATA_TESTS_REPO_DIR: path to kata container's tests repository. If set then
+	                     this script will not attempt to clone the repository
+	                     nor delete on exit. You should export GOPATH properly to
+	                     ensure the scripts will work correctly.
 	EOF
+}
+
+run_bats() {
+	local bats_files=$*
+	local cmd="bats"
+
+	[ -n "$FILTER_TESTS" ] && cmd+=" -f \"$FILTER_TESTS\""
+	eval $cmd $bats_files
 }
 
 # tests for CC without specific hardware support
@@ -86,7 +117,7 @@ run_non_tee_tests() {
 	sed -i "s#kata-runtime kata-env#kata-runtime --config $runtime_config_file kata-env#g" \
 		../../../lib/common.bash
 
-	bats \
+	run_bats \
 		"agent_image.bats" \
 		"agent_image_encrypted.bats" \
 		"${script_dir}/operator_tests.bats"
@@ -95,13 +126,15 @@ run_non_tee_tests() {
 
 # Tests for CC with QEMU on SEV HW
 run_kata_qemu_sev_tests() {
-	bats "sev.bats"
+	run_bats \
+		"sev.bats"
 
 }
 
 # Tests for CC with QEMU on SNP HW
 run_kata_qemu_snp_tests() {
-	bats "snp.bats"
+	run_bats \
+		"snp.bats"
 }
 
 main() {
