@@ -8,7 +8,7 @@ resources:
 
 images:
 - name: quay.io/confidential-containers/reqs-payload
-  newTag: fad6ef4607e929c2d30d16dc8c62fbb29881a44c
+  newTag: c31205eb31d8a4623ffc0c9fa316e3c91e337023
 - name: quay.io/confidential-containers/runtime-payload
   newName: quay.io/confidential-containers/runtime-payload-ci
   newTag: kata-containers-4089d48b4532139e361af8f3b84d97d25f57d9c2
