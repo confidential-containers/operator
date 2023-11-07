@@ -66,7 +66,7 @@ build_pre_install_img() {
 handle_older_containerd() {
         command -v containerd >/dev/null || return
         local version
-        version=$(containerd -v | awk '{ print $3 }')
+        version=$(containerd -v | awk '{ print $3 }' | sed 's/^v//')
         echo "system's containerd version: $version"
         if [[ "$version" =~ ^1.6 || "$version" =~ ^1.5 ]]; then
                 echo "Old system's containerd ($version). Configuring the operator to install a newer one"
