@@ -52,6 +52,7 @@ spec:
   - email: cncf-ccontainers-maintainers@lists.cncf.io
     name: Pradipta Banerjee
   maturity: alpha
+  minKubeVersion: 1.24.0
   provider:
     name: Confidential Containers Community
     url: https://github.com/confidential-containers

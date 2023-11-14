@@ -251,7 +251,7 @@ metadata:
     capabilities: Basic Install
     categories: Security
     containerImage: quay.io/confidential-containers/operator:v0.8.0
-    createdAt: "2023-11-13T21:06:54Z"
+    createdAt: "2023-11-15T15:02:03Z"
     operators.operatorframework.io/builder: operator-sdk-v1.30.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: cc-operator.v0.8.0
@@ -481,6 +481,7 @@ spec:
   - email: cncf-ccontainers-maintainers@lists.cncf.io
     name: Pradipta Banerjee
   maturity: alpha
+  minKubeVersion: 1.24.0
   provider:
     name: Confidential Containers Community
     url: https://github.com/confidential-containers
