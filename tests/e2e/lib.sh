@@ -46,10 +46,12 @@ check_pods_are_ready() {
 debug_pod() {
 	local pod="$1"
 	local ns="$2"
+	local ns_param=""
+	[ -n "$ns" ] && ns_param="-n $ns"
 
 	set -x
-	kubectl describe "pods/$1" ${ns:+"-n $ns"} || true
-	kubectl logs "pods/$1" ${ns:+"-n $ns"} || true
+	kubectl describe "pods/$1" $ns_param || true
+	kubectl logs "pods/$1" $ns_param || true
 	set +x
 }
 
