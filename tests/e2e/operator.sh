@@ -17,7 +17,7 @@ source "${script_dir}/lib.sh"
 # The operator namespace.
 readonly op_ns="confidential-containers-system"
 # There should be a registry running locally on port 5000.
-export IMG=localhost:5000/cc-operator
+export IMG=localhost:5000/cc-operator:latest
 export PRE_INSTALL_IMG=localhost:5000/reqs-payload
 
 # Build the operator and push images to a local registry.
@@ -95,7 +95,7 @@ install_operator() {
 
 	pushd "$project_dir" >/dev/null
 	# We should use a locally built image for operator.
-	sed -i "s~\(.*newName: \).*~\1${IMG}~g" config/manager/kustomization.yaml
+	kustomization_set_image config/manager controller "${IMG}"
 	kubectl apply -k config/default
 	popd >/dev/null
 
