@@ -1,8 +1,11 @@
 name: ccruntime e2e tests
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_call:
+    inputs:
+      target-branch:
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -13,11 +16,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runtimeclass: ["kata-qemu", "kata-clh"]
-        instance: ["az-ubuntu-2004", "az-ubuntu-2204"]
+        runtimeclass:
+          - "kata-qemu"
+          - "kata-clh"
+        instance:
+          - "az-ubuntu-2004"
+          - "az-ubuntu-2204"
+          - "s390x"
+        exclude:
+          - runtimeclass: "kata-clh"
+            instance: "s390x"
     runs-on: ${{ matrix.instance }}
     steps:
+      - name: Take a pre-action for self-hosted runner
+        run: |
+          if [ -f ${HOME}/script/pre_action.sh ]; then
+            ${HOME}/script/pre_action.sh cc-operator
+          fi
+
       - uses: actions/checkout@v4
+
+      - name: Rebase atop of the latest target branch
+        run: |
+          ./tests/git-helper.sh "rebase-atop-of-the-latest-target-branch"
+        env:
+          TARGET_BRANCH: ${{ inputs.target-branch }}
 
       - name: Install deps
         run: |
@@ -29,4 +52,17 @@ jobs:
         run: |
           cd tests/e2e
           export PATH="$PATH:/usr/local/bin"
-          ./run-local.sh -r "${{ matrix.runtimeclass }}" -u
+          args="-u"
+          if [ $RUNNING_INSTANCE = "s390x" ]; then
+            args=""
+          fi
+          ./run-local.sh -r "${{ matrix.runtimeclass }}" "${args}"
+        env:
+          RUNNING_INSTANCE: ${{ matrix.instance }}
+
+      - name: Take a post-action
+        if: always()
+        run: |
+          if [ -f ${HOME}/script/post_action.sh ]; then
+            ${HOME}/script/post_action.sh cc-operator
+          fi
