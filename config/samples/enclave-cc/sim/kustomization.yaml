@@ -7,4 +7,4 @@ images:
 - name: quay.io/confidential-containers/runtime-payload
   newTag: enclave-cc-SIM-sample-kbc-v0.8.0
 - name: quay.io/confidential-containers/reqs-payload
-  newTag: e92cb67ea8956128a31950a0c3fa79a086dbaf1a
+  newTag: latest
