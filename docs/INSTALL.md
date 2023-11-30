@@ -131,7 +131,6 @@ A successful install should show the following `RuntimeClasses`.
 NAME            HANDLER         AGE
 kata            kata            9m55s
 kata-clh        kata-clh        9m55s
-kata-clh-tdx    kata-clh-tdx    9m55s
 kata-qemu       kata-qemu       9m55s
 kata-qemu-tdx   kata-qemu-tdx   9m55s
 kata-qemu-sev   kata-qemu-sev   9m55s
