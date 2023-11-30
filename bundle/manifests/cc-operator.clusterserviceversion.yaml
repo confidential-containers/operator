@@ -216,10 +216,6 @@ metadata:
                   "snapshotter": "nydus"
                 },
                 {
-                  "name": "kata-clh-tdx",
-                  "snapshotter": "nydus"
-                },
-                {
                   "name": "kata-qemu",
                   "snapshotter": "nydus"
                 },
@@ -250,8 +246,8 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Security
-    containerImage: quay.io/confidential-containers/operator:v0.8.0
-    createdAt: "2023-11-15T15:02:03Z"
+    containerImage: quay.io/confidential-containers/operator:latest
+    createdAt: "2023-11-30T13:53:32Z"
     operators.operatorframework.io/builder: operator-sdk-v1.30.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: cc-operator.v0.8.0
