@@ -20,8 +20,6 @@ patches:
       value:
       - name: "kata-clh"
         snapshotter: "nydus"
-      - name: "kata-clh-tdx"
-        snapshotter: "nydus"
       - name: "kata-qemu"
         snapshotter: "nydus"
       - name: "kata-qemu-tdx"
