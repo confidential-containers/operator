@@ -14,6 +14,7 @@ project_dir="$(readlink -f ${script_dir}/../..)"
 
 source "${script_dir}/lib.sh"
 
+readonly ccruntime_overlay_basedir="${project_dir}/config/samples/ccruntime"
 # The operator namespace.
 readonly op_ns="confidential-containers-system"
 # There should be a registry running locally on port 5000.
@@ -118,11 +119,10 @@ install_operator() {
 #
 install_ccruntime() {
 	local runtimeclass="${RUNTIMECLASS:-kata-qemu}"
-	local ccruntime_overlay_dir="${project_dir}/config/samples/ccruntime"
-	local overlay_dir="${ccruntime_overlay_dir}/${ccruntime_overlay}"
+	local overlay_dir="${ccruntime_overlay_basedir}/${ccruntime_overlay}"
 
 	# Use the built pre-install image
-	kustomization_set_image  "${ccruntime_overlay_dir}/default" \
+	kustomization_set_image  "${ccruntime_overlay_basedir}/default" \
 		"quay.io/confidential-containers/reqs-payload" \
 		"${PRE_INSTALL_IMG}"
 
@@ -155,6 +155,40 @@ install_ccruntime() {
 	fi
 	# To keep operator running, we should resume registry stopped during containerd restart.
 	start_local_registry
+}
+
+# Uninstall the CC runtime.
+#
+uninstall_ccruntime() {
+	pushd "${ccruntime_overlay_basedir}/${ccruntime_overlay}" >/dev/null
+	kubectl delete -k .
+	popd >/dev/null
+
+	# Wait and ensure ccruntime pods are gone
+	#
+	local cmd="! sudo -E kubectl get pods -n confidential-containers-system|"
+	cmd+="grep -q -e cc-operator-daemon-install"
+	cmd+=" -e cc-operator-pre-install-daemon"
+	if ! wait_for_process 180 30 "$cmd"; then
+		echo "ERROR: there are ccruntime pods still running"
+		echo "::group::Describe pods from $op_ns namespace"
+		kubectl -n "$op_ns" describe pods || true
+		echo "::endgroup::"
+
+		return 1
+	fi
+
+	# Runtime classes should be gone
+	! kubectl get --no-headers runtimeclass 2>/dev/null | grep -q kata
+
+	# Labels should be gone
+	if kubectl get nodes "$(hostname)" -o jsonpath='{.metadata.labels}' | \
+		grep -q -e cc-preinstall -e katacontainers.io; then
+		echo "ERROR: there are labels left behind"
+		kubectl get nodes "$(hostname)" -o jsonpath='{.metadata.labels}'
+
+		return 1
+	fi
 }
 
 # Set image on a kustomize's kustomization.yaml.
@@ -205,9 +239,23 @@ start_local_registry() {
 #
 uninstall_operator() {
 	pushd "$project_dir" >/dev/null
-	kubectl delete -k config/samples/ccruntime/${ccruntime_overlay}
 	kubectl delete -k config/default
 	popd >/dev/null
+
+	# Wait and ensure the controller pod is gone
+	#
+	local pod="cc-operator-controller-manager"
+	local cmd="! kubectl get pods -n confidential-containers-system |"
+	cmd+="grep -q $pod"
+	if ! wait_for_process 90 30 "$cmd"; then
+		echo "ERROR: the controller manager is still running"
+
+		local pod_id="$(get_pods_regex $pod $op_ns)"
+		echo "DEBUG: Pod $pod_id"
+		debug_pod "$pod_id" "$op_ns"
+
+		return 1
+	fi
 }
 
 usage() {
@@ -244,7 +292,10 @@ main() {
 				install_operator
 				install_ccruntime
 				;;
-			uninstall) uninstall_operator;;
+			uninstall)
+				uninstall_ccruntime
+				uninstall_operator
+				;;
 			*)
 				echo "Unknown command '$1'"
 				usage && exit 1
