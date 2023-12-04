@@ -18,8 +18,6 @@ patches:
       value:
       - name: "kata-qemu"
         snapshotter: "nydus"
-      - name: "kata-qemu-se"
-        snapshotter: "nydus"
     - op: add
       path: /spec/config/defaultRuntimeClassName
       value: "kata-qemu"
