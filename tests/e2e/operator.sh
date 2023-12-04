@@ -169,7 +169,7 @@ uninstall_ccruntime() {
 	local cmd="! sudo -E kubectl get pods -n confidential-containers-system|"
 	cmd+="grep -q -e cc-operator-daemon-install"
 	cmd+=" -e cc-operator-pre-install-daemon"
-	if ! wait_for_process 180 30 "$cmd"; then
+	if ! wait_for_process 720 30 "$cmd"; then
 		echo "ERROR: there are ccruntime pods still running"
 		echo "::group::Describe pods from $op_ns namespace"
 		kubectl -n "$op_ns" describe pods || true
@@ -247,7 +247,7 @@ uninstall_operator() {
 	local pod="cc-operator-controller-manager"
 	local cmd="! kubectl get pods -n confidential-containers-system |"
 	cmd+="grep -q $pod"
-	if ! wait_for_process 90 30 "$cmd"; then
+	if ! wait_for_process 180 30 "$cmd"; then
 		echo "ERROR: the controller manager is still running"
 
 		local pod_id="$(get_pods_regex $pod $op_ns)"
