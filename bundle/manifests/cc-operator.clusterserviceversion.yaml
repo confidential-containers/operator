@@ -85,9 +85,9 @@ metadata:
                   "name": "local-bin"
                 }
               ],
-              "payloadImage": "quay.io/confidential-containers/runtime-payload-ci:kata-containers-8de1f8e19f858134ba455a7c04edcb21d8bcf6b1",
+              "payloadImage": "quay.io/kata-containers/kata-deploy-ci:kata-containers-latest",
               "postUninstall": {
-                "image": "quay.io/confidential-containers/reqs-payload:e92cb67ea8956128a31950a0c3fa79a086dbaf1a",
+                "image": "quay.io/confidential-containers/reqs-payload:latest",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -149,7 +149,7 @@ metadata:
                 ]
               },
               "preInstall": {
-                "image": "quay.io/confidential-containers/reqs-payload:e92cb67ea8956128a31950a0c3fa79a086dbaf1a",
+                "image": "quay.io/confidential-containers/reqs-payload:latest",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -216,10 +216,6 @@ metadata:
                   "snapshotter": "nydus"
                 },
                 {
-                  "name": "kata-clh-tdx",
-                  "snapshotter": "nydus"
-                },
-                {
                   "name": "kata-qemu",
                   "snapshotter": "nydus"
                 },
@@ -250,8 +246,8 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Security
-    containerImage: quay.io/confidential-containers/operator:v0.8.0
-    createdAt: "2023-11-15T15:02:03Z"
+    containerImage: quay.io/confidential-containers/operator:latest
+    createdAt: "2023-11-30T13:53:32Z"
     operators.operatorframework.io/builder: operator-sdk-v1.30.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: cc-operator.v0.8.0

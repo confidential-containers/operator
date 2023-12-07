@@ -10,7 +10,7 @@ spec:
       node.kubernetes.io/worker: ""
   config:
     installType: bundle
-    payloadImage: quay.io/confidential-containers/runtime-payload:kata-containers
+    payloadImage: quay.io/kata-containers/kata-deploy:stable
     installDoneLabel:
       katacontainers.io/kata-runtime: "true"
     uninstallDoneLabel:
@@ -146,4 +146,3 @@ spec:
       # default: false
       - name: "INSTALL_NYDUS_SNAPSHOTTER"
         value: "true"
-

@@ -7,9 +7,9 @@ resources:
 - ../default
 
 images:
-- name: quay.io/confidential-containers/runtime-payload
-  newName: quay.io/confidential-containers/runtime-payload-ci
-  newTag: kata-containers-8de1f8e19f858134ba455a7c04edcb21d8bcf6b1
+- name: quay.io/kata-containers/kata-deploy
+  newName: quay.io/kata-containers/kata-deploy-ci
+  newTag: kata-containers-latest
 
 patches:
 - patch: |-
@@ -17,8 +17,6 @@ patches:
       path: /spec/config/runtimeClasses
       value:
       - name: "kata-qemu"
-        snapshotter: "nydus"
-      - name: "kata-qemu-se"
         snapshotter: "nydus"
     - op: add
       path: /spec/config/defaultRuntimeClassName

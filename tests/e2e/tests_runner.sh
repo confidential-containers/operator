@@ -44,7 +44,7 @@ main() {
 
 	# Run tests.
 	case $runtimeclass in
-		kata-qemu|kata-clh|kata-clh-tdx|kata-qemu-se|kata-qemu-tdx|kata-qemu-sev|kata-qemu-snp)
+		kata-qemu|kata-clh|kata-qemu-tdx|kata-qemu-sev|kata-qemu-snp)
 			echo "INFO: Running operator tests for $runtimeclass"
 			bats "${script_dir}/operator_tests.bats"
 			;;

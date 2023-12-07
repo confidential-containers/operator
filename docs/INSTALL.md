@@ -131,7 +131,6 @@ A successful install should show the following `RuntimeClasses`.
 NAME            HANDLER         AGE
 kata            kata            9m55s
 kata-clh        kata-clh        9m55s
-kata-clh-tdx    kata-clh-tdx    9m55s
 kata-qemu       kata-qemu       9m55s
 kata-qemu-tdx   kata-qemu-tdx   9m55s
 kata-qemu-sev   kata-qemu-sev   9m55s
@@ -147,7 +146,7 @@ as shown below, where `<MY_CUSTOM_CR>`, `<MY_PAYLOAD>`, and `<TAG>` needs to be 
 make kustomize
 cp -r config/samples/ccruntime/default config/samples/ccruntime/<MY_CUSTOM_CR>
 cd config/samples/ccruntime/<MY_CUSTOM_CR>
-../../../../bin/kustomize edit set image quay.io/confidential-containers/runtime-payload=<MY_PAYLOAD>:<TAG>
+../../../../bin/kustomize edit set image quay.io/kata-containers/kata-deploy=<MY_PAYLOAD>:<TAG>
 ```
 
 Then install the new CR as:
