@@ -87,9 +87,9 @@ install_operator() {
 
 	# The node should be 'worker' labeled
 	local label="node.kubernetes.io/worker"
-	if ! kubectl get node "$(hostname)" -o jsonpath='{.metadata.labels}' \
+	if ! kubectl get node "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}' \
 		| grep -q "$label"; then
-		kubectl label node "$(hostname)" "$label="
+		kubectl label node "$SAFE_HOST_NAME" "$label="
 	fi
 
 	handle_older_containerd
@@ -169,7 +169,7 @@ uninstall_ccruntime() {
 	local cmd="! sudo -E kubectl get pods -n confidential-containers-system|"
 	cmd+="grep -q -e cc-operator-daemon-install"
 	cmd+=" -e cc-operator-pre-install-daemon"
-	if ! wait_for_process 180 30 "$cmd"; then
+	if ! wait_for_process 720 30 "$cmd"; then
 		echo "ERROR: there are ccruntime pods still running"
 		echo "::group::Describe pods from $op_ns namespace"
 		kubectl -n "$op_ns" describe pods || true
@@ -182,10 +182,10 @@ uninstall_ccruntime() {
 	! kubectl get --no-headers runtimeclass 2>/dev/null | grep -q kata
 
 	# Labels should be gone
-	if kubectl get nodes "$(hostname)" -o jsonpath='{.metadata.labels}' | \
+	if kubectl get nodes "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}' | \
 		grep -q -e cc-preinstall -e katacontainers.io; then
 		echo "ERROR: there are labels left behind"
-		kubectl get nodes "$(hostname)" -o jsonpath='{.metadata.labels}'
+		kubectl get nodes "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}'
 
 		return 1
 	fi
@@ -247,7 +247,7 @@ uninstall_operator() {
 	local pod="cc-operator-controller-manager"
 	local cmd="! kubectl get pods -n confidential-containers-system |"
 	cmd+="grep -q $pod"
-	if ! wait_for_process 90 30 "$cmd"; then
+	if ! wait_for_process 180 30 "$cmd"; then
 		echo "ERROR: the controller manager is still running"
 
 		local pod_id="$(get_pods_regex $pod $op_ns)"
@@ -258,6 +258,40 @@ uninstall_operator() {
 	fi
 }
 
+# Wait for no new/restarted pod in 3x21s (20s is the liveness probe)
+#
+wait_for_stabilization() {
+	declare -A restart_counts
+	iteration=0
+	count=0
+	while true; do
+		change=0
+		pod_info=$(kubectl get pods -n confidential-containers-system -o=jsonpath='{range .items[*]}{.metadata.name}{" "}{range .status.containerStatuses[*]}{.name}{" "}{.restartCount}{"\n"}{end}{end}')
+
+		while read -r pod container restart_count; do
+			if [ "${restart_counts[$pod-$container]--1}" != "$restart_count" ]; then
+				echo "DEBUG: Pod: $pod, Container: $container, Restart count: $restart_count"
+				restart_counts["$pod-$container"]=$restart_count
+				change=1
+			fi
+		done <<< "$pod_info"
+
+		[ $change -eq 0 ] && ((iteration+=1))
+
+		if [ $iteration -gt 3 ]; then
+			echo "INFO: No new restarts in 3x21s, proceeding..."
+			break
+		elif [ $count -gt 20 ]; then
+			echo "ERROR: Pods are still restarting after 20x21s, bailing out!"
+			return 1
+		fi
+
+		((count+=1))
+		sleep 21
+	done
+}
+
+
 usage() {
 	cat <<-EOF
 	Utility to build/install/uninstall the operator.
@@ -267,6 +301,7 @@ usage() {
 	command : optional command (build and install by default). Can be:
 	 "build": build only,
 	 "install": install only,
+	 "wait_for_stabilization": wait for CoCo pods to be stable
 	 "uninstall": uninstall the operator.
 	EOF
 }
@@ -281,6 +316,7 @@ main() {
 		install_operator
 		build_pre_install_img
 		install_ccruntime
+		wait_for_stabilization
 	else
 		case $1 in
 			-h|--help) usage && exit 0;;
@@ -295,6 +331,9 @@ main() {
 			uninstall)
 				uninstall_ccruntime
 				uninstall_operator
+				;;
+			wait_for_stabilization)
+				wait_for_stabilization
 				;;
 			*)
 				echo "Unknown command '$1'"
