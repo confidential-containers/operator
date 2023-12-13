@@ -629,15 +629,16 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 	}
 
 	var runtimeClassNames []string
-	var snapshotter = ""
+	var snapshotter_handler_mapping = ""
 	for _, runtimeClass := range r.ccRuntime.Spec.Config.RuntimeClasses {
 		runtimeClassNames = append(runtimeClassNames, runtimeClass.Name)
-		// FIXME: This will need to be changed by the moment the kata-containers
-		//        payload script supports setting one snapshotter per runtime handler.
-		//        For now, for the v0.8.0 release, we're fine assuming that all the
-		//        set snapshotters are going to be the same.
-		if snapshotter == "" && runtimeClass.Snapshotter != "" {
-			snapshotter = runtimeClass.Snapshotter
+
+		if runtimeClass.Snapshotter != "" {
+			if snapshotter_handler_mapping != "" {
+				snapshotter_handler_mapping += runtimeClass.Name + ":" + runtimeClass.Snapshotter
+			} else {
+				snapshotter_handler_mapping += "," + runtimeClass.Name + ":" + runtimeClass.Snapshotter
+			}
 		}
 	}
 	var runtimeClasses = strings.Join(runtimeClassNames, " ")
@@ -673,8 +674,8 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 			Value: shims,
 		},
 		{
-			Name:  "SNAPSHOTTER",
-			Value: snapshotter,
+			Name:  "SNAPSHOTTER_HANDLER_MAPPING",
+			Value: snapshotter_handler_mapping,
 		},
 	}
 	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)
