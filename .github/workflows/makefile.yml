@@ -31,3 +31,6 @@ jobs:
 
     - name: Build controller
       run: make build
+
+    - name: Build bundle
+      run: make bundle IMG=quay.io/confidential-containers/operator:latest
