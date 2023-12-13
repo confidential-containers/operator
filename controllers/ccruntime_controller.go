@@ -628,20 +628,19 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		createDefaultRuntimeClass = "true"
 	}
 
-	var runtimeClassNames []string
-	var snapshotter = ""
+	var shims []string
+	var snapshotter_handler_mapping []string
 	for _, runtimeClass := range r.ccRuntime.Spec.Config.RuntimeClasses {
-		runtimeClassNames = append(runtimeClassNames, runtimeClass.Name)
-		// FIXME: This will need to be changed by the moment the kata-containers
-		//        payload script supports setting one snapshotter per runtime handler.
-		//        For now, for the v0.8.0 release, we're fine assuming that all the
-		//        set snapshotters are going to be the same.
-		if snapshotter == "" && runtimeClass.Snapshotter != "" {
-			snapshotter = runtimeClass.Snapshotter
+		// Similarly to what's being done for the default shim, let's remove
+		// the "kata-" prefix from the runtime class names
+		shim := strings.TrimPrefix(runtimeClass.Name, "kata-")
+		shims = append(shims, shim)
+
+		if runtimeClass.Snapshotter != "" {
+			mapping := shim + ":" + runtimeClass.Snapshotter
+			snapshotter_handler_mapping = append(snapshotter_handler_mapping, mapping)
 		}
 	}
-	var runtimeClasses = strings.Join(runtimeClassNames, " ")
-	var shims = strings.ReplaceAll(runtimeClasses, "kata-", "")
 
 	var envVars = []corev1.EnvVar{
 		{
@@ -670,11 +669,11 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		},
 		{
 			Name:  "SHIMS",
-			Value: shims,
+			Value: strings.Join(shims, " "),
 		},
 		{
-			Name:  "SNAPSHOTTER",
-			Value: snapshotter,
+			Name:  "SNAPSHOTTER_HANDLER_MAPPING",
+			Value: strings.Join(snapshotter_handler_mapping, ","),
 		},
 	}
 	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)
