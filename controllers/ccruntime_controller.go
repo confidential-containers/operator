@@ -633,7 +633,7 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 	for _, runtimeClass := range r.ccRuntime.Spec.Config.RuntimeClasses {
 		runtimeClassNames = append(runtimeClassNames, runtimeClass.Name)
 
-		if runtimeClass.Snapshotter != "" {
+		if runtimeClass.Snapshotter == "" {
 			if snapshotter_handler_mapping != "" {
 				snapshotter_handler_mapping += runtimeClass.Name + ":" + runtimeClass.Snapshotter
 			} else {
