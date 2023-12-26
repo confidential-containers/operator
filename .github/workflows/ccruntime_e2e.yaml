@@ -11,6 +11,7 @@ jobs:
   e2e:
     name: operator tests
     strategy:
+      fail-fast: false
       matrix:
         runtimeclass: ["kata-qemu", "kata-clh"]
         instance: ["az-ubuntu-2004", "az-ubuntu-2204"]
