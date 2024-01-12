@@ -19,7 +19,8 @@ export RELEASE_VERSION=<RELEASE_VERSION>
 kubectl apply -k "github.com/confidential-containers/operator/config/release?ref=${RELEASE_VERSION}"
 ```
 
-The operator deploys all resources under `confidential-containers-system` namespace.
+While also managing certain cluster-wide resources, the operator primarily deploys resources within the confidential-containers-system namespace.
+
 
 Wait until each pod has the STATUS of Running.
 
