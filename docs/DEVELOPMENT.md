@@ -96,6 +96,8 @@ This is a list of the bare-metal machines and VMs that are utilized by the proje
 
 | Machine            | Type       | TEE Capability | Assigned Labels |
 | ---                | ---        | ---            | ---             |
+| amd-milan-kata-ci  | bare-metal | AMD SNP        | amd-milan       |
+| amd-rome-kata-ci   | bare-metal | AMD SEV        | amd-rome        |
 | s390x              | virtual    | Non-TEE        |                 |
 | az-ubuntu-2004     | virtual    | Non-TEE        |                 |
 | az-ubuntu-2204     | virtual    | Non-TEE        |                 |
@@ -104,6 +106,8 @@ The following jobs will check for regessions on the default CcRuntime:
 
 |Job name | TEE | OS | VMM | Required Labels |
 |---|---|---|---|---|
+| e2e-pr / operator tests (kata-qemu, amd-milan-kata-ci) | AMD SNP |  Ubuntu 20.04 | QEMU | amd-milan |
+| e2e-pr / operator tests (kata-qemu, amd-rome-kata-ci)  | AMD SNP |  Ubuntu 20.04 | QEMU | amd-rome  |
 |e2e-pr / operator tests (kata-qemu, s390x) | Non-TEE | Ubuntu 22.04 (s390x) | QEMU | |
 |e2e-pr / operator tests (kata-clh, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | Cloud Hypervisor | |
 |e2e-pr / operator tests (kata-clh, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | Cloud Hypervisor | |
