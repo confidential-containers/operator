@@ -114,6 +114,24 @@
       systemd:
         daemon_reload: yes
   when: ansible_distribution == "Ubuntu" and ansible_architecture == 's390x'
+- name: Handle docker installation on Fedora 39
+  block:
+    - name: Install yum-utils
+      dnf:
+        name: yum-utils
+        state: present
+    - name: Add docker yum repo
+      shell: yum-config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+      args:
+        creates: /etc/yum.repos.d/docker-ce.repo
+    - name: Install docker packages
+      dnf:
+        name:
+          - containerd.io
+          - docker-ce
+          - docker-ce-cli
+        state: present
+  when: docker_exist.rc != 0 and ansible_distribution == "Fedora"
 - name: Start docker service
   service:
     name: docker
