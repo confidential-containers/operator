@@ -4,9 +4,11 @@ kind: Kustomization
 nameSuffix: -s390x
 
 resources:
-- ../default
+- ../base
 
 images:
+- name: quay.io/confidential-containers/reqs-payload
+  newTag: latest
 - name: quay.io/kata-containers/kata-deploy
   newName: quay.io/kata-containers/kata-deploy-ci
   newTag: kata-containers-latest
