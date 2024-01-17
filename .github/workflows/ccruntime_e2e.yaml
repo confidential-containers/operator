@@ -6,6 +6,9 @@ on:
         required: false
         type: string
         default: ""
+      commit-hash:
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -35,6 +38,9 @@ jobs:
           fi
 
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit-hash }}
+          fetch-depth: 0
 
       - name: Rebase atop of the latest target branch
         run: |

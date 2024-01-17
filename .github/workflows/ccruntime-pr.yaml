@@ -17,3 +17,4 @@ jobs:
     uses: ./.github/workflows/ccruntime_e2e.yaml
     with:
       target-branch: ${{ github.event.pull_request.base.ref }}
+      commit-hash: ${{ github.event.pull_request.head.sha }}
