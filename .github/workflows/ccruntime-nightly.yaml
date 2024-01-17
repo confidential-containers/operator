@@ -7,6 +7,8 @@ on:
 jobs:
   e2e-nightly:
     uses: ./.github/workflows/ccruntime_e2e.yaml
+    with:
+      commit-hash: ${{ github.sha }}
 
   e2e-ibm-se-nightly:
     runs-on: s390x
