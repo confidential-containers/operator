@@ -77,6 +77,43 @@
           - docker-ce-cli
         state: present
   when: docker_exist.rc != 0 and ansible_distribution == "CentOS"
+#
+# In order to prevent "systemd: docker.service Start request repeated too quickly"
+#
+- name: Set StartLimitBurst to 0 on Ubuntu for s390x
+  block:
+    - name: If a fragment path starts with `/lib`, then create /etc/systemd/system/docker.service.d
+      block:
+        - name: Get FragmentPath
+          shell: systemctl show -p FragmentPath docker.service | awk -F'=' '{print $2}'
+          register: fragment_path
+        - name: Copy fragment file to /etc/systemd/system/docker.service.d
+          copy:
+            src: "{{ fragment_path.stdout }}"
+            dest: "{{ fragment_path.stdout.replace('/lib', '/etc') }}"
+          when: fragment_path.stdout.find('/lib') != -1
+    - name: Configure `StartLimitBurst=0` in /etc/systemd/system/docker.service
+      block:
+        - name: Check if /etc/systemd/system/docker.service has StartLimitBurst=0
+          shell: grep -q 'StartLimitBurst' /etc/systemd/system/docker.service
+          register: start_limit_burst
+          ignore_errors: yes
+        - name: Replace a value of StartLimitBurst to 0
+          lineinfile:
+            path: /etc/systemd/system/docker.service
+            regexp: '^StartLimitBurst='
+            line: 'StartLimitBurst=0'
+          when: start_limit_burst.rc == 0
+        - name: Otherwise, insert `StartLimitBurst=0` just after a service section
+          lineinfile:
+            path: /etc/systemd/system/docker.service
+            insertafter: '\[Service\]'
+            line: 'StartLimitBurst=0'
+          when: start_limit_burst.rc != 0
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+  when: ansible_distribution == "Ubuntu" and ansible_architecture == 's390x'
 - name: Start docker service
   service:
     name: docker
