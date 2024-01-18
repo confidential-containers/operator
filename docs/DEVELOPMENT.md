@@ -16,6 +16,12 @@ export QUAY_USER=<userid>
 export IMG=quay.io/${QUAY_USER}/cc-operator
 ```
 
+If you do not have an account at `quay.io` and wish to deploy an operator through a local registry (for instance, one operating on port 5000), kindly export the `IMG` variable with:
+
+```
+export IMG=localhost:5000/cc-operator
+```
+
 ## Viewing available Make targets
 ```
 make help
@@ -39,12 +45,33 @@ make install && make deploy
 kubectl create -k config/samples/ccruntime/default
 ```
 
-## Uninstalling Operator
+If you have a custom payload image stored in your local registry (for example, `localhost:5000/build-kata-deploy`), the following set of commands is applicable:
 
-Ensure KUBECONFIG points to target Kubernetes cluster
 ```
-make uninstall && make undeploy
+PAYLOAD_IMG=localhost:5000/build-kata-deploy
+pushd config/samples/ccruntime/default
+kustomize edit set image quay.io/kata-containers/kata-deploy=${PAYLOAD_IMG}
+kubectl create -k .
+popd
 ```
+
+Additionally, there are alternative overlay directories such as `peer-pods` or `s390x` in addition to the `default` layer. You may switch the directory accordingly based on your requirements.
+
+## Uninstalling Resources
+
+Ensure KUBECONFIG points to target Kubernetes cluster. Let's begin by deleting the payload image first with:
+
+```
+kubectl delete -k config/samples/ccruntime/default
+```
+
+Subsequently, proceed with uninstalling the operator:
+
+```
+make undeploy
+```
+
+Notably, the use of `make uninstall` is unnecessary, as the command above will automatically remove the resource `ccruntimes.confidentialcontainers.org` in this case.
 
 ## Using Kind Kubernetes cluster
 
@@ -69,11 +96,11 @@ The following jobs will check for regessions on the default CcRuntime:
 
 |Job name | TEE | OS | VMM |
 |---|---|---|---|
-|cc-operator-e2e-ubuntu-20.04-s390x-containerd_kata-qemu | IBM SE | Ubuntu 20.04 (s390x) | QEMU |
-|ccruntime e2e tests / operator tests (kata-clh, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | Cloud Hypervisor |
-|ccruntime e2e tests / operator tests (kata-clh, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | Cloud Hypervisor |
-|ccruntime e2e tests / operator tests (kata-qemu, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | QEMU |
-|ccruntime e2e tests / operator tests (kata-qemu, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | QEMU |
+|e2e-pr / operator tests (kata-qemu, s390x) | Non-TEE | Ubuntu 22.04 (s390x) | QEMU |
+|e2e-pr / operator tests (kata-clh, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | Cloud Hypervisor |
+|e2e-pr / operator tests (kata-clh, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | Cloud Hypervisor |
+|e2e-pr / operator tests (kata-qemu, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | QEMU |
+|e2e-pr / operator tests (kata-qemu, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | QEMU |
 
 Additionally the following jobs will check regressions on the enclave-cc CcRuntime:
 
