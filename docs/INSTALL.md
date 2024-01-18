@@ -93,7 +93,7 @@ The default CR can be created as shown below where `<RELEASE_VERSION>` needs to 
 desired [release tag](https://github.com/confidential-containers/operator/tags):
 
 ```
-kubectl apply -k github.com/confidential-containers/operator/config/samples/ccruntime/default?ref=<RELEASE_VERSION>
+kubectl apply -k github.com/confidential-containers/operator/config/samples/ccruntime/default?ref=${RELEASE_VERSION}
 ```
 
 Wait until each pod has the `STATUS` as `Running`:
@@ -159,7 +159,7 @@ kubectl apply -k config/samples/ccruntime/<MY_CUSTOM_CR>
 
 ### Delete the CR
 ```
-kubectl delete -k github.com/confidential-containers/operator/config/samples/ccruntime/default?ref=<RELEASE_VERSION>
+kubectl delete -k github.com/confidential-containers/operator/config/samples/ccruntime/default?ref=${RELEASE_VERSION}
 ```
 
 ### Delete the Operator
