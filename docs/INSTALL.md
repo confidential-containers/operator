@@ -168,3 +168,7 @@ kubectl delete -k github.com/confidential-containers/operator/config/samples/ccr
 ```
 kubectl delete -k "github.com/confidential-containers/operator/config/release?ref=${RELEASE_VERSION}"
 ```
+
+## Advanced Topics
+
+- [How to install confidential containers with IBM Secure Execution](how-to/INSTALL-CC-WITH-IBM-SE.md)
