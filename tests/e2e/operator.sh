@@ -26,17 +26,17 @@ export PRE_INSTALL_IMG=localhost:5000/reqs-payload
 build_operator () {
 	start_local_registry
 
-        # Note: git config --global --add safe.directory will always
-        # append the target to .gitconfig without checking the
-        # existence of the target,
-        # so it's better to check it before adding the target repo.
-        local sd="$(git config --global --get safe.directory ${project_dir} || true)"
-        if [ "${sd}" == "" ]; then
-                echo "Add repo ${project_dir} to git's safe.directory"
-                git config --global --add safe.directory "${project_dir}"
-        else
-                echo "Repo ${project_dir} already in git's safe.directory"
-        fi
+	# Note: git config --global --add safe.directory will always
+	# append the target to .gitconfig without checking the
+	# existence of the target,
+	# so it's better to check it before adding the target repo.
+	local sd="$(git config --global --get safe.directory ${project_dir} || true)"
+	if [ "${sd}" == "" ]; then
+		echo "Add repo ${project_dir} to git's safe.directory"
+		git config --global --add safe.directory "${project_dir}"
+	else
+		echo "Repo ${project_dir} already in git's safe.directory"
+	fi
 
 	pushd "$project_dir" >/dev/null
 	make docker-build
@@ -65,19 +65,18 @@ build_pre_install_img() {
 # installation to deploy containerd too.
 #
 handle_older_containerd() {
-        command -v containerd >/dev/null || return
-        local version
-        version=$(containerd -v | awk '{ print $3 }' | sed 's/^v//')
-        echo "system's containerd version: $version"
-        if [[ "$version" =~ ^1.6 || "$version" =~ ^1.5 ]]; then
-                echo "Old system's containerd ($version). Configuring the operator to install a newer one"
-                pushd "$project_dir" >/dev/null
-                for kfile in $(find config/ -name "kustomization.yaml" \
-                        -exec grep -l INSTALL_OFFICIAL_CONTAINERD {} \;);do
-                        sed -i '/INSTALL_OFFICIAL_CONTAINERD/!b;n;s/false/true/;' $kfile
-                done
-                popd >/dev/null
-        fi
+	command -v containerd >/dev/null || return
+	local version=$(containerd -v | awk '{ print $3 }' | sed 's/^v//')
+	echo "system's containerd version: $version"
+	if [[ "$version" =~ ^1.6 || "$version" =~ ^1.5 ]]; then
+		echo "Old system's containerd ($version). Configuring the operator to install a newer one"
+		pushd "$project_dir" >/dev/null
+		for kfile in $(find config/ -name "kustomization.yaml" \
+			-exec grep -l INSTALL_OFFICIAL_CONTAINERD {} \;);do
+			sed -i '/INSTALL_OFFICIAL_CONTAINERD/!b;n;s/false/true/;' $kfile
+		done
+		popd >/dev/null
+	fi
 }
 
 # Install the operator.
@@ -166,7 +165,7 @@ uninstall_ccruntime() {
 
 	# Wait and ensure ccruntime pods are gone
 	#
-	local cmd="! sudo -E kubectl get pods -n confidential-containers-system|"
+	local cmd="! sudo -E kubectl get pods -n $op_ns |"
 	cmd+="grep -q -e cc-operator-daemon-install"
 	cmd+=" -e cc-operator-pre-install-daemon"
 	if ! wait_for_process 720 30 "$cmd"; then
@@ -245,7 +244,7 @@ uninstall_operator() {
 	# Wait and ensure the controller pod is gone
 	#
 	local pod="cc-operator-controller-manager"
-	local cmd="! kubectl get pods -n confidential-containers-system |"
+	local cmd="! kubectl get pods -n $op_ns |"
 	cmd+="grep -q $pod"
 	if ! wait_for_process 180 30 "$cmd"; then
 		echo "ERROR: the controller manager is still running"
@@ -266,7 +265,7 @@ wait_for_stabilization() {
 	count=0
 	while true; do
 		change=0
-		pod_info=$(kubectl get pods -n confidential-containers-system -o=jsonpath='{range .items[*]}{.metadata.name}{" "}{range .status.containerStatuses[*]}{.name}{" "}{.restartCount}{"\n"}{end}{end}')
+		pod_info=$(kubectl get pods -n "$op_ns" -o=jsonpath='{range .items[*]}{.metadata.name}{" "}{range .status.containerStatuses[*]}{.name}{" "}{.restartCount}{"\n"}{end}{end}')
 
 		while read -r pod container restart_count; do
 			if [ "${restart_counts[$pod-$container]--1}" != "$restart_count" ]; then
