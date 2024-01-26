@@ -21,6 +21,9 @@ readonly op_ns="confidential-containers-system"
 # running locally on port 5000.
 export IMG=${IMG:-localhost:5000/cc-operator:latest}
 export PRE_INSTALL_IMG=${PRE_INSTALL_IMG:-localhost:5000/reqs-payload}
+# If $KATA_PAYLOAD_IMG isn't exported then use the image set on the
+# configuration files.
+export KATA_PAYLOAD_IMG=${KATA_PAYLOAD_IMG:-}
 
 # Build the operator and push images to a local registry.
 #
@@ -132,6 +135,12 @@ install_ccruntime() {
 	kustomization_set_image  "${ccruntime_overlay_basedir}/default" \
 		"quay.io/confidential-containers/reqs-payload" \
 		"${PRE_INSTALL_IMG}"
+
+	if [ -n "$KATA_PAYLOAD_IMG" ];then
+		kustomization_set_image  "${ccruntime_overlay_basedir}/default" \
+		"quay.io/kata-containers/kata-deploy" \
+		"$KATA_PAYLOAD_IMG"
+	fi
 
 	pushd "$overlay_dir" >/dev/null
 	kubectl create -k .
@@ -316,6 +325,7 @@ usage() {
 	environment variables :
 	 IMG: the controller image (current: $IMG)
 	 PRE_INSTALL_IMG: the pre-reqs image (current: $PRE_INSTALL_IMG)
+	 KATA_PAYLOAD_IMG: the kata-payload image (current: the one set in configs)
 	EOF
 }
 
