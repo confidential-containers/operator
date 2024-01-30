@@ -8,6 +8,9 @@
 load "${BATS_TEST_DIRNAME}/lib.sh"
 test_tag="[cc][operator]"
 
+# Set 10m timeout for each test
+export BATS_TEST_TIMEOUT=600
+
 is_operator_installed() {
 	[ "$(kubectl get deployment -n "$ns" --no-headers 2>/dev/null | wc -l)" \
 		-gt 0 ]
