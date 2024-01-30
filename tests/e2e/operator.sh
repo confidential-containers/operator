@@ -32,10 +32,10 @@ build_operator () {
 	# so it's better to check it before adding the target repo.
 	local sd="$(git config --global --get safe.directory ${project_dir} || true)"
 	if [ "${sd}" == "" ]; then
-		echo "Add repo ${project_dir} to git's safe.directory"
+		echo "::debug:: Add repo ${project_dir} to git's safe.directory"
 		git config --global --add safe.directory "${project_dir}"
 	else
-		echo "Repo ${project_dir} already in git's safe.directory"
+		echo "::debug:: Repo ${project_dir} already in git's safe.directory"
 	fi
 
 	pushd "$project_dir" >/dev/null
@@ -67,9 +67,9 @@ build_pre_install_img() {
 handle_older_containerd() {
 	command -v containerd >/dev/null || return
 	local version=$(containerd -v | awk '{ print $3 }' | sed 's/^v//')
-	echo "system's containerd version: $version"
+	echo "::debug:: system's containerd version: $version"
 	if [[ "$version" =~ ^1.6 || "$version" =~ ^1.5 ]]; then
-		echo "Old system's containerd ($version). Configuring the operator to install a newer one"
+		echo "::warning:: Old system's containerd ($version). Configuring the operator to install a newer one"
 		pushd "$project_dir" >/dev/null
 		for kfile in $(find config/ -name "kustomization.yaml" \
 			-exec grep -l INSTALL_OFFICIAL_CONTAINERD {} \;);do
@@ -104,10 +104,10 @@ install_operator() {
 	local cmd="kubectl get pods -n "$op_ns" --no-headers |"
 	cmd+="egrep -q ${controller_pod}.*'\<Running\>'"
 	if ! wait_for_process 120 10 "$cmd"; then
-		echo "ERROR: ${controller_pod} pod is not running"
+		echo "::error:: ${controller_pod} pod is not running"
 
 		local pod_id="$(get_pods_regex $controller_pod $op_ns)"
-		echo "DEBUG: Pod $pod_id"
+		echo "::debug:: Pod $pod_id"
 		debug_pod "$pod_id" "$op_ns"
 
 		return 1
@@ -135,10 +135,10 @@ install_ccruntime() {
 		cmd="kubectl get pods -n "$op_ns" --no-headers |"
 		cmd+="egrep -q ${pod}.*'\<Running\>'"
 		if ! wait_for_process 600 30 "$cmd"; then
-			echo "ERROR: $pod pod is not running"
+			echo "::error:: $pod pod is not running"
 
 			local pod_id="$(get_pods_regex $pod $op_ns)"
-			echo "DEBUG: Pod $pod_id"
+			echo "::debug:: Pod $pod_id"
 			debug_pod "$pod_id" "$op_ns"
 
 			return 1
@@ -149,7 +149,7 @@ install_ccruntime() {
 	# There could be a case where it is not even if the pods above are running.
 	cmd="kubectl get runtimeclass | grep -q ${runtimeclass}"
 	if ! wait_for_process 300 30 "$cmd"; then
-		echo "ERROR: runtimeclass ${runtimeclass} is not up"
+		echo "::error:: runtimeclass ${runtimeclass} is not up"
 		return 1
 	fi
 	# To keep operator running, we should resume registry stopped during containerd restart.
@@ -169,7 +169,7 @@ uninstall_ccruntime() {
 	cmd+=" && ! echo \$_OUT | grep -q -e cc-operator-daemon-install"
 	cmd+=" -e cc-operator-pre-install-daemon"
 	if ! wait_for_process 720 30 "$cmd"; then
-		echo "ERROR: there are ccruntime pods still running"
+		echo "::error:: there are ccruntime pods still running"
 		echo "::group::Describe pods from $op_ns namespace"
 		kubectl -n "$op_ns" describe pods || true
 		echo "::endgroup::"
@@ -183,7 +183,7 @@ uninstall_ccruntime() {
 	# Labels should be gone
 	if kubectl get nodes "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}' | \
 		grep -q -e cc-preinstall -e katacontainers.io; then
-		echo "ERROR: there are labels left behind"
+		echo "::error:: there are labels left behind"
 		kubectl get nodes "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}'
 
 		return 1
@@ -207,7 +207,7 @@ kustomization_set_image() {
 	# and this can introduce false-positive on the tests. So let's check the old image really
 	# exist.
 	if ! grep -q "name: ${old}$" ./kustomization.yaml; then
-		echo "ERROR: expected image ${old} in ${overlay_dir}/kustomization.yaml"
+		echo "::error:: expected image ${old} in ${overlay_dir}/kustomization.yaml"
 		return 1
 	fi
 
@@ -246,10 +246,10 @@ uninstall_operator() {
 	local cmd="_OUT=\$(sudo -E kubectl get pods -n '$op_ns')"
 	cmd+="&& ! echo \$_OUT | grep -q -e cc-operator-controller-manager"
 	if ! wait_for_process 180 30 "$cmd"; then
-		echo "ERROR: the controller manager is still running"
+		echo "::error:: the controller manager is still running"
 
 		local pod_id="$(get_pods_regex $pod $op_ns)"
-		echo "DEBUG: Pod $pod_id"
+		echo "::debug:: Pod $pod_id"
 		debug_pod "$pod_id" "$op_ns"
 
 		return 1
@@ -268,7 +268,7 @@ wait_for_stabilization() {
 
 		while read -r pod container restart_count; do
 			if [ "${restart_counts[$pod-$container]--1}" != "$restart_count" ]; then
-				echo "DEBUG: Pod: $pod, Container: $container, Restart count: $restart_count"
+				echo "::debug:: Pod: $pod, Container: $container, Restart count: $restart_count"
 				restart_counts["$pod-$container"]=$restart_count
 				change=1
 			fi
@@ -277,10 +277,10 @@ wait_for_stabilization() {
 		[ $change -eq 0 ] && ((iteration+=1))
 
 		if [ $iteration -gt 3 ]; then
-			echo "INFO: No new restarts in 3x21s, proceeding..."
+			echo "::info:: No new restarts in 3x21s, proceeding..."
 			break
 		elif [ $count -gt 20 ]; then
-			echo "ERROR: Pods are still restarting after 20x21s, bailing out!"
+			echo "::error:: Pods are still restarting after 20x21s, bailing out!"
 			return 1
 		fi
 
@@ -334,7 +334,7 @@ main() {
 				wait_for_stabilization
 				;;
 			*)
-				echo "Unknown command '$1'"
+				echo "::error:: Unknown command '$1'"
 				usage && exit 1
 		esac
 	fi

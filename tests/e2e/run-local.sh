@@ -59,17 +59,17 @@ undo_changes() {
 	pushd "$script_dir" >/dev/null
 	# Do not try to undo steps that did not execute.
 	if [ $step_install_operator -eq 1 ]; then
-		echo "INFO: Uninstall the operator"
+		echo "::info:: Uninstall the operator"
 		run 10m sudo -E PATH="$PATH" bash -c './operator.sh uninstall' || true
 	fi
 
 	if [ $step_start_cluster -eq 1 ]; then
-		echo "INFO: Shutdown the cluster"
+		echo "::info:: Shutdown the cluster"
 		run 5m sudo -E PATH="$PATH" bash -c './cluster/down.sh' || true
 	fi
 
 	if [ $step_bootstrap_env -eq 1 ]; then
-		echo "INFO: Undo the bootstrap"
+		echo "::info:: Undo the bootstrap"
 		run 5m ansible-playbook -i localhost, -c local --tags undo ansible/main.yml || true
 	fi
 	popd >/dev/null
@@ -78,10 +78,10 @@ undo_changes() {
 on_exit() {
 	RET="$?"
 	if [ "$undo" == "true" ]; then
-		[ "$RET" -ne 0 ] && echo && echo "ERROR: Testing failed with $RET, starting the cleanup..."
+		[ "$RET" -ne 0 ] && echo && echo "::error:: Testing failed with $RET, starting the cleanup..."
 		undo_changes
 	fi
-	[ "$RET" -ne 0 ] && echo && echo "ERROR: Testing failed with $RET" || echo "INFO: Testing passed"
+	[ "$RET" -ne 0 ] && echo && echo "::error:: Testing failed with $RET" || echo "::info:: Testing passed"
 }
 
 trap on_exit EXIT
@@ -93,27 +93,27 @@ main() {
 
 	# Check Ansible is installed.
 	if ! command -v ansible-playbook >/dev/null; then
-		echo "ERROR: ansible-playbook is required to run this script."
+		echo "::error:: ansible-playbook is required to run this script."
 		exit 1
 	fi
 
 	export "PATH=$PATH:/usr/local/bin"
 
 	pushd "$script_dir" >/dev/null
-	echo "INFO: Bootstrap the local machine"
+	echo "::info:: Bootstrap the local machine"
 	step_bootstrap_env=1
 	run 10m ansible-playbook -i localhost, -c local --tags untagged ansible/main.yml
 
-	echo "INFO: Bring up the test cluster"
+	echo "::info:: Bring up the test cluster"
 	step_start_cluster=1
 	run 10m sudo -E PATH="$PATH" bash -c './cluster/up.sh'
 	export KUBECONFIG=/etc/kubernetes/admin.conf
 
-	echo "INFO: Build and install the operator"
+	echo "::info:: Build and install the operator"
 	step_install_operator=1
 	run 20m sudo -E PATH="$PATH" bash -c './operator.sh'
 
-	echo "INFO: Run tests"
+	echo "::info:: Run tests"
 	cmd="run 20m sudo -E PATH=\"$PATH\" bash -c "
 	if [ -z "$runtimeclass" ]; then
 		cmd+="'./tests_runner.sh'"
