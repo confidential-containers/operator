@@ -164,9 +164,9 @@ uninstall_ccruntime() {
 	popd >/dev/null
 
 	# Wait and ensure ccruntime pods are gone
-	#
-	local cmd="! sudo -E kubectl get pods -n $op_ns |"
-	cmd+="grep -q -e cc-operator-daemon-install"
+	# (ensure failing kubectl keeps iterating)
+	local cmd="_OUT=\$(sudo -E kubectl get pods -n '$op_ns')"
+	cmd+=" && ! echo \$_OUT | grep -q -e cc-operator-daemon-install"
 	cmd+=" -e cc-operator-pre-install-daemon"
 	if ! wait_for_process 720 30 "$cmd"; then
 		echo "ERROR: there are ccruntime pods still running"
@@ -242,10 +242,9 @@ uninstall_operator() {
 	popd >/dev/null
 
 	# Wait and ensure the controller pod is gone
-	#
-	local pod="cc-operator-controller-manager"
-	local cmd="! kubectl get pods -n $op_ns |"
-	cmd+="grep -q $pod"
+	# (ensure failing kubectl keeps iterating)
+	local cmd="_OUT=\$(sudo -E kubectl get pods -n '$op_ns')"
+	cmd+="&& ! echo \$_OUT | grep -q -e cc-operator-controller-manager"
 	if ! wait_for_process 180 30 "$cmd"; then
 		echo "ERROR: the controller manager is still running"
 
