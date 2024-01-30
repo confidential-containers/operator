@@ -76,9 +76,12 @@ undo_changes() {
 }
 
 on_exit() {
+	RET="$?"
 	if [ "$undo" == "true" ]; then
+		[ "$RET" -ne 0 ] && echo && echo "ERROR: Testing failed with $RET, starting the cleanup..."
 		undo_changes
 	fi
+	[ "$RET" -ne 0 ] && echo && echo "ERROR: Testing failed with $RET" || echo "INFO: Testing passed"
 }
 
 trap on_exit EXIT
