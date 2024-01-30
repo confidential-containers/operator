@@ -23,7 +23,7 @@ function install_jq() {
 }
 
 function configure_github() {
-	if [ ! command -v jq &> /dev/null ]; then
+	if ! command -v jq &> /dev/null; then
 		echo "jq is not installed, installing it"
 		install_jq
 	fi
