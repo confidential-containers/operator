@@ -43,6 +43,7 @@
         cp -f ./kustomize /usr/local/bin
       args:
         creates: /usr/local/bin/kustomize
+        warn: false
       retries: 3
       delay: 10
       when: kustomize_exist.rc != 0
