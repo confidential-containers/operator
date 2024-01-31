@@ -22,17 +22,23 @@
           - gnupg
           - lsb-release
         state: present
+      retries: 3
+      delay: 10
     - name: Add docker repo GPG key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         keyring: /etc/apt/trusted.gpg.d/docker.gpg
         state: present
+      retries: 3
+      delay: 10
     - name: Add docker repo
       apt_repository:
         repo: "deb [arch={{ target_arch }} signed-by=/etc/apt/trusted.gpg.d/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
         filename: docker
         update_cache: yes
         state: present
+      retries: 3
+      delay: 10
     - name: Install docker packages
       package:
         name:
@@ -40,6 +46,8 @@
           - docker-ce
           - docker-ce-cli
         state: present
+      retries: 3
+      delay: 10
     - name: Create the docker group
       group:
         name: docker
@@ -54,10 +62,14 @@
           - docker.io
           - docker-buildx
         state: present
+      retries: 3
+      delay: 10
     - name: Create the docker group
       group:
         name: docker
         state: present
+      retries: 3
+      delay: 10
   when: docker_exist.rc != 0 and ansible_distribution == "Ubuntu" and ansible_distribution_version == "22.04"
 - name: Handle docker installation on CentOS.
   block:
@@ -65,10 +77,14 @@
       dnf:
         name: yum-utils
         state: present
+      retries: 3
+      delay: 10
     - name: Add docker yum repo
       shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
       args:
         creates: /etc/yum.repos.d/docker-ce.repo
+      retries: 3
+      delay: 10
     - name: Install docker packages
       dnf:
         name:
@@ -76,6 +92,8 @@
           - docker-ce
           - docker-ce-cli
         state: present
+      retries: 3
+      delay: 10
   when: docker_exist.rc != 0 and ansible_distribution == "CentOS"
 #
 # In order to prevent "systemd: docker.service Start request repeated too quickly"

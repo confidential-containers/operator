@@ -46,6 +46,8 @@
         url: https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/{{ target_arch  }}/{{ item }}
         dest: /usr/local/bin
         mode: '+x'
+      retries: 3
+      delay: 10
       with_items:
         - kubeadm
         - kubelet

@@ -8,6 +8,8 @@
       package:
         name: "{{ test_pkgs[ansible_distribution | lower] }}"
         state: present
+      retries: 3
+      delay: 10
     # Install bats from source so that we get the latest features.
     - name: Install bats from sources
       block:
@@ -20,6 +22,8 @@
                 repo: https://github.com/bats-core/bats-core.git
                 dest: bats-core
                 force: yes
+                retries: 3
+                delay: 10
             - name: Install bats
               shell:
                 cmd: ./install.sh /usr/local
@@ -39,6 +43,8 @@
         cp -f ./kustomize /usr/local/bin
       args:
         creates: /usr/local/bin/kustomize
+      retries: 3
+      delay: 10
       when: kustomize_exist.rc != 0
     - block:
       - name: Download and extract Go tarball
