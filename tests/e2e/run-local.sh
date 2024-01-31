@@ -114,7 +114,7 @@ main() {
 	run 20m sudo -E PATH="$PATH" bash -c './operator.sh'
 
 	echo "::info:: Run tests"
-	cmd="run 20m sudo -E PATH=\"$PATH\" bash -c "
+	local cmd="run 20m sudo -E PATH=\"$PATH\" bash -c "
 	if [ -z "$runtimeclass" ]; then
 		cmd+="'./tests_runner.sh'"
 	else

@@ -104,9 +104,9 @@ wait_pods() {
 # Note: copied from kata-containers/tests/lib/common.bash
 #
 wait_for_process() {
-	wait_time="$1"
-	sleep_time="$2"
-	cmd="$3"
+	local wait_time="$1"
+	local sleep_time="$2"
+	local cmd="$3"
 	while [ "$wait_time" -gt 0 ]; do
 		if eval "$cmd"; then
 			return 0

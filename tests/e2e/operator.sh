@@ -147,7 +147,7 @@ install_ccruntime() {
 
 	# Check if the runtime is up.
 	# There could be a case where it is not even if the pods above are running.
-	cmd="kubectl get runtimeclass | grep -q ${runtimeclass}"
+	local cmd="kubectl get runtimeclass | grep -q ${runtimeclass}"
 	if ! wait_for_process 300 30 "$cmd"; then
 		echo "::error:: runtimeclass ${runtimeclass} is not up"
 		return 1
@@ -260,11 +260,11 @@ uninstall_operator() {
 #
 wait_for_stabilization() {
 	declare -A restart_counts
-	iteration=0
-	count=0
+	local iteration=0
+	local count=0
 	while true; do
-		change=0
-		pod_info=$(kubectl get pods -n "$op_ns" -o=jsonpath='{range .items[*]}{.metadata.name}{" "}{range .status.containerStatuses[*]}{.name}{" "}{.restartCount}{"\n"}{end}{end}')
+		local change=0
+		local pod_info=$(kubectl get pods -n "$op_ns" -o=jsonpath='{range .items[*]}{.metadata.name}{" "}{range .status.containerStatuses[*]}{.name}{" "}{.restartCount}{"\n"}{end}{end}')
 
 		while read -r pod container restart_count; do
 			if [ "${restart_counts[$pod-$container]--1}" != "$restart_count" ]; then
