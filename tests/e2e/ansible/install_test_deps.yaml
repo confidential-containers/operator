@@ -22,8 +22,8 @@
                 repo: https://github.com/bats-core/bats-core.git
                 dest: bats-core
                 force: yes
-                retries: 3
-                delay: 10
+              retries: 3
+              delay: 10
             - name: Install bats
               shell:
                 cmd: ./install.sh /usr/local
@@ -47,10 +47,16 @@
       delay: 10
       when: kustomize_exist.rc != 0
     - block:
-      - name: Download and extract Go tarball
+      - name: Download Go tarball
+        get_url:
+          url: https://go.dev/dl/go{{ go_version }}.linux-{{ target_arch }}.tar.gz
+          dest: /tmp/go{{ go_version }}.linux-{{ target_arch }}.tar.gz
+        retries: 3
+        delay: 10
+      - name: Extract Go tarball
         unarchive:
           # TODO: use facts
-          src: https://go.dev/dl/go{{ go_version }}.linux-{{ target_arch }}.tar.gz
+          src: /tmp/go{{ go_version }}.linux-{{ target_arch }}.tar.gz
           creates: /usr/local/go
           dest: /usr/local
           remote_src: yes
