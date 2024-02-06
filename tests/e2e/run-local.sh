@@ -15,6 +15,7 @@ step_start_cluster=0
 step_install_operator=0
 runtimeclass=""
 undo="false"
+timeout="false"
 
 usage() {
 	cat <<-EOF
@@ -29,44 +30,58 @@ usage() {
                          the tests. Defaults to "kata-qemu".
 	-u: undo the installation and configuration before exiting. Useful for
 	    baremetal machine were it needs to do clean up for the next tests.
+	-t: enable default timeout for each operation (useful for CI)
 	EOF
 }
 
 parse_args() {
-	while getopts "hr:u" opt; do
+	while getopts "hr:ut" opt; do
 		case $opt in
 			h) usage && exit 0;;
 			r) runtimeclass="$OPTARG";;
 			u) undo="true";;
+			t) timeout="true";;
 			*) usage && exit 1;;
 		esac
 	done
+}
+
+run() {
+	duration=$1; shift
+	if [ "$timeout" == "true" ]; then
+		timeout $duration "$@"
+	else
+		"$@"
+	fi
 }
 
 undo_changes() {
 	pushd "$script_dir" >/dev/null
 	# Do not try to undo steps that did not execute.
 	if [ $step_install_operator -eq 1 ]; then
-		echo "INFO: Uninstall the operator"
-		sudo -E PATH="$PATH" bash -c './operator.sh uninstall' || true
+		echo "::info:: Uninstall the operator"
+		run 10m sudo -E PATH="$PATH" bash -c './operator.sh uninstall' || true
 	fi
 
 	if [ $step_start_cluster -eq 1 ]; then
-		echo "INFO: Shutdown the cluster"
-		sudo -E PATH="$PATH" bash -c './cluster/down.sh' || true
+		echo "::info:: Shutdown the cluster"
+		run 5m sudo -E PATH="$PATH" bash -c './cluster/down.sh' || true
 	fi
 
 	if [ $step_bootstrap_env -eq 1 ]; then
-		echo "INFO: Undo the bootstrap"
-		ansible-playbook -i localhost, -c local --tags undo ansible/main.yml || true
+		echo "::info:: Undo the bootstrap"
+		run 5m ansible-playbook -i localhost, -c local --tags undo ansible/main.yml || true
 	fi
 	popd >/dev/null
 }
 
 on_exit() {
+	RET="$?"
 	if [ "$undo" == "true" ]; then
+		[ "$RET" -ne 0 ] && echo && echo "::error:: Testing failed with $RET, starting the cleanup..."
 		undo_changes
 	fi
+	[ "$RET" -ne 0 ] && echo && echo "::error:: Testing failed with $RET" || echo "::info:: Testing passed"
 }
 
 trap on_exit EXIT
@@ -78,28 +93,28 @@ main() {
 
 	# Check Ansible is installed.
 	if ! command -v ansible-playbook >/dev/null; then
-		echo "ERROR: ansible-playbook is required to run this script."
+		echo "::error:: ansible-playbook is required to run this script."
 		exit 1
 	fi
 
 	export "PATH=$PATH:/usr/local/bin"
 
 	pushd "$script_dir" >/dev/null
-	echo "INFO: Bootstrap the local machine"
+	echo "::info:: Bootstrap the local machine"
 	step_bootstrap_env=1
-	ansible-playbook -i localhost, -c local --tags untagged ansible/main.yml
+	run 10m ansible-playbook -i localhost, -c local --tags untagged ansible/main.yml
 
-	echo "INFO: Bring up the test cluster"
+	echo "::info:: Bring up the test cluster"
 	step_start_cluster=1
-	sudo -E PATH="$PATH" bash -c './cluster/up.sh'
+	run 10m sudo -E PATH="$PATH" bash -c './cluster/up.sh'
 	export KUBECONFIG=/etc/kubernetes/admin.conf
 
-	echo "INFO: Build and install the operator"
+	echo "::info:: Build and install the operator"
 	step_install_operator=1
-	sudo -E PATH="$PATH" bash -c './operator.sh'
+	run 20m sudo -E PATH="$PATH" bash -c './operator.sh'
 
-	echo "INFO: Run tests"
-	cmd="sudo -E PATH=\"$PATH\" bash -c "
+	echo "::info:: Run tests"
+	cmd="run 20m sudo -E PATH=\"$PATH\" bash -c "
 	if [ -z "$runtimeclass" ]; then
 		cmd+="'./tests_runner.sh'"
 	else
