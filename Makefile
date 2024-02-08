@@ -141,7 +141,12 @@ run: manifests generate fmt vet ## Run a controller from your host.
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.
+ifneq (, $(PEERPODS))
+	@echo PEERPODS is enabled
+	docker build -t ${IMG} -f Dockerfile.peerpods .
+else
 	docker build -t ${IMG} .
+endif
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.
@@ -156,19 +161,33 @@ endif
 .PHONY: install
 install: manifests kustomize ## Install CRDs into the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/crd | kubectl apply -f -
+ifneq (, $(PEERPODS))
+	$(KUSTOMIZE) build config/overlays/peerpods/crd | kubectl apply -f -
+endif
 
 .PHONY: uninstall
 uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
 	$(KUSTOMIZE) build config/crd | kubectl delete --ignore-not-found=$(ignore-not-found) -f -
+ifneq (, $(PEERPODS))
+	$(KUSTOMIZE) build config/overlays/peerpods/crd | kubectl delete --ignore-not-found=$(ignore-not-found) -f -
+endif
 
 .PHONY: deploy
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+ifneq (, $(PEERPODS))
+	$(KUSTOMIZE) build config/overlays/peerpods/default | kubectl apply -f -
+else
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
+endif
 
 .PHONY: undeploy
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config. Call with ignore-not-found=true to ignore resource not found errors during deletion.
+ifneq (, $(PEERPODS))
+	$(KUSTOMIZE) build config/overlays/peerpods/default | kubectl delete --ignore-not-found=$(ignore-not-found) -f -
+else
 	$(KUSTOMIZE) build config/default | kubectl delete --ignore-not-found=$(ignore-not-found) -f -
+endif
 
 ##@ Build Dependencies
 

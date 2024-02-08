@@ -1,0 +1,7 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+- github.com/confidential-containers/cloud-api-adaptor//peerpodconfig-ctrl/config/crd?ref=v0.8.0
+- github.com/confidential-containers/cloud-api-adaptor//peerpod-ctrl/config/crd?ref=v0.8.0
+#+kubebuilder:scaffold:crdkustomizeresource
