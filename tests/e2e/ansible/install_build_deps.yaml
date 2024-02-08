@@ -25,7 +25,7 @@
           src: /usr/local/go/bin/go
           dest: /usr/local/bin/go
           state: link
-    - import_tasks: "install_docker.yml"
+    - import_tasks: "install_docker.yaml"
       # Docker buildx relies on qemu-user-static to multi-arch builds, but
       # qemu-user-static is not packaged for CentOS. Let's get it installed via
       # https://github.com/multiarch/qemu-user-static

@@ -6,14 +6,14 @@
 #
 ---
 - name: Install build dependencies
-  import_playbook: install_build_deps.yml
+  import_playbook: install_build_deps.yaml
 - name: Install and configure containerd
-  import_playbook: install_containerd.yml
+  import_playbook: install_containerd.yaml
 # TODO: import either containerd or crio 
 #  when: container_runtime is 'containerd'
 - name: Install and configure kubeadm
-  import_playbook: install_kubeadm.yml
+  import_playbook: install_kubeadm.yaml
 - name: Start a local docker registry
-  import_playbook: start_docker_registry.yml
+  import_playbook: start_docker_registry.yaml
 - name: Install test dependencies
-  import_playbook: install_test_deps.yml
+  import_playbook: install_test_deps.yaml
