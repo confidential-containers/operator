@@ -1,0 +1,35 @@
+- op: add
+  path: /rules/0
+  value:
+    apiGroups:
+      - confidentialcontainers.org
+    resources:
+      - peerpods
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+- op: add
+  path: /rules/0
+  value:
+    apiGroups:
+      - confidentialcontainers.org
+    resources:
+      - peerpods/finalizers
+    verbs:
+      - update
+- op: add
+  path: /rules/0
+  value:
+    apiGroups:
+      - confidentialcontainers.org
+    resources:
+      - peerpods/status
+    verbs:
+      - get
+      - patch
+      - update

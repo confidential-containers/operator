@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: controller-manager
+  namespace: system
+spec:
+  template:
+    spec:
+      volumes:
+      - name: ssh
+        secret:
+          defaultMode: 384
+          optional: true
+          secretName: ssh-key-secret
