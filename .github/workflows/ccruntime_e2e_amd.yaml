@@ -20,12 +20,9 @@ jobs:
       fail-fast: false
       matrix:
         runtimeclass:
-          - "kata-qemu"
-          - "kata-clh"
+          - "kata-snp"
         instance:
-          - "az-ubuntu-2004"
-          - "az-ubuntu-2204"
-          - "s390x"
+          - "amd-milan-coco-ci-ubuntu2004-001"
         exclude:
           - runtimeclass: "kata-clh"
             instance: "s390x"

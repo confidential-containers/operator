@@ -2,7 +2,7 @@ name: ccruntime e2e test for PR
 on:
   pull_request_target:
     branches:
-      - 'main'
+      - 'amd_test'
     types:
       - opened
       - synchronize
@@ -14,7 +14,7 @@ on:
 jobs:
   e2e-pr:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'ok-to-test') }}
-    uses: ./.github/workflows/ccruntime_e2e.yaml
+    uses: ./.github/workflows/ccruntime_e2e_amd.yaml
     with:
       target-branch: ${{ github.event.pull_request.base.ref }}
       commit-hash: ${{ github.event.pull_request.head.sha }}
