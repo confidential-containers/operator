@@ -101,8 +101,8 @@
         state: directory
     - name: Create flannel deployment file
       template:
-        src: kube-flannel.yml.j2
-        dest: "{{ flannel_home }}/kube-flannel.yml"
+        src: kube-flannel.yaml.j2
+        dest: "{{ flannel_home }}/kube-flannel.yaml"
     #
     # Undo the kubeadm installation. Assume that ../cluster/down.sh is executed
     # before.

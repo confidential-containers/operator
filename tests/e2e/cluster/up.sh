@@ -36,7 +36,7 @@ init_kubeadm() {
 configure_flannel() {
 	local flannel_ns="kube-flannel"
 
-	kubectl apply -f /opt/flannel/kube-flannel.yml
+	kubectl apply -f /opt/flannel/kube-flannel.yaml
 
 	if ! wait_pods "$flannel_ns"; then
 		echo "ERROR: pods didn't show up in $flannel_ns"
