@@ -50,6 +50,11 @@
         - kubeadm
         - kubelet
         - kubectl
+    - name: Remove zram-generator-defaults in Fedora
+      ansible.builtin.yum:
+        name: zram-generator-defaults
+        state: absent
+      when: ansible_distribution == "Fedora"
     - name: Disable swap
       shell: |
         [ -z "$(swapon --show)" ] && exit 0

@@ -6,6 +6,10 @@ build_pkgs:
     - make
     - gcc
     - qemu-user-static
+  fedora:
+    - make
+    - gcc
+    - qemu-user-static
   centos:
     - make
     - gcc
@@ -16,12 +20,17 @@ kubeadm_pkgs:
   ubuntu:
     - conntrack
     - socat
+  fedora:
+    - conntrack
+    - socat
   centos:
     - conntrack
     - socat
 k8s_version: v1.24.0
 test_pkgs:
   ubuntu:
+    - jq
+  fedora:
     - jq
   centos:
     - jq
