@@ -17,6 +17,8 @@
         # TODO: this is ubuntu specific...
         name: python3-pip
         state: present
+      retries: 3
+      delay: 10
     # The docker pip is needed by the docker_container ansible module itself.
     - name: Install docker pip
       pip:
@@ -30,6 +32,8 @@
         if [ "$version_ge" = "2.29.0" ]; then
             pip3 install requests==2.28.1
         fi
+      retries: 3
+      delay: 10
     - name: Start a docker registry
       docker_container:
         name: "{{ local_registry_name }}"
@@ -38,6 +42,8 @@
         ports:
           - "{{ local_registry_port }}:{{ local_registry_port }}"
         state: started
+      retries: 3
+      delay: 10
     #
     # Remove the docker registry container.
     #
