@@ -26,7 +26,7 @@ supported_arches=(
 
 function setup_env_for_arch() {
 	case "$1" in
-		"linux/amd64") 
+		"linux/amd64")
 			kernel_arch="x86_64"
 			golang_arch="amd64"
 			;;
@@ -36,27 +36,28 @@ function setup_env_for_arch() {
 			;;
 		*) echo "$1 is not supported" >/dev/stderr && exit 1 ;;
 	esac
-		
 }
 
 function purge_previous_manifests() {
-	manifest=${1}
-	
+	local manifest
+	local sanitised_manifest
+	manifest="${1}"
 	# We need to sanitise the name by:
 	# * Replacing:
 	#   * '/' by '_'
 	#   * ':' by '-'
-	
+
 	sanitised_manifest="$(echo ${manifest} | sed 's|/|_|g' | sed 's|:|-|g')"
-	rm -rf ${HOME}/.docker/manifests/${sanitised_manifest} || true
+	rm -rf "${HOME}/.docker/manifests/${sanitised_manifest}" || true
 }
 
 function build_payload() {
 	pushd "${script_dir}"
+	local tag
 
 	tag=$(git rev-parse HEAD)
 
-	for arch in ${supported_arches[@]}; do
+	for arch in "${supported_arches[@]}"; do
 		setup_env_for_arch "${arch}"
 
 		echo "Building containerd payload image for ${arch}"
@@ -77,21 +78,21 @@ function build_payload() {
 		docker push "${registry}:${kernel_arch}-${tag}"
 	done
 
-	purge_previous_manifests ${registry}:${tag}
-	purge_previous_manifests ${registry}:latest
+	purge_previous_manifests "${registry}:${tag}"
+	purge_previous_manifests "${registry}:latest"
 
-	docker manifest create ${extra_docker_manifest_flags} \
-		${registry}:${tag} \
-		--amend ${registry}:x86_64-${tag} \
-		--amend ${registry}:s390x-${tag}
+	docker manifest create "${extra_docker_manifest_flags}" \
+		"${registry}:${tag}" \
+		--amend "${registry}:x86_64-${tag}" \
+		--amend "${registry}:s390x-${tag}"
 
-	docker manifest create ${extra_docker_manifest_flags} \
-		${registry}:latest \
-		--amend ${registry}:x86_64-${tag} \
-		--amend ${registry}:s390x-${tag}
+	docker manifest create "${extra_docker_manifest_flags}" \
+		"${registry}:latest" \
+		--amend "${registry}:x86_64-${tag}" \
+		--amend "${registry}:s390x-${tag}"
 
-	docker manifest push ${extra_docker_manifest_flags} ${registry}:${tag}
-	docker manifest push ${extra_docker_manifest_flags} ${registry}:latest
+	docker manifest push "${extra_docker_manifest_flags}" "${registry}:${tag}"
+	docker manifest push "${extra_docker_manifest_flags}" "${registry}:latest"
 
 	popd
 }

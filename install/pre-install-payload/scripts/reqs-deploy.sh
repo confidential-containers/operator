@@ -29,12 +29,13 @@ function host_systemctl() {
 }
 
 function get_container_engine() {
-	local container_engine=$(kubectl get node "$NODE_NAME" -o jsonpath='{.status.nodeInfo.containerRuntimeVersion}' | awk -F '[:]' '{print $1}')
+	local container_engine
+	container_engine=$(kubectl get node "$NODE_NAME" -o jsonpath='{.status.nodeInfo.containerRuntimeVersion}' | awk -F '[:]' '{print $1}')
 	if [ "${container_engine}" != "containerd" ]; then
 		die "${container_engine} is not yet supported"
 	fi
 
-	echo "$container_engine"	
+	echo "$container_engine"
 }
 
 function set_container_engine() {
@@ -44,13 +45,14 @@ function set_container_engine() {
 }
 
 function install_containerd_artefacts() {
-	flavour=${1}
+	local flavour
+	flavour="${1}"
 
 	echo "Copying ${flavour} containerd-for-cc artifacts onto host"
 
 
-	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/${flavour}-containerd /opt/confidential-containers/bin/containerd
-	install -D -m 644 ${artifacts_dir}/etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf /etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf
+	install -D -m 755 "${artifacts_dir}/opt/confidential-containers/bin/${flavour}-containerd" /opt/confidential-containers/bin/containerd
+	install -D -m 644 "${artifacts_dir}/etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf" /etc/systemd/system/containerd.service.d/containerd-for-cc-override.conf
 }
 
 function install_coco_containerd_artefacts() {
@@ -68,12 +70,12 @@ function install_vfio_gpu_containerd_artefacts() {
 function install_nydus_snapshotter_artefacts() {
 	echo "Copying nydus-snapshotter artifacts onto host"
 
-	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/containerd-nydus-grpc /opt/confidential-containers/bin/containerd-nydus-grpc
-	install -D -m 755 ${artifacts_dir}/opt/confidential-containers/bin/nydus-overlayfs /opt/confidential-containers/bin/nydus-overlayfs
+	install -D -m 755 "${artifacts_dir}/opt/confidential-containers/bin/containerd-nydus-grpc" /opt/confidential-containers/bin/containerd-nydus-grpc
+	install -D -m 755 "${artifacts_dir}/opt/confidential-containers/bin/nydus-overlayfs" /opt/confidential-containers/bin/nydus-overlayfs
 	ln -sf /opt/confidential-containers/bin/nydus-overlayfs /usr/local/bin/nydus-overlayfs
 
-	install -D -m 644 ${artifacts_dir}/opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml /opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml
-	install -D -m 644 ${artifacts_dir}/etc/systemd/system/nydus-snapshotter.service /etc/systemd/system/nydus-snapshotter.service
+	install -D -m 644 "${artifacts_dir}/opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml" /opt/confidential-containers/share/nydus-snapshotter/config-coco-guest-pulling.toml
+	install -D -m 644 "${artifacts_dir}/etc/systemd/system/nydus-snapshotter.service" /etc/systemd/system/nydus-snapshotter.service
 
 	host_systemctl daemon-reload
 	host_systemctl enable nydus-snapshotter.service
@@ -105,12 +107,12 @@ function uninstall_containerd_artefacts() {
 	echo "Removing containerd-for-cc artifacts from host"
 
 	echo "Removing the systemd drop-in file"
-	rm -f /etc/systemd/system/${container_engine}.service.d/${container_engine}-for-cc-override.conf
+	rm -f "/etc/systemd/system/${container_engine}.service.d/${container_engine}-for-cc-override.conf"
 	echo "Removing the systemd drop-in file's directory, if empty"
-	if [ -d /etc/systemd/system/${container_engine}.service.d ]; then
-		rmdir --ignore-fail-on-non-empty /etc/systemd/system/${container_engine}.service.d
+	if [ -d "/etc/systemd/system/${container_engine}.service.d" ]; then
+		rmdir --ignore-fail-on-non-empty "/etc/systemd/system/${container_engine}.service.d"
 	fi
-	
+
 	restart_systemd_service
 
 	echo "Removing the containerd binary"
@@ -124,7 +126,7 @@ function uninstall_containerd_artefacts() {
 function uninstall_nydus_snapshotter_artefacts() {
 	if host_systemctl list-units | grep -q nydus-snapshotter; then
 		for i in `host_ctr -n k8s.io snapshot --snapshotter nydus list | grep -v KEY | cut -d' ' -f1`; do
-			host_ctr -n k8s.io snapshot --snapshotter nydus rm $i || true
+			host_ctr -n k8s.io snapshot --snapshotter nydus rm "$i" || true
 		done
 
 		remove_nydus_snapshotter_from_containerd
@@ -145,7 +147,7 @@ function uninstall_nydus_snapshotter_artefacts() {
 	# directory
 	rm -rf /opt/confidential-containers/share
 	rm -rf /var/lib/containerd-nydus/*
-}	
+}
 
 function uninstall_artifacts() {
 	if [ "${INSTALL_NYDUS_SNAPSHOTTER}" = "true" ]; then
@@ -166,7 +168,7 @@ function restart_systemd_service() {
 function configure_nydus_snapshotter_for_containerd() {
 	echo "configure nydus snapshotter for containerd"
 
-	containerd_imports_path="/etc/containerd/config.toml.d"
+	local containerd_imports_path="/etc/containerd/config.toml.d"
 
 	echo "Create ${containerd_imports_path}"
 	mkdir -p "${containerd_imports_path}"
@@ -179,10 +181,10 @@ function configure_nydus_snapshotter_for_containerd() {
     address = "/run/containerd-nydus/containerd-nydus-grpc.sock"
 EOF
 	if grep -q "^imports = " "$containerd_config"; then
-		sed -i -e "s|^imports = \[\(.*\)\]|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\", \1]|g" ${containerd_config}
-		sed -i -e "s|, ]|]|g" ${containerd_config}
+		sed -i -e "s|^imports = \[\(.*\)\]|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\", \1]|g" "${containerd_config}"
+		sed -i -e "s|, ]|]|g" "${containerd_config}"
 	else
-		sed -i -e "1s|^|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\"]\n|" ${containerd_config}
+		sed -i -e "1s|^|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\"]\n|" "${containerd_config}"
 	fi
 
 	# Annotations should be passed down to the remote snapshotter in order to
@@ -207,11 +209,11 @@ EOF
 function remove_nydus_snapshotter_from_containerd() {
 	echo "Remove nydus snapshotter from containerd"
 
-	containerd_imports_path="/etc/containerd/config.toml.d"
+	local containerd_imports_path="/etc/containerd/config.toml.d"
 
 	rm -f "${containerd_imports_path}/nydus-snapshotter.toml"
-	sed -i -e "s|\"${containerd_imports_path}/nydus-snapshotter.toml\"||g" ${containerd_config}
-	sed -i -e "s|, ]|]|g" ${containerd_config}
+	sed -i -e "s|\"${containerd_imports_path}/nydus-snapshotter.toml\"||g" "${containerd_config}"
+	sed -i -e "s|, ]|]|g" "${containerd_config}"
 
 	if grep -q "${snapshot_annotations_marker}" "${containerd_config}"; then
 		sed -i '/'"${snapshot_annotations_marker}"'/d' \
@@ -219,7 +221,7 @@ function remove_nydus_snapshotter_from_containerd() {
 		sed -i '/disable_snapshot_annotations = false/d' \
 			"${containerd_config}"
 	else
-		sed -i -e "s|disable_snapshot_annotations = false|disable_snapshot_annotations = true|" ${containerd_config}
+		sed -i -e "s|disable_snapshot_annotations = false|disable_snapshot_annotations = true|" "${containerd_config}"
 	fi
 }
 
@@ -247,12 +249,13 @@ function main() {
 	echo "INSTALL_NYDUS_SNAPSHOTTER: ${INSTALL_NYDUS_SNAPSHOTTER}"
 
 	# script requires that user is root
-	local euid=$(id -u)
-	if [ ${euid} -ne 0 ]; then
+	local euid
+	euid=$(id -u)
+	if [ "${euid}" -ne 0 ]; then
 		die "This script must be run as root"
 	fi
 
-	local action=${1:-}
+	local action="${1:-}"
 	if [ -z "${action}" ]; then
 		print_help && die ""
 	fi
