@@ -1,0 +1,56 @@
+name: ccruntime e2e tests amd sev
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: operator tests
+    strategy:
+      fail-fast: false
+      matrix:
+        runtimeclass: 
+          - "kata-qemu-sev"
+          - "kata-qemu-snp"
+        instance: 
+          - "coco-ci-amd-rome-001"
+          - "coco-ci-amd-milan-001"
+        exclude:
+          - runtimeclass: "kata-qemu-snp"
+            instance: "coco-ci-amd-rome-001"
+          - runtimeclass: "kata-qemu-sev"
+            instance: "coco-ci-amd-milan-001"
+
+    runs-on: [self-hosted]
+    steps:
+      - name: Take a pre-action for self-hosted runner
+        run: |
+          if [ -f ${HOME}/script/pre_action.sh ]; then
+            ${HOME}/script/pre_action.sh cc-operator
+          fi
+
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ansible python-is-python3
+
+      - name: Run e2e tests
+        timeout-minutes: 45
+        run: |
+          cd tests/e2e
+          export PATH="$PATH:/usr/local/bin"
+          args="-u"
+          ./run-local.sh -r "${{ matrix.runtimeclass }}" "${args}"
+        env:
+          RUNNING_INSTANCE: ${{ matrix.instance }}
+
+      - name: Take a post-action
+        if: always()
+        run: |
+          if [ -f ${HOME}/script/post_action.sh ]; then
+            ${HOME}/script/post_action.sh cc-operator
+          fi

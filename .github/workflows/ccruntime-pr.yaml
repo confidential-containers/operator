@@ -1,17 +1,20 @@
 name: ccruntime e2e test for PR
 on:
-  pull_request_target:
-    branches:
-      - 'main'
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - labeled
-    paths-ignore:
-      - 'docs/**'
-
+   pull_request_target:
+     branches:
+       - 'main'
+     types:
+       - opened
+       - synchronize
+       - reopened
+       - labeled
+     paths-ignore:
+       - 'docs/**'
 jobs:
+  e2e-pr-amd:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'ok-to-test') }}
+    uses: ./.github/workflows/ccruntime_e2e_amd.yaml
+    
   e2e-pr:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'ok-to-test') }}
     uses: ./.github/workflows/ccruntime_e2e.yaml
