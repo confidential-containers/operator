@@ -92,15 +92,29 @@ In order to be merged your opened pull request (PR) should pass the static analy
 
 The e2e tests jobs are executed on a variety of CcRuntime, configurations and platforms. These jobs that require confidential hardware (Intel TDX, AMD SEV, IBM SE, etc...) run on bare-metal machines and are often referred as "TEE tests". The remaining tests (a.k.a "Non-TEE") are executed on Virtual Machines (VM) deployed on-demand.
 
+This is a list of the bare-metal machines and VMs that are utilized by the project for CI testing:
+
+| Machine            | Type       | TEE Capability | Assigned Labels |
+| ---                | ---        | ---            | ---             |
+| amd-milan-kata-ci  | bare-metal | AMD SNP        | amd-milan       |
+| amd-rome-kata-ci   | bare-metal | AMD SEV        | amd-rome        |
+| s390x              | virtual    | Non-TEE        |                 |
+| az-ubuntu-2004     | virtual    | Non-TEE        |                 |
+| az-ubuntu-2204     | virtual    | Non-TEE        |                 |
+
 The following jobs will check for regessions on the default CcRuntime:
 
-|Job name | TEE | OS | VMM |
-|---|---|---|---|
-|e2e-pr / operator tests (kata-qemu, s390x) | Non-TEE | Ubuntu 22.04 (s390x) | QEMU |
-|e2e-pr / operator tests (kata-clh, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | Cloud Hypervisor |
-|e2e-pr / operator tests (kata-clh, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | Cloud Hypervisor |
-|e2e-pr / operator tests (kata-qemu, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | QEMU |
-|e2e-pr / operator tests (kata-qemu, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | QEMU |
+|Job name                                                | TEE     | OS                   | VMM              | Required Labels |
+| ---                                                    | ---     | ---                  | ---              | ---             |
+| e2e-pr / operator tests (kata-qemu, amd-milan-kata-ci) | AMD SNP | Ubuntu 20.04         | QEMU             | amd-milan       |
+| e2e-pr / operator tests (kata-qemu, amd-rome-kata-ci)  | AMD SNP | Ubuntu 20.04         | QEMU             | amd-rome        |
+| e2e-pr / operator tests (kata-qemu, s390x)             | Non-TEE | Ubuntu 22.04 (s390x) | QEMU             |                 |
+| e2e-pr / operator tests (kata-clh, az-ubuntu-2004)     | Non-TEE | Ubuntu 20.04         | Cloud Hypervisor |                 |
+| e2e-pr / operator tests (kata-clh, az-ubuntu-2204)     | Non-TEE | Ubuntu 22.04         | Cloud Hypervisor |                 |
+| e2e-pr / operator tests (kata-qemu, az-ubuntu-2004)    | Non-TEE | Ubuntu 20.04         | QEMU             |                 |
+| e2e-pr / operator tests (kata-qemu, az-ubuntu-2204)    | Non-TEE | Ubuntu 22.04         | QEMU             |                 |
+
+The required labels specified for a job will determine what machine it lands on by matching the machine's assigned labels.
 
 Additionally the following jobs will check regressions on the enclave-cc CcRuntime:
 
