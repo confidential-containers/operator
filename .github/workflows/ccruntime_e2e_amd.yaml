@@ -1,4 +1,4 @@
-name: ccruntime e2e tests amd sev
+name: ccruntime e2e tests AMD SEV and SNP
 on:
   workflow_call:
 
