@@ -35,8 +35,8 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.define "tests-e2e-ubuntu2004", autostart: false do |ubuntu|
-    ubuntu.vm.box = "generic/ubuntu2004"
+  config.vm.define "tests-e2e-ubuntu2204", autostart: false do |ubuntu|
+    ubuntu.vm.box = "generic/ubuntu2204"
 
     ubuntu.vm.provision "shell", inline: <<-SHELL
       sudo apt-get -y update
