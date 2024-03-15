@@ -112,57 +112,98 @@ Some of the e2e jobs are not triggered automatically. We recommend to trigger th
 
 >Note: only members with commit permission in the repository are allowed to trigger the e2e jobs. If you are not a committer then ask for help on our main Slack channel (#confidential-containers).
 
-### Running e2e tests on your local machine
+## Running CI e2e tests on your local machine
 
 We recommend that you run the e2e Non-TEE tests on your local machine before opening a PR to check your changes will not break the CI so to avoid wasting resources. You can also use the approach described below to debug and fix failures, or test changes on the scripts themselves.
 
-The entry point script is [tests/e2e/run-local.sh](../tests/e2e/run-local.sh). It is going to install softwares and change the system's configuration, so we recommend that you run the e2e tests on VMs with nested virtualization support and a minimum of 8GB of memory, 50 GB of disk and 4 vCPUs.
+There are three main ways of running the tests locally:
 
-Currently the e2e tests are supported on Ubuntu 20.04 or CentOS 8 Stream, and the only requirement is to have Ansible installed.
+1. use vagrant script to run the full suite
+2. use kcli to create a VM where you run the testing
+3. running them directly on your development workstation
 
-For example, to run on a fresh Ubuntu 20.04 VM:
+### Using vagrant:
+
+This is the simplest method but for each invocation it builds everything, which might take about 50m for the first time (then about 30m each). To perform this check install [Vagrant](https://www.vagrantup.com) and run the [Vagrantfile](../tests/e2e/Vagrantfile) to perform it's task (optionally setting the RUNTIMECLASS):
 
 ```shell
-sudo apt-get update -y
-sudo apt-get install -y ansible python-is-python3
 cd tests/e2e
-export PATH="$PATH:/usr/local/bin"
-./run-local.sh -r "kata-qemu"
+export RUNTIMECLASS="kata-qemu"
+vagrant up tests-e2e-ubuntu2204
 ```
 
-Notice that the `-r` parameter passed to `run-local.sh` above specifies the runtimeClass to be tested. You can switch to, for example, `kata-clh` to test Cloud Hypervisor. Another useful parameter is `-u` which is used on bare-metal CI jobs to undo the changes at the execution end. See the script's help (`run-local.sh -h`) for further details and parameters.
+### Using kcli
 
-The `run-local.sh` (unless that executed with `-u`) will leave a running Kubernetes on your local machine, and that allows you to re-run the tests many times afterwards. Let's suppose that you are developing a new test case, first you can configure the environment to run `kubectl` rootless:
+You can leverage [kcli](https://github.com/karmab/kcli/) to provide and maintain your VM that can be used for testing. Some useful commands:
 
 ```shell
-mkdir ~/.kube || true
+# Create a machine compatible with our testing
+kcli create vm -i ubuntu2204 -P memory=8G -P numcpus=4 -P disks=[50] e2e
+# Sync dir from host->vm (or back)
+kcli scp . e2e:~/operator -r
+# Ssh to the machine
+kcli ssh e2e
+```
+
+Once you get familiar with these you can keep the machine around and only start/stop it when needed, eventually sync your repos to check the latest changes. See the [Using workstation](##using-workstation) section for details how to execute things (make sure to execute ``kcli ssh first to be inside the VM``)
+
+### Using workstation
+
+[!WARNING]
+This is only recommended on disposable machines (or in VMs) as the scripts will change your system settings heavily and despite the support to clean the environment things will be messy afterwards. **You had been warned**.
+
+For the first time you need to get all the required deps:
+
+```shell
+# Optionally clone the operator repo (unless you already have it)
+git clone --depth=1 git@github.com:confidential-containers/operator.git
+# Install ansible (ubuntu)
+sudo apt-get update -y
+sudo apt-get install -y ansible python-is-python3
+```
+
+Now you are ready to execute the full workflow by:
+
+```
+cd operator/tests/e2e
+export PATH="$PATH:/usr/local/bin"
+./run-local.sh -r "kata-qemu" -u
+```
+
+where:
+
+* ``-r "kata-qemu"`` - configures the runtime class (you can use ``kata-clh`` as an alternative)
+* ``-u`` - performs mild cleanup afterwards (but it's not thorough and might alter pre-existing configuration)
+
+If you intend to run the tests multiple times, you can run it without the ``-u`` which leaves the configured kubernetes cluster running. Then you can configure the rootless environment by:
+
+```shell
+mkdir -p ~/.kube
 sudo chown "$USER" ~/.kube
 sudo cp /etc/kubernetes/admin.conf ~/.kube/config
 sudo chown "$USER" ~/.kube/config
 ```
 
-Then use the `tests_runner.sh` script to re-run the tests like shown below (similarly to `run-local.sh` the `-r` sets the runtimeclass):
+And then you can re-run the tests as many times by:
 
 ```shell
 ./tests_runner.sh -r kata-qemu
 ```
 
-Apart from Kubernetes, there is left running a containers images registry at port 5000 which is used by the install/uninstall routines to fetch the operator images so that built images are stored and served locally. For example, if you want to re-build the operator images then run the tests again:
+If you need to re-build the operator (images are stored locally using container registry on port 5000), you can delete and redeploy it by (you might need to fix the owner of cache ``sudo chown $USER:$USER "$HOME/.cache" -R`` first):
 
 ```shell
-sudo -E PATH="$PATH:/usr/local/bin" ./operator.sh build
-./tests_runner.sh -r kata-qemu
+./operator.sh uninstall
+# Do your changes
+./operator.sh
 ```
 
-The `operator.sh` script used on the above example provides useful commands for development, please refer to its help `./operator.sh -h` for further information.
+Then you can simply run the testing via ``./tests_runner.sh`` using the updated operator.
 
-### Running e2e test locally with Vagrant
-
-Alternatively you can use [Vagrant](https://www.vagrantup.com) as we provide a [Vagrantfile](../tests/e2e/Vagrantfile) to automate the entire process: it will create the VM, push the local repository sources and finally execute `run-local.sh`. The same example above can be achieved by simply running:
+If you need to clean things up you can re-run the ``./run-local.sh -u`` to clean things up (after performing the testing) or you can run following cleanup steps:
 
 ```shell
-export RUNTIMECLASS="kata-qemu"
-vagrant up tests-e2e-ubuntu2004
+./operator.sh uninstall
+./cluster/down.sh
+ansible-playbook -i localhost, -c local --tags undo ansible/main.yaml
 ```
-
-Notice that with Vagrant the entire workflow can take up to 50 minutes, specially when you run for the first time and the VM image is fetched from internet and cached.
