@@ -168,6 +168,16 @@ type CcInstallConfig struct {
 	// +optional
 	DefaultRuntimeClassName string `json:"defaultRuntimeClassName,omitempty"`
 
+	// This specifies the HTTPS_PROXY that may be required to be set for the Kata Containers agent
+	// when performing the image pull inside the guest (either using nydus snapshotter with containerd
+	// or CRI-O)
+	AgentHttpsProxy string `json:"agentHttpsProxy,omitempty"`
+
+	// This specifies the NO_PROXY that may be required to be set for the Kata Containers agent
+	// when performing the image pull inside the guest (either using nydus snapshotter with containerd
+	// or CRI-O)
+	AgentNoProxy string `json:"agentNoProxy,omitempty"`
+
 	// This specifies whether the CcRuntime (kata or enclave-cc) will be running on debug mode
 	// +optional
 	Debug bool `json:"debug,omitempty"`

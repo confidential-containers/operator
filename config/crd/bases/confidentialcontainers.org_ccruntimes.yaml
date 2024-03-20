@@ -97,6 +97,18 @@ spec:
                         type: string
                     type: object
                     x-kubernetes-map-type: atomic
+                  agentHttpsProxy:
+                    description: This specifies the HTTPS_PROXY that may be required
+                      to be set for the Kata Containers agent when performing the
+                      image pull inside the guest (either using nydus snapshotter
+                      with containerd or CRI-O)
+                    type: string
+                  agentNoProxy:
+                    description: This specifies the NO_PROXY that may be required
+                      to be set for the Kata Containers agent when performing the
+                      image pull inside the guest (either using nydus snapshotter
+                      with containerd or CRI-O)
+                    type: string
                   cleanupCmd:
                     description: This specifies the command for cleanup on the nodes
                     items:
