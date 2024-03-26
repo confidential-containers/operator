@@ -675,6 +675,14 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 			Name:  "SNAPSHOTTER_HANDLER_MAPPING",
 			Value: strings.Join(snapshotter_handler_mapping, ","),
 		},
+		{
+			Name:  "AGENT_HTTPS_PROXY",
+			Value: r.ccRuntime.Spec.Config.AgentHttpsProxy,
+		},
+		{
+			Name:  "AGENT_NO_PROXY",
+			Value: r.ccRuntime.Spec.Config.AgentNoProxy,
+		},
 	}
 	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)
 
