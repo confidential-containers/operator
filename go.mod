@@ -1,6 +1,6 @@
 module github.com/confidential-containers/operator
 
-go 1.20
+go 1.21
 
 require (
 	github.com/confidential-containers/cloud-api-adaptor/peerpod-ctrl v0.8.0-alpha.1.0.20240204080936-372e4e72f7fe
