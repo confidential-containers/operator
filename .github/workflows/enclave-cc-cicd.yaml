@@ -32,7 +32,7 @@ jobs:
 
       - name: Setup kind cluster
         run: |
-          kind create cluster --image "kindest/node:v1.27.3" -n coco-sgx --config tests/e2e/enclave-cc-kind-config.yaml --wait 120s
+          kind create cluster --image "kindest/node:v1.29.2" -n coco-sgx --config tests/e2e/enclave-cc-kind-config.yaml --wait 120s
           kubectl label node coco-sgx-worker node.kubernetes.io/worker=
 
       - name: Deploy operator from the local registry
@@ -55,5 +55,6 @@ jobs:
 
       - name: Deploy sample workload
         run: |
+          sed -i -e 's:boot_instance:occlum_instance:' tests/e2e/enclave-cc-pod-sim.yaml
           kubectl apply -f tests/e2e/enclave-cc-pod-sim.yaml
           kubectl wait --for=condition=Ready pod/enclave-cc-pod-sim
