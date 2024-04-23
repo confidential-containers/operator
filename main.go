@@ -21,8 +21,8 @@ import (
 	"flag"
 	"os"
 
-	peerpodcontrollers "github.com/confidential-containers/cloud-api-adaptor/peerpod-ctrl/controllers"
-	peerpodconfigcontrollers "github.com/confidential-containers/cloud-api-adaptor/peerpodconfig-ctrl/controllers"
+	peerpodcontrollers "github.com/confidential-containers/cloud-api-adaptor/src/peerpod-ctrl/controllers"
+	peerpodconfigcontrollers "github.com/confidential-containers/cloud-api-adaptor/src/peerpodconfig-ctrl/controllers"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -39,8 +39,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	peerpod "github.com/confidential-containers/cloud-api-adaptor/peerpod-ctrl/api/v1alpha1"
-	peerpodconfig "github.com/confidential-containers/cloud-api-adaptor/peerpodconfig-ctrl/api/v1alpha1"
+	peerpod "github.com/confidential-containers/cloud-api-adaptor/src/peerpod-ctrl/api/v1alpha1"
+	peerpodconfig "github.com/confidential-containers/cloud-api-adaptor/src/peerpodconfig-ctrl/api/v1alpha1"
 
 	ccv1beta1 "github.com/confidential-containers/operator/api/v1beta1"
 	"github.com/confidential-containers/operator/controllers"
