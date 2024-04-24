@@ -152,6 +152,10 @@ endif
 docker-push: ## Push docker image with the manager.
 	docker push ${IMG}
 
+.PHONY: clean
+clean:  ## Cleanup the build generated files
+	rm -Rf bin/ cover.out bundle_tmp*
+
 ##@ Deployment
 
 ifndef ignore-not-found
