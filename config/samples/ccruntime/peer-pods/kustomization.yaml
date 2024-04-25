@@ -22,6 +22,7 @@ patches:
       value:
       - name: "kata-remote"
         snapshotter: "nydus"
+        pulltype: "guest-pull"
     - op: add
       path: /spec/config/debug
       value: false

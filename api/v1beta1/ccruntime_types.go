@@ -313,12 +313,14 @@ type FailedNodeStatus struct {
 	Error string `json:"error"`
 }
 
-// RuntimeClass holds the name and the snapshotter to be used by a runtime class
+// RuntimeClass holds the name and basic customizations to be used by a runtime class
 type RuntimeClass struct {
 	// Name of the runtime class
 	Name string `json:"name"`
 	// The snapshotter to be used by the runtime class
 	Snapshotter string `json:"snapshotter"`
+	// The pulling image method to be used by the runtime class
+	PullType string `json:"pulltype"`
 }
 
 func init() {
