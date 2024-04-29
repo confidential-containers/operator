@@ -69,12 +69,9 @@ ENV GOARCH=${ARCH}
 
 RUN mkdir -p ${NODE_DESTINATION}/bin && \
     apk add --no-cache curl && \
-    if [ "${ARCH}" = "amd64" ]; then ARCH=x86_64; fi && \
-    curl -fOL --progress-bar ${NYDUS_SNAPSHOTTER_REPO}/releases/download/${NYDUS_SNAPSHOTTER_VERSION}/nydus-snapshotter-${NYDUS_SNAPSHOTTER_VERSION}-${ARCH}.tgz && \
-    tar xvzpf nydus-snapshotter-${NYDUS_SNAPSHOTTER_VERSION}-${ARCH}.tgz -C / && \
-    rm nydus-snapshotter-${NYDUS_SNAPSHOTTER_VERSION}-${ARCH}.tgz && \
-    mv /nydus-snapshotter/* ${NODE_DESTINATION}/bin/ && \
-    rm -rf /nydus-snapshotter
+    curl -fOL --progress-bar ${NYDUS_SNAPSHOTTER_REPO}/releases/download/${NYDUS_SNAPSHOTTER_VERSION}/nydus-snapshotter-${NYDUS_SNAPSHOTTER_VERSION}-linux-${ARCH}.tar.gz && \
+    tar xvzpf nydus-snapshotter-${NYDUS_SNAPSHOTTER_VERSION}-linux-${ARCH}.tar.gz -C ${NODE_DESTINATION} && \
+    rm nydus-snapshotter-${NYDUS_SNAPSHOTTER_VERSION}-linux-${ARCH}.tar.gz
 
 #### kubectl
 
