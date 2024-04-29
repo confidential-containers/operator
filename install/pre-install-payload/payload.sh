@@ -83,13 +83,13 @@ function build_payload() {
 
 	docker manifest create "${extra_docker_manifest_flags}" \
 		"${registry}:${tag}" \
-		--amend "${registry}:x86_64-${tag}" \
-		--amend "${registry}:s390x-${tag}"
+		"${registry}:x86_64-${tag}" \
+		"${registry}:s390x-${tag}"
 
 	docker manifest create "${extra_docker_manifest_flags}" \
 		"${registry}:latest" \
-		--amend "${registry}:x86_64-${tag}" \
-		--amend "${registry}:s390x-${tag}"
+		"${registry}:x86_64-${tag}" \
+		"${registry}:s390x-${tag}"
 
 	docker manifest push "${extra_docker_manifest_flags}" "${registry}:${tag}"
 	docker manifest push "${extra_docker_manifest_flags}" "${registry}:latest"
