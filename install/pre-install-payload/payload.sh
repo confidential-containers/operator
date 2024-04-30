@@ -81,18 +81,18 @@ function build_payload() {
 	purge_previous_manifests "${registry}:${tag}"
 	purge_previous_manifests "${registry}:latest"
 
-	docker manifest create "${extra_docker_manifest_flags}" \
+	docker manifest create ${extra_docker_manifest_flags} \
 		"${registry}:${tag}" \
-		"${registry}:x86_64-${tag}" \
-		"${registry}:s390x-${tag}"
+		--amend "${registry}:x86_64-${tag}" \
+		--amend "${registry}:s390x-${tag}"
 
-	docker manifest create "${extra_docker_manifest_flags}" \
+	docker manifest create ${extra_docker_manifest_flags} \
 		"${registry}:latest" \
-		"${registry}:x86_64-${tag}" \
-		"${registry}:s390x-${tag}"
+		--amend "${registry}:x86_64-${tag}" \
+		--amend "${registry}:s390x-${tag}"
 
-	docker manifest push "${extra_docker_manifest_flags}" "${registry}:${tag}"
-	docker manifest push "${extra_docker_manifest_flags}" "${registry}:latest"
+	docker manifest push ${extra_docker_manifest_flags} "${registry}:${tag}"
+	docker manifest push ${extra_docker_manifest_flags} "${registry}:latest"
 
 	popd
 }
