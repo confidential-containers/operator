@@ -67,4 +67,6 @@ jobs:
       - name: Deploy sample workload
         run: |
           kubectl apply -f tests/e2e/enclave-cc-pod-sim.yaml
-          kubectl wait --for=condition=Ready pod/enclave-cc-pod-sim
+          kubectl wait --for=condition=Ready pod/enclave-cc-pod-sim || true
+          kubectl describe pod enclave-cc-pod-sim
+          exit 1
