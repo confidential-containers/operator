@@ -68,6 +68,4 @@ jobs:
         run: |
           sed -i -e 's:boot_instance:occlum_instance:' tests/e2e/enclave-cc-pod-sim.yaml
           kubectl apply -f tests/e2e/enclave-cc-pod-sim.yaml
-          kubectl wait --for=condition=Ready pod/enclave-cc-pod-sim || true
-          kubectl describe pod enclave-cc-pod-sim
-          exit 1
+          kubectl wait --for=condition=Ready pod/enclave-cc-pod-sim
