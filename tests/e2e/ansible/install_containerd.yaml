@@ -31,7 +31,6 @@
         containerd config default > /etc/containerd/config.toml
       args:
         executable: /bin/bash
-        warn: false
     - name: Restart containerd service
       service:
         name: containerd
