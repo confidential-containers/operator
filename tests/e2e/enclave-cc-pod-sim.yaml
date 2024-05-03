@@ -11,7 +11,7 @@ spec:
     env:
     - name: OCCLUM_RELEASE_ENCLAVE
       value: "0"
-    workingDir: "/run/rune/boot_instance/"
+    workingDir: "/run/rune/occlum_instance/"
     command:
-    - /run/rune/boot_instance/build/bin/occlum-run
+    - /run/rune/occlum_instance/build/bin/occlum-run
     - /bin/hello_world
