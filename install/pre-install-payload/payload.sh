@@ -57,6 +57,7 @@ function build_payload() {
 
 	tag=$(git rev-parse HEAD)
 
+	manifest_args=()
 	for arch in "${supported_arches[@]}"; do
 		setup_env_for_arch "${arch}"
 
@@ -76,6 +77,7 @@ function build_payload() {
 			--load \
 			.
 		docker push "${registry}:${kernel_arch}-${tag}"
+		manifest_args+=(--amend "${registry}:${kernel_arch##*/}-${tag}")
 	done
 
 	purge_previous_manifests "${registry}:${tag}"
@@ -83,13 +85,11 @@ function build_payload() {
 
 	docker manifest create ${extra_docker_manifest_flags} \
 		"${registry}:${tag}" \
-		--amend "${registry}:x86_64-${tag}" \
-		--amend "${registry}:s390x-${tag}"
+		"${manifest_args[@]}"
 
 	docker manifest create ${extra_docker_manifest_flags} \
 		"${registry}:latest" \
-		--amend "${registry}:x86_64-${tag}" \
-		--amend "${registry}:s390x-${tag}"
+		"${manifest_args[@]}"
 
 	docker manifest push ${extra_docker_manifest_flags} "${registry}:${tag}"
 	docker manifest push ${extra_docker_manifest_flags} "${registry}:latest"
