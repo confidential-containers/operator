@@ -7,13 +7,9 @@ set -o nounset
 script_dir=$(dirname "$(readlink -f "$0")")
 
 coco_containerd_repo=${coco_containerd_repo:-"https://github.com/confidential-containers/containerd"}
-coco_containerd_version=${coco_containerd_version:-"1.6.8.2"}
 official_containerd_repo=${official_containerd_repo:-"https://github.com/containerd/containerd"}
-official_containerd_version=${official_containerd_version:-"1.7.7"}
 vfio_gpu_containerd_repo=${vfio_gpu_containerd_repo:-"https://github.com/confidential-containers/containerd"}
-vfio_gpu_containerd_version=${vfio_gpu_containerd_version:-"1.7.0.0"}
 nydus_snapshotter_repo=${nydus_snapshotter_repo:-"https://github.com/containerd/nydus-snapshotter"}
-nydus_snapshotter_version=${nydus_snapshotter_version:-"v0.13.13"}
 containerd_dir="$(mktemp -d -t containerd-XXXXXXXXXX)/containerd"
 extra_docker_manifest_flags="${extra_docker_manifest_flags:-}"
 
