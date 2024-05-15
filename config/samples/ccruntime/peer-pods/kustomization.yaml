@@ -5,7 +5,7 @@ nameSuffix: -peer-pods
 
 resources:
 - ../base
-- peerpodsconfig.yaml
+# - peerpodsconfig.yaml
 
 images:
 - name: quay.io/confidential-containers/reqs-payload
