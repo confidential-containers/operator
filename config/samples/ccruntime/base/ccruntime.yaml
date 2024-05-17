@@ -24,6 +24,8 @@ spec:
         name: kata-artifacts
       - mountPath: /usr/local/bin/
         name: local-bin
+      - mountPath: /host/
+        name: host
     installerVolumes:
       - hostPath:
           path: /etc/crio/
@@ -41,6 +43,10 @@ spec:
           path: /usr/local/bin/
           type: ""
         name: local-bin
+      - hostPath:
+          path: /
+          type: ""
+        name: host
     installCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "install"]
     uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
     cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
