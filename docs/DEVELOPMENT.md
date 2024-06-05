@@ -99,6 +99,7 @@ The following jobs will check for regessions on the default CcRuntime:
 |e2e-pr / operator tests (kata-qemu, s390x) | Non-TEE | Ubuntu 22.04 (s390x) | QEMU |
 |e2e-pr / operator tests (kata-qemu, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | QEMU |
 |e2e-pr / operator tests (kata-qemu, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | QEMU |
+|e2e-pr / operator tests (kata-qemu-tdx, tdx) | TDX |  Ubuntu 24.04 | QEMU |
 
 Additionally the following jobs will check regressions on the enclave-cc CcRuntime:
 
