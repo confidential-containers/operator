@@ -84,7 +84,7 @@ Kind version `v0.16.0` have been successfully tested on the following Linux dist
 - `Ubuntu 20.04`
 - `Ubuntu 22.04`
 
->**Note**: Only `kata-clh` runtimeclass works with Kind cluster.
+>**Note**: Kind clusters are not supported
 
 ## Continuous Integration (CI)
 
@@ -97,10 +97,9 @@ The following jobs will check for regessions on the default CcRuntime:
 |Job name | TEE | OS | VMM |
 |---|---|---|---|
 |e2e-pr / operator tests (kata-qemu, s390x) | Non-TEE | Ubuntu 22.04 (s390x) | QEMU |
-|e2e-pr / operator tests (kata-clh, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | Cloud Hypervisor |
-|e2e-pr / operator tests (kata-clh, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | Cloud Hypervisor |
 |e2e-pr / operator tests (kata-qemu, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | QEMU |
 |e2e-pr / operator tests (kata-qemu, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | QEMU |
+|e2e-pr / operator tests (kata-qemu-tdx, tdx) | TDX |  Ubuntu 24.04 | QEMU |
 
 Additionally the following jobs will check regressions on the enclave-cc CcRuntime:
 
@@ -172,7 +171,7 @@ export PATH="$PATH:/usr/local/bin"
 
 where:
 
-* ``-r "kata-qemu"`` - configures the runtime class (you can use ``kata-clh`` as an alternative)
+* ``-r "kata-qemu"`` - configures the runtime class
 * ``-u`` - performs mild cleanup afterwards (but it's not thorough and might alter pre-existing configuration)
 
 If you intend to run the tests multiple times, you can run it without the ``-u`` which leaves the configured kubernetes cluster running. Then you can configure the rootless environment by:

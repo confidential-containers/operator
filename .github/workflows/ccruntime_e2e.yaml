@@ -21,14 +21,17 @@ jobs:
       matrix:
         runtimeclass:
           - "kata-qemu"
-          - "kata-clh"
         instance:
           - "az-ubuntu-2004"
           - "az-ubuntu-2204"
           - "s390x"
+          - "tdx"
         exclude:
-          - runtimeclass: "kata-clh"
-            instance: "s390x"
+          - runtimeclass: "kata-qemu"
+            instance: "tdx"
+        include:
+          - runtimeclass: "kata-qemu-tdx"
+            instance: "tdx"
     runs-on: ${{ matrix.instance }}
     steps:
       - name: Take a pre-action for self-hosted runner
