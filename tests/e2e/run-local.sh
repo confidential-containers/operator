@@ -70,7 +70,7 @@ undo_changes() {
 
 	if [ $step_bootstrap_env -eq 1 ]; then
 		echo "::info:: Undo the bootstrap"
-		run 5m ansible-playbook -i localhost, -c local --tags undo ansible/main.yaml || true
+		run 5m sudo -E ansible-playbook -i localhost, -c local --tags undo ansible/main.yaml || true
 	fi
 	popd >/dev/null
 }
@@ -102,7 +102,7 @@ main() {
 	pushd "$script_dir" >/dev/null
 	echo "::info:: Bootstrap the local machine"
 	step_bootstrap_env=1
-	run 10m ansible-playbook -i localhost, -c local --tags untagged ansible/main.yaml
+	run 10m sudo -E ansible-playbook -i localhost, -c local --tags untagged ansible/main.yaml
 
 	echo "::info:: Bring up the test cluster"
 	step_start_cluster=1
