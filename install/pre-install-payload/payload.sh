@@ -12,6 +12,8 @@ vfio_gpu_containerd_repo=${vfio_gpu_containerd_repo:-"https://github.com/confide
 nydus_snapshotter_repo=${nydus_snapshotter_repo:-"https://github.com/containerd/nydus-snapshotter"}
 containerd_dir="$(mktemp -d -t containerd-XXXXXXXXXX)/containerd"
 extra_docker_manifest_flags="${extra_docker_manifest_flags:-}"
+http_proxy="${http_proxy:-}"
+https_proxy="${https_proxy:-}"
 
 registry="${registry:-quay.io/confidential-containers/reqs-payload}"
 
@@ -59,6 +61,8 @@ function build_payload() {
 
 		echo "Building containerd payload image for ${arch}"
 		docker buildx build \
+			--build-arg HTTP_PROXY="${http_proxy}" \
+			--build-arg HTTPS_PROXY="${https_proxy}" \
 			--build-arg ARCH="${golang_arch}" \
 			--build-arg COCO_CONTAINERD_VERSION="${coco_containerd_version}" \
 			--build-arg COCO_CONTAINERD_REPO="${coco_containerd_repo}" \
