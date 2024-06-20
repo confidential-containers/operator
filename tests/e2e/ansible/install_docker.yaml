@@ -54,7 +54,7 @@
         state: present
       # TODO: add regular non-root users to docker group
   when: docker_exist.rc != 0 and ansible_distribution == "Ubuntu" and ansible_distribution_version == "20.04"
-- name: Handle docker installation on Ubuntu 22.04
+- name: Handle docker installation on Ubuntu 22.04 and 24.04
   block:
     - name: Install docker packages
       package:
@@ -70,7 +70,7 @@
         state: present
       retries: 3
       delay: 10
-  when: docker_exist.rc != 0 and ansible_distribution == "Ubuntu" and ansible_distribution_version == "22.04"
+  when: docker_exist.rc != 0 and ansible_distribution == "Ubuntu" and ansible_distribution_version in ("22.04", "24.04")
 - name: Handle docker installation on CentOS.
   block:
     - name: Install yum-utils
