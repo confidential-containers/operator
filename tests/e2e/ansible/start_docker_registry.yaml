@@ -12,24 +12,16 @@
     local_registry_port: 5000
     local_registry_name: local-registry
   tasks:
-    - name: Install pip3
+    - name: Install python3-docker and python3-requests
       package:
-        # TODO: this is ubuntu specific...
-        name: python3-pip
-        state: present
-      retries: 3
-      delay: 10
-    # The docker and requests pip packages are required by the docker_container ansible module itself.
-    # The requests package is pinned to a version less than 2.32 to avoid a bug
-    # at https://github.com/docker/docker-py/issues/3256
-    - name: Install docker and requests pip packages
-      pip:
         name:
-          - docker
-          - requests<2.32
+          # This is Ubuntu specific
+          - python3-docker
+          - python3-requests
         state: present
       retries: 3
       delay: 10
+      when: ansible_distribution == "Ubuntu"
     - name: Start a docker registry
       docker_container:
         name: "{{ local_registry_name }}"
