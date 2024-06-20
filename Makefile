@@ -52,9 +52,6 @@ IMG ?= controller:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.24.2
 
-http_proxy := ""
-https_proxy := ""
-
 # Get the currently used golang install path (in GOPATH/bin, unless GOBIN is set)
 ifeq (,$(shell go env GOBIN))
 GOBIN=$(shell go env GOPATH)/bin
@@ -146,9 +143,9 @@ run: manifests generate fmt vet ## Run a controller from your host.
 docker-build: test ## Build docker image with the manager.
 ifneq (, $(PEERPODS))
 	@echo PEERPODS is enabled
-	docker build --build-arg http_proxy=$(http_proxy) --build-arg https_proxy=$(https_proxy) -t ${IMG} -f Dockerfile.peerpods .
+	docker build -t ${IMG} -f Dockerfile.peerpods .
 else
-	docker build --build-arg http_proxy=$(http_proxy) --build-arg https_proxy=$(https_proxy) -t ${IMG} .
+	docker build -t ${IMG} .
 endif
 
 .PHONY: docker-push
@@ -273,7 +270,7 @@ bundle: manifests kustomize operator-sdk## Generate bundle manifests and metadat
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
-	docker build --build-arg http_proxy=$(http_proxy) --build-arg https_proxy=$(https_proxy) -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
