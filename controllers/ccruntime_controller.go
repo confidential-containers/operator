@@ -642,6 +642,8 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		}
 	}
 
+	var usingNFD = strconv.FormatBool(r.ccRuntime.Spec.Config.UsingNFD)
+
 	var envVars = []corev1.EnvVar{
 		{
 			Name: "NODE_NAME",
@@ -674,6 +676,10 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		{
 			Name:  "SNAPSHOTTER_HANDLER_MAPPING",
 			Value: strings.Join(snapshotter_handler_mapping, ","),
+		},
+		{
+			Name:  "USING_NFD",
+			Value: usingNFD,
 		},
 	}
 	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)
