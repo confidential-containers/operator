@@ -31,7 +31,7 @@ function host_systemctl() {
 function get_container_engine() {
 	local container_engine
 	container_engine=$(kubectl get node "$NODE_NAME" -o jsonpath='{.status.nodeInfo.containerRuntimeVersion}' | awk -F '[:]' '{print $1}')
-	if [ "${container_engine}" != "containerd" ]; then
+	if [[ "${container_engine}" != "containerd" && "${container_engine}" != "cri-o" ]]; then
 		die "${container_engine} is not yet supported"
 	fi
 
@@ -86,6 +86,9 @@ function install_nydus_snapshotter_artefacts() {
 }
 
 function install_artifacts() {
+	# There shouldn't be installed additional artifacts for CRI-O
+	[ "${container_engine}" = "cri-o" ] && return
+
 	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ]; then
 		install_coco_containerd_artefacts
 	fi
@@ -150,6 +153,9 @@ function uninstall_nydus_snapshotter_artefacts() {
 }
 
 function uninstall_artifacts() {
+	# It didn't install additional artifacts for CRI-O, so return
+	[ "${container_engine}" = "cri-o" ] && return
+
 	if [ "${INSTALL_NYDUS_SNAPSHOTTER}" = "true" ]; then
 		uninstall_nydus_snapshotter_artefacts
 	fi
@@ -260,12 +266,12 @@ function main() {
 		print_help && die ""
 	fi
 
-	if [ ! -f "${containerd_config}" ]; then
+	set_container_engine
+
+	if [[ ${container_engine} = "containerd" && ! -f "${containerd_config}" ]]; then
 		mkdir -p /etc/containerd
 		containerd config default > /etc/containerd/config.toml
 	fi
-
-	set_container_engine
 
 	case "${action}" in
 	install)

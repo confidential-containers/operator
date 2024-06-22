@@ -319,6 +319,7 @@ type RuntimeClass struct {
 	Name string `json:"name"`
 	// The snapshotter to be used by the runtime class
 	Snapshotter string `json:"snapshotter"`
+	PullType    string `json:"pulltype"`
 }
 
 func init() {
