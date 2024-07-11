@@ -5687,17 +5687,22 @@ spec:
                     description: This specifies the RuntimeClasses that need to be
                       created, with its name and an associated snapshotter to be used
                     items:
-                      description: RuntimeClass holds the name and the snapshotter
+                      description: RuntimeClass holds the name and basic customizations
                         to be used by a runtime class
                       properties:
                         name:
                           description: Name of the runtime class
+                          type: string
+                        pulltype:
+                          description: The pulling image method to be used by the
+                            runtime class
                           type: string
                         snapshotter:
                           description: The snapshotter to be used by the runtime class
                           type: string
                       required:
                       - name
+                      - pulltype
                       - snapshotter
                       type: object
                     type: array
