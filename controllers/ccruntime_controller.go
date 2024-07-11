@@ -630,6 +630,7 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 
 	var shims []string
 	var snapshotter_handler_mapping []string
+	var pull_type_mapping []string
 	for _, runtimeClass := range r.ccRuntime.Spec.Config.RuntimeClasses {
 		// Similarly to what's being done for the default shim, let's remove
 		// the "kata-" prefix from the runtime class names
@@ -639,6 +640,11 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		if runtimeClass.Snapshotter != "" {
 			mapping := shim + ":" + runtimeClass.Snapshotter
 			snapshotter_handler_mapping = append(snapshotter_handler_mapping, mapping)
+		}
+
+		if runtimeClass.PullType != "" {
+			mapping := shim + ":" + runtimeClass.PullType
+			pull_type_mapping = append(pull_type_mapping, mapping)
 		}
 	}
 
@@ -674,6 +680,10 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		{
 			Name:  "SNAPSHOTTER_HANDLER_MAPPING",
 			Value: strings.Join(snapshotter_handler_mapping, ","),
+		},
+		{
+			Name:  "PULL_TYPE_MAPPING",
+			Value: strings.Join(pull_type_mapping, ","),
 		},
 	}
 	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)

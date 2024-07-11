@@ -46,6 +46,7 @@ spec:
     runtimeClasses:
     - name: "enclave-cc"
       snapshotter: "overlayfs"
+      pulltype: ""
     postUninstall:
       image: quay.io/confidential-containers/reqs-payload
       volumeMounts:
