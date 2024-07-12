@@ -26,22 +26,22 @@ jobs:
           - "az-ubuntu-2204"
           - "s390x"
           - "tdx"
-          - "coco-ci-amd-rome-001"
-          - "coco-ci-amd-milan-001"
+          - "sev"
+          - "sev-snp"
         exclude:
           - runtimeclass: "kata-qemu"
             instance: "tdx"
           - runtimeclass: "kata-qemu"
-            instance: "coco-ci-amd-rome-001"
+            instance: "sev"
           - runtimeclass: "kata-qemu"
-            instance: "coco-ci-amd-milan-001"
+            instance: "sev-snp"
         include:
           - runtimeclass: "kata-qemu-tdx"
             instance: "tdx"
           - runtimeclass: "kata-qemu-sev"
-            instance: "coco-ci-amd-rome-001"
+            instance: "sev"
           - runtimeclass: "kata-qemu-snp"
-            instance: "coco-ci-amd-milan-001"
+            instance: "sev-snp"
     runs-on: ${{ matrix.instance }}
     steps:
       - name: Take a pre-action for self-hosted runner
