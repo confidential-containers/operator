@@ -10,7 +10,7 @@ set -o nounset
 set -o pipefail
 
 script_dir="$(dirname "$(readlink -f "$0")")"
-project_dir="$(readlink -f ${script_dir}/../..)"
+project_dir="$(readlink -f "${script_dir}"/../..)"
 
 source "${script_dir}/lib.sh"
 
@@ -30,7 +30,8 @@ build_operator () {
 	# append the target to .gitconfig without checking the
 	# existence of the target,
 	# so it's better to check it before adding the target repo.
-	local sd="$(git config --global --get safe.directory ${project_dir} || true)"
+	local sd
+	sd="$(git config --global --get safe.directory "${project_dir}" || true)"
 	if [ "${sd}" == "" ]; then
 		echo "::debug:: Add repo ${project_dir} to git's safe.directory"
 		git config --global --add safe.directory "${project_dir}"
@@ -66,14 +67,15 @@ build_pre_install_img() {
 #
 handle_older_containerd() {
 	command -v containerd >/dev/null || return
-	local version=$(containerd -v | awk '{ print $3 }' | sed 's/^v//')
+	local version
+	version=$(containerd -v | awk '{ print $3 }' | sed 's/^v//')
 	echo "::debug:: system's containerd version: $version"
 	if [[ "$version" =~ ^1.6 || "$version" =~ ^1.5 ]]; then
 		echo "::warning:: Old system's containerd ($version). Configuring the operator to install a newer one"
 		pushd "$project_dir" >/dev/null
 		for kfile in $(find config/ -name "kustomization.yaml" \
 			-exec grep -l INSTALL_OFFICIAL_CONTAINERD {} \;);do
-			sed -i '/INSTALL_OFFICIAL_CONTAINERD/!b;n;s/false/true/;' $kfile
+			sed -i '/INSTALL_OFFICIAL_CONTAINERD/!b;n;s/false/true/;' "$kfile"
 		done
 		popd >/dev/null
 	fi
@@ -101,12 +103,13 @@ install_operator() {
 
 	# Wait the operator controller to be running.
 	local controller_pod="cc-operator-controller-manager"
-	local cmd="kubectl get pods -n "$op_ns" --no-headers |"
+	local cmd="kubectl get pods -n '$op_ns' --no-headers |"
 	cmd+="egrep -q ${controller_pod}.*'\<Running\>'"
 	if ! wait_for_process 120 10 "$cmd"; then
 		echo "::error:: ${controller_pod} pod is not running"
 
-		local pod_id="$(get_pods_regex $controller_pod $op_ns)"
+		local pod_id
+		pod_id="$(get_pods_regex "$controller_pod" "$op_ns")"
 		echo "::debug:: Pod $pod_id"
 		debug_pod "$pod_id" "$op_ns"
 
@@ -132,12 +135,12 @@ install_ccruntime() {
 	local pod=""
 	local cmd=""
 	for pod in cc-operator-daemon-install cc-operator-pre-install-daemon; do
-		cmd="kubectl get pods -n "$op_ns" --no-headers |"
+		cmd="kubectl get pods -n '$op_ns' --no-headers |"
 		cmd+="egrep -q ${pod}.*'\<Running\>'"
 		if ! wait_for_process 600 30 "$cmd"; then
 			echo "::error:: $pod pod is not running"
-
-			local pod_id="$(get_pods_regex $pod $op_ns)"
+			local pod_id
+			pod_id="$(get_pods_regex "$pod" "$op_ns")"
 			echo "::debug:: Pod $pod_id"
 			debug_pod "$pod_id" "$op_ns"
 
@@ -224,7 +227,7 @@ start_local_registry() {
 	local registry_container="local-registry"
 
 	if ! curl -s localhost:5000; then
-		docker start local-registry >/dev/null
+		docker start "$registry_container" >/dev/null
 		local cnt=0
 		while ! curl -s localhost:5000 -o $cnt -lt 5; do
 			sleep 1
@@ -247,8 +250,8 @@ uninstall_operator() {
 	cmd+="&& ! echo \$_OUT | grep -q -e cc-operator-controller-manager"
 	if ! wait_for_process 180 30 "$cmd"; then
 		echo "::error:: the controller manager is still running"
-
-		local pod_id="$(get_pods_regex $pod $op_ns)"
+		local pod_id
+		pod_id="$(get_pods_regex "$pod" "$op_ns")"
 		echo "::debug:: Pod $pod_id"
 		debug_pod "$pod_id" "$op_ns"
 
@@ -264,7 +267,8 @@ wait_for_stabilization() {
 	local count=0
 	while true; do
 		local change=0
-		local pod_info=$(kubectl get pods -n "$op_ns" -o=jsonpath='{range .items[*]}{.metadata.name}{" "}{range .status.containerStatuses[*]}{.name}{" "}{.restartCount}{"\n"}{end}{end}')
+		local pod_info
+		pod_info=$(kubectl get pods -n "$op_ns" -o=jsonpath='{range .items[*]}{.metadata.name}{" "}{range .status.containerStatuses[*]}{.name}{" "}{.restartCount}{"\n"}{end}{end}')
 
 		while read -r pod container restart_count; do
 			if [ "${restart_counts[$pod-$container]--1}" != "$restart_count" ]; then
