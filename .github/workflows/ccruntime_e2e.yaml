@@ -78,6 +78,7 @@ jobs:
           ./run-local.sh -t -r "${{ matrix.runtimeclass }}" "${args}"
         env:
           RUNNING_INSTANCE: ${{ matrix.instance }}
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Take a post-action
         if: always()
