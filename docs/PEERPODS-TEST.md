@@ -1,6 +1,6 @@
 ## Introduction
 This document describes testing to confirm that the operators are functioning.
-These test were performed on a libvirt provider as an example.
+These tests were performed on a libvirt provider as an example.
 
 ## Check that the peerpod-config CR was created
 ```
