@@ -39,7 +39,7 @@
       ignore_errors: yes
     - name: Install kustomize
       shell: |
-        curl -s --retry 3 --retry-delay 10 "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+        curl -s --retry 3 --retry-delay 10 -u ${USER}:${GITHUB_TOKEN} "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
         cp -f ./kustomize /usr/local/bin
       args:
         creates: /usr/local/bin/kustomize
