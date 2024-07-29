@@ -39,8 +39,12 @@
       ignore_errors: yes
     - name: Install kustomize
       shell: |
-        curl -s --retry 3 --retry-delay 10 -u ${USER}:${GITHUB_TOKEN} "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
-        cp -f ./kustomize /usr/local/bin
+        version=$(curl -s https://api.github.com/repos/kubernetes-sigs/kustomize/releases | grep '"tag_name":' | grep "kustomize" | head -n 1 | cut -d '"' -f 4 | cut -d "/" -f 2)
+        arch=$(dpkg --print-architecture)
+        tarball="kustomize_${version}_linux_${arch}.tar.gz"
+        curl -Lf -o "$tarball" "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${version}/kustomize_${version}_linux_${arch}.tar.gz"
+        tar -xvzf "${tarball}" -C /usr/local/bin
+        command -v kustomize >/dev/null 2>&1
       args:
         creates: /usr/local/bin/kustomize
       retries: 3
