@@ -46,5 +46,15 @@ patches:
         # the case, please, set this variable to `true`
         - name: "INSTALL_OFFICIAL_CONTAINERD"
           value: "false"
+        # If set, the Kata Containers agent https_proxy will be set to the
+        # specified value allowing then the pod sandbox to correctly pull
+        # images in such environment. 
+        # - name: "AGENT_HTTPS_PROXY"
+        #   value: "https://proxy.example.com:3129"
+        # If set, the Kata Containers agent no_proxy will be set to the
+        # specified value allowing then the pod sandbox to correctly pull
+        # images in such environment.
+        # - name: "AGENT_NO_PROXY"
+        #   value: "*.test.example.com,.example.org,127.0.0.0/8"
   target:
     kind: CcRuntime
