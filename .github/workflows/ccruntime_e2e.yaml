@@ -24,7 +24,7 @@ jobs:
         instance:
           - "az-ubuntu-2004"
           - "az-ubuntu-2204"
-          - "s390x"
+          - "s390x-large"
           - "tdx"
           - "sev"
           - "sev-snp"
@@ -66,7 +66,7 @@ jobs:
           cd tests/e2e
           export PATH="$PATH:/usr/local/bin"
           args="-u"
-          if [ $RUNNING_INSTANCE = "s390x" ]; then
+          if [ $RUNNING_INSTANCE = "s390x-large" ]; then
             args=""
           fi
           ./run-local.sh -t -r "${{ matrix.runtimeclass }}" "${args}"
