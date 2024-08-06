@@ -1,5 +1,9 @@
 package controllers
 
+import (
+	corev1 "k8s.io/api/core/v1"
+)
+
 // DaemonOperation represents the operation the daemon is going to perform
 type DaemonOperation string
 
@@ -26,6 +30,8 @@ const (
 	UpgradeOperation DaemonOperation = "upgrade"
 
 	RuntimeConfigFinalizer = "runtimeconfig.confidentialcontainers.org/finalizer"
+
+	DefaultImagePullPolicy = corev1.PullAlways
 )
 
 func contains(list []string, s string) bool {
@@ -35,4 +41,11 @@ func contains(list []string, s string) bool {
 		}
 	}
 	return false
+}
+
+func imagePullPolicyOrDefault(policy corev1.PullPolicy) corev1.PullPolicy {
+	if policy == "" {
+		return DefaultImagePullPolicy
+	}
+	return policy
 }
