@@ -34,7 +34,10 @@ Follow the steps:
 
 5. Copy the bundle directory to the community-operators repository directory. On the example below I got the community-operators repository cloned to `../../../github.com/k8s-operatorhub/community-operators`: 
    ```shell
-   cp -r bundle ../../../github.com/k8s-operatorhub/community-operators/operators/cc-operator/${TARGET_RELEASE}
+   dest_dir="../../../github.com/k8s-operatorhub/community-operators/operators/cc-operator/${TARGET_RELEASE}"
+   rm -rf "$dest_dir"
+   mkdir "$dest_dir"
+   cp -r bundle/* "$dest_dir"
    ```
 
 6. Prepare a commit and push to your tree
