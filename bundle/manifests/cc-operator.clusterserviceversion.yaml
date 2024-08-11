@@ -17,10 +17,6 @@ metadata:
               }
             },
             "config": {
-              "cleanupCmd": [
-                "/opt/kata-artifacts/scripts/kata-deploy.sh",
-                "reset"
-              ],
               "debug": false,
               "defaultRuntimeClassName": "kata-qemu",
               "environmentVariables": [

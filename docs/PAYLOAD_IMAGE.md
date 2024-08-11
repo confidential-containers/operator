@@ -59,7 +59,6 @@ Following is an example for Kata runtime depicting the key attributes.
         name: local-bin
     installCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "install"]
     uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
-    cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
 ```
 
 The installer (`/opt/kata-artifacts/scripts/kata-deploy.sh`) copies the required kata artifacts to

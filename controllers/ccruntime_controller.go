@@ -604,12 +604,14 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 	preStopHook := &corev1.Lifecycle{}
 
 	if operation == InstallOperation {
-		preStopHook = &corev1.Lifecycle{
-			PreStop: &corev1.LifecycleHandler{
-				Exec: &corev1.ExecAction{
-					Command: r.ccRuntime.Spec.Config.CleanupCmd,
+		if r.ccRuntime.Spec.Config.CleanupCmd != nil {
+			preStopHook = &corev1.Lifecycle{
+				PreStop: &corev1.LifecycleHandler{
+					Exec: &corev1.ExecAction{
+						Command: r.ccRuntime.Spec.Config.CleanupCmd,
+					},
 				},
-			},
+			}
 		}
 		containerCommand = r.ccRuntime.Spec.Config.InstallCmd
 	}

@@ -49,7 +49,6 @@ spec:
         name: host
     installCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "install"]
     uninstallCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "cleanup"]
-    cleanupCmd: ["/opt/kata-artifacts/scripts/kata-deploy.sh", "reset"]
     # Uncomment and add the required RuntimeClasses to be created
     # If this is commented, then the operator creates 3 default runtimeclasses "kata", "kata-clh", "kata-qemu"
     runtimeClasses: 
