@@ -162,11 +162,12 @@ install_ccruntime() {
 # Uninstall the CC runtime.
 #
 uninstall_ccruntime() {
+	echo "::debug:: uninstall ccruntime"
 	pushd "${ccruntime_overlay_basedir}/${ccruntime_overlay}" >/dev/null
 	kubectl delete -k .
 	popd >/dev/null
 
-	# Wait and ensure ccruntime pods are gone
+	echo "::debug:: wait and ensure ccruntime pods are gone"
 	# (ensure failing kubectl keeps iterating)
 	local cmd="_OUT=\$(sudo -E kubectl get pods -n '$op_ns')"
 	cmd+=" && ! echo \$_OUT | grep -q -e cc-operator-daemon-install"
@@ -180,10 +181,10 @@ uninstall_ccruntime() {
 		return 1
 	fi
 
-	# Runtime classes should be gone
+	echo "::debug:: Runtime classes should be gone"
 	! kubectl get --no-headers runtimeclass 2>/dev/null | grep -q kata
 
-	# Labels should be gone
+	echo "::debug:: labels in worker should be gone"
 	if kubectl get nodes "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}' | \
 		grep -q -e cc-preinstall -e katacontainers.io; then
 		echo "::error:: there are labels left behind"
