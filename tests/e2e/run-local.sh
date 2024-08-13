@@ -60,12 +60,12 @@ undo_changes() {
 	# Do not try to undo steps that did not execute.
 	if [ $step_install_operator -eq 1 ]; then
 		echo "::info:: Uninstall the operator"
-		run 10m sudo -E PATH="$PATH" bash -c './operator.sh uninstall' || true
+		run 10m sudo -E PATH="$PATH" bash -xc './operator.sh uninstall' || true
 	fi
 
 	if [ $step_start_cluster -eq 1 ]; then
 		echo "::info:: Shutdown the cluster"
-		run 5m sudo -E PATH="$PATH" bash -c './cluster/down.sh' || true
+		run 5m sudo -E PATH="$PATH" bash -xc './cluster/down.sh' || true
 	fi
 
 	if [ $step_bootstrap_env -eq 1 ]; then
@@ -106,19 +106,19 @@ main() {
 
 	echo "::info:: Bring up the test cluster"
 	step_start_cluster=1
-	run 10m sudo -E PATH="$PATH" bash -c './cluster/up.sh'
+	run 10m sudo -E PATH="$PATH" bash -xc './cluster/up.sh'
 	export KUBECONFIG=/etc/kubernetes/admin.conf
 
 	echo "::info:: Build and install the operator"
 	step_install_operator=1
-	run 20m sudo -E PATH="$PATH" bash -c './operator.sh'
+	run 20m sudo -E PATH="$PATH" bash -xc './operator.sh'
 
 	echo "::info:: Run tests"
 	local cmd="run 20m sudo -E PATH=\"$PATH\" bash -c "
 	if [ -z "$runtimeclass" ]; then
-		cmd+="'./tests_runner.sh'"
+		cmd+="'bash -x ./tests_runner.sh'"
 	else
-		cmd+="'./tests_runner.sh -r $runtimeclass'"
+		cmd+="'bash -x ./tests_runner.sh -r $runtimeclass'"
 	fi
 	eval $cmd
 	popd >/dev/null
