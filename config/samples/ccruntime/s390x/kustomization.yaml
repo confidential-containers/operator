@@ -11,7 +11,8 @@ images:
   newTag: latest
 - name: quay.io/kata-containers/kata-deploy
   newName: quay.io/kata-containers/kata-deploy-ci
-  newTag: kata-containers-latest
+  # FIXME: Remove this once https://github.com/confidential-containers/operator/issues/391 is resolved
+  newTag: kata-containers-43dca8deb4891678f8a62c112749ac0938b373c6-s390x
 
 patches:
 - patch: |-
