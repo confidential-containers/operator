@@ -10,9 +10,9 @@ images:
 - name: quay.io/confidential-containers/reqs-payload
   newTag: latest
 - name: quay.io/kata-containers/kata-deploy
-  newName: quay.io/kata-containers/kata-deploy-ci
+  newName: ghcr.io/kata-containers/kata-deploy-ci
   # FIXME: Remove this once https://github.com/confidential-containers/operator/issues/391 is resolved
-  newTag: kata-containers-43dca8deb4891678f8a62c112749ac0938b373c6-amd64
+  newTag: 10169-1f6a8baaf187e38e9e6eae0f4a225f77cdefd3a6-amd64 
 
 patches:
 - patch: |-
