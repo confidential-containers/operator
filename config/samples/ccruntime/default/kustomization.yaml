@@ -27,13 +27,13 @@ patches:
         pulltype: ""
       - name: "kata-qemu-tdx"
         snapshotter: "nydus"
-        pulltype: ""
+        pulltype: "guest-pull"
       - name: "kata-qemu-sev"
         snapshotter: "nydus"
-        pulltype: ""
+        pulltype: "guest-pull"
       - name: "kata-qemu-snp"
         snapshotter: "nydus"
-        pulltype: ""
+        pulltype: "guest-pull"
     - op: add
       path: /spec/config/defaultRuntimeClassName
       value: "kata-qemu"
