@@ -20,10 +20,10 @@ patches:
       path: /spec/config/runtimeClasses
       value:
       - name: "kata-clh"
-        snapshotter: "nydus"
+        snapshotter: ""
         pulltype: ""
       - name: "kata-qemu"
-        snapshotter: "nydus"
+        snapshotter: ""
         pulltype: ""
       - name: "kata-qemu-coco-dev"
         snapshotter: "nydus"
