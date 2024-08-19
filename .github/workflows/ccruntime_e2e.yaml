@@ -24,6 +24,8 @@ jobs:
         instance:
           - "az-ubuntu-2004"
           - "az-ubuntu-2204"
+          - "ubuntu-2004"
+          - "ubuntu-2204"
           - "s390x-large"
           - "tdx"
           - "sev"
@@ -68,6 +70,13 @@ jobs:
           args="-u"
           if [ $RUNNING_INSTANCE = "s390x-large" ]; then
             args=""
+          elif [ "$RUNNING_INSTANCE" == "ubuntu-2004" ] || [ "$RUNNING_INSTANCE" == "ubuntu-2204" ]; then
+            # Remove the pre-installed docker/containerd
+            sudo apt-get remove docker* containerd* -y
+            # Use /mnt to store images
+            sudo rm -Rf /var/lib/docker || true
+            sudo mkdir /mnt/docker || true
+            sudo ln -s /mnt/docker /var/lib/docker || true
           fi
           ./run-local.sh -t -r "${{ matrix.runtimeclass }}" "${args}"
         env:
