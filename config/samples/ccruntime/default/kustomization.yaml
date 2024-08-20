@@ -10,8 +10,8 @@ images:
 - name: quay.io/confidential-containers/reqs-payload
   newTag: latest
 - name: quay.io/kata-containers/kata-deploy
-  newName: quay.io/kata-containers/kata-deploy-ci
-  newTag: kata-containers-latest
+  newName: quay.io/fidencio/kata-deploy
+  newTag: debug-uninstall-202408202206
 
 patches:
 - patch: |-
