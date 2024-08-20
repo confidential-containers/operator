@@ -188,8 +188,6 @@ func (r *CcRuntimeReconciler) setCleanupNodeLabels() (ctrl.Result, error) {
 }
 
 func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, error) {
-	var result = ctrl.Result{}
-
 	// Create the uninstall DaemonSet
 	ds := r.processDaemonset(UninstallOperation)
 	if err := controllerutil.SetControllerReference(r.ccRuntime, ds, r.Scheme); err != nil {
@@ -207,90 +205,106 @@ func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, erro
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
 	}
 
-	if contains(r.ccRuntime.GetFinalizers(), RuntimeConfigFinalizer) {
-		// Check for nodes with label set by install DS prestop hook.
-		// If no nodes exist then remove finalizer and reconcile
-		err, nodes := r.getNodesWithLabels(r.ccRuntime.Spec.Config.UninstallDoneLabel)
-		if err != nil {
-			r.Log.Error(err, "Error in getting list of nodes with uninstallDoneLabel")
-			return ctrl.Result{}, err
-		}
-		finishedNodes := len(nodes.Items)
-		if !allNodesDone(finishedNodes, r) {
-			result, err = r.setCleanupNodeLabels()
-			if err != nil {
-				r.Log.Error(err, "updating the cleanup labels on nodes failed")
-				return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 5}, err
-			}
-		} else {
-			if r.ccRuntime.Spec.Config.PostUninstall.Image == "" {
-				controllerutil.RemoveFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
-			} else if r.ccRuntime.Spec.Config.PostUninstall.Image != "" {
-				// FXIME: This should be treated in a better way, as just having the sleep
-				//        here won't do us any good in the future.
-				//
-				//        What's basically happening, and forcing us to do this, is the
-				//        fact that the Uninstall and postUninstall daemonsets are being
-				//        started at exactly the same time, leading to a race condition
-				//        when changing the containerd configuration.
-				//
-				//        When looking at the kata-containers payload code, we see that the
-				//        the label is only set after containerd is successfully reconfigured,
-				//        and looking at this function we see we shouldn't reach this part
-				//        before the label is set.  However, that's not what we're facing ...
-				time.Sleep(time.Second * 60)
+	if !contains(r.ccRuntime.GetFinalizers(), RuntimeConfigFinalizer) {
+		return ctrl.Result{}, err
+	}
 
-				result, err = handlePostUninstall(r)
-				if !result.Requeue {
-					controllerutil.RemoveFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
-					result, err = r.updateCcRuntime()
-					if err != nil {
-						return result, err
-					}
-					result, err = r.deleteUninstallDaemonsets()
-					prepostLabels := map[string]string{}
-					if r.ccRuntime.Spec.Config.PreInstall.Image != "" {
-						prepostLabels[PreInstallDoneLabel[0]] = PreInstallDoneLabel[1]
-					}
-					if r.ccRuntime.Spec.Config.PostUninstall.Image != "" {
-						prepostLabels[PostUninstallDoneLabel[0]] = PostUninstallDoneLabel[1]
+	return handleFinalizers(r)
+}
 
-					}
-					err, nodes := r.getNodesWithLabels(prepostLabels)
-					if err != nil {
-						r.Log.Error(err, "an error occured when getting the list of nodes from which we want to"+
-							"remove preinstall/postuninstall labels")
-						return ctrl.Result{}, err
-					}
-					postuninstalledNodes := len(nodes.Items)
-					if !allNodesDone(postuninstalledNodes, r) {
-						return ctrl.Result{Requeue: true}, nil
-					} else {
-						if postuninstalledNodes > 0 {
-							result, err = r.removeNodeLabels(nodes)
-							if err != nil {
-								r.Log.Error(err, "removing the labels from nodes failed")
-								return ctrl.Result{}, err
-							}
-						}
-					}
-				}
-			}
+func handleFinalizers(r *CcRuntimeReconciler) (ctrl.Result, error) {
+	var result = ctrl.Result{}
+
+	// Check for nodes with label set by install DS prestop hook.
+	// If no nodes exist then remove finalizer and reconcile
+	err, nodes := r.getNodesWithLabels(r.ccRuntime.Spec.Config.UninstallDoneLabel)
+	if err != nil {
+		r.Log.Error(err, "Error in getting list of nodes with uninstallDoneLabel")
+		return ctrl.Result{}, err
+	}
+
+	finishedNodes := len(nodes.Items)
+
+	if allNodesDone(finishedNodes, r) {
+		if r.ccRuntime.Spec.Config.PostUninstall.Image == "" {
+			controllerutil.RemoveFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
+
 			if err != nil {
 				return result, err
 			}
-			result, err = r.updateCcRuntime()
-			return result, err
+
+			return r.updateCcRuntime()
 		}
 
-		result, err = r.updateUninstallationStatus(finishedNodes)
+		// FXIME: This should be treated in a better way, as just having the sleep
+		//        here won't do us any good in the future.
+		//
+		//        What's basically happening, and forcing us to do this, is the
+		//        fact that the Uninstall and postUninstall daemonsets are being
+		//        started at exactly the same time, leading to a race condition
+		//        when changing the containerd configuration.
+		//
+		//        When looking at the kata-containers payload code, we see that the
+		//        the label is only set after containerd is successfully reconfigured,
+		//        and looking at this function we see we shouldn't reach this part
+		//        before the label is set.  However, that's not what we're facing ...
+		time.Sleep(time.Second * 60)
+
+		result, err = handlePostUninstall(r)
+		if !result.Requeue {
+			controllerutil.RemoveFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
+			result, err = r.updateCcRuntime()
+			if err != nil {
+				return result, err
+			}
+			result, err = r.deleteUninstallDaemonsets()
+			prepostLabels := map[string]string{}
+			if r.ccRuntime.Spec.Config.PreInstall.Image != "" {
+				prepostLabels[PreInstallDoneLabel[0]] = PreInstallDoneLabel[1]
+			}
+			if r.ccRuntime.Spec.Config.PostUninstall.Image != "" {
+				prepostLabels[PostUninstallDoneLabel[0]] = PostUninstallDoneLabel[1]
+
+			}
+			err, nodes := r.getNodesWithLabels(prepostLabels)
+			if err != nil {
+				r.Log.Error(err, "an error occured when getting the list of nodes from which we want to"+
+					"remove preinstall/postuninstall labels")
+				return ctrl.Result{}, err
+			}
+
+			postuninstalledNodes := len(nodes.Items)
+			if !allNodesDone(postuninstalledNodes, r) {
+				return ctrl.Result{Requeue: true}, nil
+			}
+
+			if postuninstalledNodes > 0 {
+				result, err = r.removeNodeLabels(nodes)
+				if err != nil {
+					r.Log.Error(err, "removing the labels from nodes failed")
+					return ctrl.Result{}, err
+				}
+			}
+		}
 		if err != nil {
-			r.Log.Info("Error from updateUninstallationStatus")
 			return result, err
 		}
-		result.Requeue = true
-		result.RequeueAfter = time.Second * 10
+		return r.updateCcRuntime()
 	}
+
+	result, err = r.setCleanupNodeLabels()
+	if err != nil {
+		r.Log.Error(err, "updating the cleanup labels on nodes failed")
+		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 5}, err
+	}
+
+	result, err = r.updateUninstallationStatus(finishedNodes)
+	if err != nil {
+		r.Log.Info("Error from updateUninstallationStatus")
+		return result, err
+	}
+	result.Requeue = true
+	result.RequeueAfter = time.Second * 10
 	return result, err
 }
 
