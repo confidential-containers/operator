@@ -42,6 +42,9 @@ function set_container_engine() {
 	# Those are intentionally not set as local
 
 	container_engine=$(get_container_engine)
+	if [ "$container_engine" == "cri-o" ]; then
+		container_engine="crio"
+	fi
 }
 
 function install_containerd_artefacts() {
@@ -87,7 +90,7 @@ function install_nydus_snapshotter_artefacts() {
 
 function install_artifacts() {
 	# There shouldn't be installed additional artifacts for CRI-O
-	[ "${container_engine}" = "cri-o" ] && return
+	[ "${container_engine}" = "crio" ] && return
 
 	if [ "${INSTALL_COCO_CONTAINERD}" = "true" ]; then
 		install_coco_containerd_artefacts
@@ -154,7 +157,7 @@ function uninstall_nydus_snapshotter_artefacts() {
 
 function uninstall_artifacts() {
 	# It didn't install additional artifacts for CRI-O, so return
-	[ "${container_engine}" = "cri-o" ] && return
+	[ "${container_engine}" = "crio" ] && return
 
 	if [ "${INSTALL_NYDUS_SNAPSHOTTER}" = "true" ]; then
 		uninstall_nydus_snapshotter_artefacts
