@@ -4,7 +4,7 @@ ARG IMG_NAME
 ARG IMG_VERSION
 
 # Build the manager binary
-FROM ${IMG_NAME:-golang}:${IMG_VERSION:-1.20} as builder
+FROM ${IMG_NAME:-golang}:${IMG_VERSION:-1.22} as builder
 
 WORKDIR /workspace
 # Copy the Go Modules manifests
@@ -31,7 +31,7 @@ RUN CGO_ENABLED=1 GOOS=linux go build -a -o manager main.go
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 # FROM gcr.io/distroless/static:nonroot
 
-FROM ${IMG_NAME:-golang}:${IMG_VERSION:-1.20}
+FROM ${IMG_NAME:-golang}:${IMG_VERSION:-1.22}
 RUN apt-get update -y && apt-get install -y libvirt-dev
 WORKDIR /
 COPY --from=builder /workspace/manager .

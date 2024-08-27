@@ -56,7 +56,7 @@ RUN \
 
 #### Nydus snapshotter & nydus image
 
-FROM golang:1.19-alpine AS nydus-binary-downloader
+FROM golang:1.22-alpine AS nydus-binary-downloader
 
 ARG ARCH
 ARG NYDUS_SNAPSHOTTER_VERSION

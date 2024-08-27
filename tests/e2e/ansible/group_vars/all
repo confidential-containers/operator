@@ -14,7 +14,7 @@ build_pkgs:
     - make
     - gcc
 container_runtime: containerd
-go_version: 1.21.7
+go_version: 1.22.6
 # conntrack and socat are needed by the `kubeadm init` preflight checks
 kubeadm_pkgs:
   ubuntu:
