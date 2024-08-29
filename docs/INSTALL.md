@@ -3,7 +3,6 @@
 ## Prerequisites
 - Ensure a minimum of 8GB RAM and 2 vCPU for the Kubernetes cluster node
 - Only containerd runtime based Kubernetes clusters are supported with the current Confidential Containers (CoCo) release
-- The minimum Kubernetes version should be 1.24.
 - Ensure KUBECONFIG points to the target Kubernetes cluster.
 - Ensure at least one Kubernetes node in the cluster is having the label `node.kubernetes.io/worker=`
   ```

@@ -42,7 +42,7 @@ jobs:
 
       - name: Setup kind cluster
         run: |
-          kind create cluster --image "kindest/node:v1.29.2" -n coco-sgx --config tests/e2e/enclave-cc-kind-config.yaml --wait 120s
+          kind create cluster --image "kindest/node:v1.31.0@sha256:53df588e04085fd41ae12de0c3fe4c72f7013bba32a20e7325357a1ac94ba865" -n coco-sgx --config tests/e2e/enclave-cc-kind-config.yaml --wait 120s
           kubectl label node coco-sgx-worker node.kubernetes.io/worker=
           docker network connect kind registry
 

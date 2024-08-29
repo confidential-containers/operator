@@ -3,10 +3,10 @@ These instructions should help you to build a custom version of the operator wit
 changes
 
 ## Prerequisites
-- Golang (1.18.x)
+- Golang compiler supported by the Go team
 - Operator SDK version (1.23.x+)
 - podman and podman-docker or docker
-- Access to Kubernetes cluster (1.24+)
+- Access to Kubernetes cluster
 - Container registry to store images
 
 
