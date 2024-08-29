@@ -10,16 +10,15 @@
   become: yes
   vars:
     cni_home: "/opt/cni"
-    cni_version: "v1.1.1"
+    cni_version: "v1.5.1"
     flannel_home: "/opt/flannel"
-    flannel_version: "v0.19.1"
+    flannel_version: "v0.25.6"
     kubeadm_cri_runtime_socket: "/run/containerd/containerd.sock"
     kubeadm_conf_dir: "/etc/kubeadm"
     kubelet_bin: "/usr/local/bin/kubelet"
     kubelet_service_dir: "/etc/systemd/system/kubelet.service.d"
     kubelet_service_file: "/etc/systemd/system/kubelet.service"
-    # Use 'cgroupfs' with containerd, 'systemd' with crio?
-    kubelet_cgroup_driver: "cgroupfs"
+    kubelet_cgroup_driver: "systemd"
   tasks:
     - name: Install kubeadm required packages
       package:
@@ -53,17 +52,23 @@
         creates: /usr/local/bin/crictl
         dest: /usr/local/bin
         remote_src: yes
-    - name: Install kube binaries
+    - name: Download kube binaries
       get_url:
-        url: https://storage.googleapis.com/kubernetes-release/release/{{ k8s_version }}/bin/linux/{{ target_arch  }}/{{ item }}
-        dest: /usr/local/bin
-        mode: '+x'
+        url: https://dl.k8s.io/{{ k8s_version }}/kubernetes-node-linux-{{ target_arch  }}.tar.gz
+        dest: /tmp/kubernetes-node-linux.tar.gz
       retries: 3
       delay: 10
-      with_items:
-        - kubeadm
-        - kubelet
-        - kubectl
+    - name: Unpack kube binaries
+      unarchive:
+        src: /tmp/kubernetes-node-linux.tar.gz
+        dest: /tmp/
+        remote_src: yes
+    - name: Copy kube binaries
+      ansible.builtin.copy:
+        src: /tmp/kubernetes/node/bin/
+        dest: /usr/local/bin/
+        remote_src: yes
+        mode: preserve
     - name: Remove zram-generator-defaults in Fedora
       ansible.builtin.yum:
         name: zram-generator-defaults
@@ -162,6 +167,9 @@
             - kubeadm
             - kubectl
             - kubelet
+            - kube-log-runner
+            - kubectl-convert
+            - kube-proxy
         - name: Uninstall cni
           file:
             path: "{{ cni_home }}"

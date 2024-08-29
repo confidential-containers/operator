@@ -28,7 +28,7 @@
     - name: Re-create containerd config
       shell: |
         mkdir -p /etc/containerd/
-        containerd config default > /etc/containerd/config.toml
+        containerd config default | sed -e 's/\(SystemdCgroup =\).*/\1 true/g' | tee /etc/containerd/config.toml
       args:
         executable: /bin/bash
     - name: Restart containerd service
