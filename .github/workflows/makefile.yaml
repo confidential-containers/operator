@@ -26,9 +26,6 @@ jobs:
     - name: Download kustomize
       run: make kustomize
 
-    - name: Download envtest
-      run: make envtest
-
     - name: Build controller
       run: make build
 
@@ -43,3 +40,26 @@ jobs:
     needs:
       - build
     uses: "./.github/workflows/lib-codeql.yaml"
+
+  envtest:
+    name: Test APIs using envtest
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        version:
+          - 1.29.x
+          - 1.30.x
+          - 1.31.x
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5
+        with:
+          go-version-file: go.mod
+          check-latest: true
+      - name: Install envtest and k8s control plane
+        run: |
+          go install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
+          setup-envtest use ${{ matrix.version }}
+      - name: Run envtest
+        run: |
+          KUBEBUILDER_ASSETS=$(setup-envtest use -i -p path ${{ matrix.version }}) go test ./... -coverprofile cover.out
