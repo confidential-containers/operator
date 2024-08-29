@@ -78,12 +78,12 @@ RUN mkdir -p ${NODE_DESTINATION}/bin && \
 FROM base as kubectl-binary-downloader
 
 ARG ARCH
-ARG KUBECTL_VERSION=v1.26.0
+ARG KUBECTL_VERSION=v1.30.1
 
 RUN \
 	apk --no-cache add curl && \
-	curl -fL --progress-bar -o /usr/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl && \
-	chmod +x /usr/bin/kubectl
+	curl -fL --progress-bar https://dl.k8s.io/${KUBECTL_VERSION}/kubernetes-client-linux-${ARCH}.tar.gz | \
+	tar -C /usr/bin/ -x -z --strip-components 3
 
 #### Final image
 
