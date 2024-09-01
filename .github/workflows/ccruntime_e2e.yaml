@@ -70,7 +70,7 @@ jobs:
           args="-u"
           if [ $RUNNING_INSTANCE = "s390x-large" ]; then
             args=""
-          elif [ "$RUNNING_INSTANCE" == "ubuntu-2004" ] || [ "$RUNNING_INSTANCE" == "ubuntu-2204" ]; then
+          elif [ "$RUNNING_INSTANCE" == "ubuntu-20.04" ] || [ "$RUNNING_INSTANCE" == "ubuntu-22.04" ]; then
             # Remove the pre-installed docker/containerd
             sudo apt-get remove docker* containerd* -y
             # Use /mnt to store images
