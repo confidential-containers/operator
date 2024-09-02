@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5
       with:
         go-version-file: go.mod
         check-latest: true
@@ -34,3 +34,12 @@ jobs:
 
     - name: Build bundle
       run: make bundle IMG=quay.io/confidential-containers/operator:latest
+
+  codeql:
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    needs:
+      - build
+    uses: "./.github/workflows/lib-codeql.yaml"
