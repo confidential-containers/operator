@@ -20,8 +20,6 @@ spec:
         name: crio-conf
       - mountPath: /etc/containerd/
         name: containerd-conf
-      - mountPath: /opt/kata/
-        name: kata-artifacts
       - mountPath: /usr/local/bin/
         name: local-bin
       - mountPath: /host/
@@ -35,10 +33,6 @@ spec:
           path: /etc/containerd/
           type: ""
         name: containerd-conf
-      - hostPath:
-          path: /opt/kata/
-          type: DirectoryOrCreate
-        name: kata-artifacts
       - hostPath:
           path: /usr/local/bin/
           type: ""
