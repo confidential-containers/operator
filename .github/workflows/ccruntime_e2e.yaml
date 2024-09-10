@@ -22,8 +22,6 @@ jobs:
         runtimeclass:
           - "kata-qemu"
         instance:
-          - "az-ubuntu-2004"
-          - "az-ubuntu-2204"
           - "ubuntu-20.04"
           - "ubuntu-22.04"
           - "s390x-large"
