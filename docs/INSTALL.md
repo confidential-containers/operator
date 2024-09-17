@@ -170,4 +170,4 @@ kubectl delete -k "github.com/confidential-containers/operator/config/release?re
 
 ## Advanced Topics
 
-- [How to install confidential containers with IBM Secure Execution](how-to/INSTALL-CC-WITH-IBM-SE.md)
+- [How to install confidential containers with IBM Secure Execution](https://github.com/confidential-containers/confidential-containers/blob/main/guides/ibm-se.md)
