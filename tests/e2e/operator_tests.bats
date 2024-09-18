@@ -21,6 +21,12 @@ setup() {
 	ns="confidential-containers-system"
 }
 
+@test "$test_tag Test encrypt image" {
+is_operator_installed
+
+"${BATS_TEST_DIRNAME}/encrypted.sh"
+}
+
 @test "$test_tag Test can uninstall the operator" {
 
 # Assume the operator is installed, otherwise fail.
