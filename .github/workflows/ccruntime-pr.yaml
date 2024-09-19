@@ -8,8 +8,6 @@ on:
       - synchronize
       - reopened
       - labeled
-    paths-ignore:
-      - 'docs/**'
 
 jobs:
   e2e-pr:
