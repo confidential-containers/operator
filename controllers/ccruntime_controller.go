@@ -722,7 +722,7 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 						{
 							Name:            "cc-runtime-install-pod",
 							Image:           r.ccRuntime.Spec.Config.PayloadImage,
-							ImagePullPolicy: "Always",
+							ImagePullPolicy: imagePullPolicyOrDefault(r.ccRuntime.Spec.Config.ImagePullPolicy),
 							Lifecycle:       preStopHook,
 							SecurityContext: &corev1.SecurityContext{
 								// TODO - do we really need to run as root?
@@ -917,7 +917,7 @@ func (r *CcRuntimeReconciler) makeHookDaemonset(operation DaemonOperation) *apps
 						{
 							Name:            "cc-runtime-" + string(operation) + "-pod",
 							Image:           image,
-							ImagePullPolicy: "Always",
+							ImagePullPolicy: imagePullPolicyOrDefault(r.ccRuntime.Spec.Config.ImagePullPolicy),
 							SecurityContext: &corev1.SecurityContext{
 								Privileged: &runPrivileged,
 								RunAsUser:  &runAsUser,
