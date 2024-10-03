@@ -25,7 +25,6 @@ jobs:
           - "ubuntu-20.04"
           - "ubuntu-22.04"
           - "s390x-large"
-          - "tdx"
           - "sev"
           - "sev-snp"
         exclude:
@@ -36,8 +35,6 @@ jobs:
           - runtimeclass: "kata-qemu"
             instance: "sev-snp"
         include:
-          - runtimeclass: "kata-qemu-tdx"
-            instance: "tdx"
           - runtimeclass: "kata-qemu-sev"
             instance: "sev"
           - runtimeclass: "kata-qemu-snp"
