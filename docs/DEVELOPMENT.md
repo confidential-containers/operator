@@ -92,13 +92,11 @@ In order to be merged your opened pull request (PR) should pass the static analy
 
 The e2e tests jobs are executed on a variety of CcRuntime, configurations and platforms. These jobs that require confidential hardware (Intel TDX, AMD SEV, IBM SE, etc...) run on bare-metal machines and are often referred as "TEE tests". The remaining tests (a.k.a "Non-TEE") are executed on Virtual Machines (VM) deployed on-demand.
 
-The following jobs will check for regessions on the default CcRuntime:
+The following jobs will check for regressions on the default CcRuntime:
 
 |Job name | TEE | OS | VMM |
 |---|---|---|---|
 |e2e-pr / operator tests (kata-qemu, s390x) | Non-TEE | Ubuntu 22.04 (s390x) | QEMU |
-|e2e-pr / operator tests (kata-qemu, az-ubuntu-2004) | Non-TEE |  Ubuntu 20.04 | QEMU |
-|e2e-pr / operator tests (kata-qemu, az-ubuntu-2204) | Non-TEE |  Ubuntu 22.04 | QEMU |
 |e2e-pr / operator tests (kata-qemu, ubuntu-20.04) | Non-TEE |  Ubuntu 20.04 | QEMU |
 |e2e-pr / operator tests (kata-qemu, ubuntu-22.04) | Non-TEE |  Ubuntu 22.04 | QEMU |
 |e2e-pr / operator tests (kata-qemu-tdx, tdx) | TDX |  Ubuntu 24.04 | QEMU |
