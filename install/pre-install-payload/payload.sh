@@ -10,7 +10,6 @@ coco_containerd_repo=${coco_containerd_repo:-"https://github.com/confidential-co
 official_containerd_repo=${official_containerd_repo:-"https://github.com/containerd/containerd"}
 vfio_gpu_containerd_repo=${vfio_gpu_containerd_repo:-"https://github.com/confidential-containers/containerd"}
 nydus_snapshotter_repo=${nydus_snapshotter_repo:-"https://github.com/containerd/nydus-snapshotter"}
-containerd_dir="$(mktemp -d -t containerd-XXXXXXXXXX)/containerd"
 extra_docker_manifest_flags="${extra_docker_manifest_flags:-}"
 
 registry="${registry:-quay.io/confidential-containers/reqs-payload}"
