@@ -8,10 +8,9 @@ resources:
 
 images:
 - name: quay.io/confidential-containers/reqs-payload
-  newTag: latest
+  newTag: 7b06283a5be08f4d83f2bf15851d55739bf27ec5
 - name: quay.io/kata-containers/kata-deploy
-  newName: quay.io/kata-containers/kata-deploy-ci
-  newTag: kata-containers-latest
+  newTag: 3.11.0
 
 patches:
 - patch: |-
