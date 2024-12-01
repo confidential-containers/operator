@@ -25,11 +25,11 @@ jobs:
         check-latest: true
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@662472033e021d55d94146f66f6058822b0b39fd # v3
+      uses: github/codeql-action/init@f09c1c0a94de965c15400f5634aa42fac8fb8f88 # v3
       with:
         languages: 'go'
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@662472033e021d55d94146f66f6058822b0b39fd # v3
+      uses: github/codeql-action/analyze@f09c1c0a94de965c15400f5634aa42fac8fb8f88 # v3
       with:
         category: "/language:go"
