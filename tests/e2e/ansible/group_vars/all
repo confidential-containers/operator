@@ -34,4 +34,7 @@ test_pkgs:
     - jq
   centos:
     - jq
-target_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }}"
+binaries_architecture:
+  x86_64: amd64
+  aarch64: arm64
+target_arch: "{{ binaries_architecture[ansible_architecture] | default(ansible_architecture) }}"
