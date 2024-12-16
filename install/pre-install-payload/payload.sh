@@ -17,6 +17,7 @@ registry="${registry:-quay.io/confidential-containers/reqs-payload}"
 supported_arches=(
 	"linux/amd64"
 	"linux/s390x"
+	"linux/arm64"
 )
 
 function setup_env_for_arch() {
@@ -28,6 +29,10 @@ function setup_env_for_arch() {
 		"linux/s390x")
 			kernel_arch="s390x"
 			golang_arch="s390x"
+			;;
+		"linux/arm64")
+			kernel_arch="aarch64"
+			golang_arch="arm64"
 			;;
 		*) echo "$1 is not supported" >/dev/stderr && exit 1 ;;
 	esac
