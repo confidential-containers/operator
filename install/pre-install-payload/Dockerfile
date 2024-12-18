@@ -78,7 +78,7 @@ RUN mkdir -p ${NODE_DESTINATION}/bin && \
 FROM base as kubectl-binary-downloader
 
 ARG ARCH
-ARG KUBECTL_VERSION=v1.30.1
+ARG KUBECTL_VERSION=v1.31.1
 
 RUN \
 	apk --no-cache add curl && \
