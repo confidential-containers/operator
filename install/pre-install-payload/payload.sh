@@ -11,14 +11,9 @@ official_containerd_repo=${official_containerd_repo:-"https://github.com/contain
 vfio_gpu_containerd_repo=${vfio_gpu_containerd_repo:-"https://github.com/confidential-containers/containerd"}
 nydus_snapshotter_repo=${nydus_snapshotter_repo:-"https://github.com/containerd/nydus-snapshotter"}
 extra_docker_manifest_flags="${extra_docker_manifest_flags:-}"
+archs=${pre_install_payload_archs:-"linux/amd64 linux/s390x linux/arm64"}
 
 registry="${registry:-quay.io/confidential-containers/reqs-payload}"
-
-supported_arches=(
-	"linux/amd64"
-	"linux/s390x"
-	"linux/arm64"
-)
 
 function setup_env_for_arch() {
 	case "$1" in
@@ -58,7 +53,7 @@ function build_payload() {
 	tag=$(git rev-parse HEAD)
 
 	manifest_args=()
-	for arch in "${supported_arches[@]}"; do
+	for arch in ${archs}; do
 		setup_env_for_arch "${arch}"
 
 		echo "Building containerd payload image for ${arch}"
