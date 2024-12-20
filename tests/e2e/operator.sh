@@ -230,9 +230,9 @@ start_local_registry() {
 	if ! curl -s localhost:5000; then
 		docker start "$registry_container" >/dev/null
 		local cnt=0
-		while ! curl -s localhost:5000 -o $cnt -lt 5; do
+		while ! curl -s localhost:5000 && [ $cnt -lt 5 ]; do
 			sleep 1
-			cnt=$(($cnt+1))
+			cnt=$((cnt + 1))
 		done
 		[ $cnt -ne 5 ]
 	fi
