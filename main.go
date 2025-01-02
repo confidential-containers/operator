@@ -18,6 +18,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"os"
 
@@ -38,6 +39,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+	"sigs.k8s.io/controller-runtime/pkg/metrics/filters"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	peerpod "github.com/confidential-containers/cloud-api-adaptor/src/peerpod-ctrl/api/v1alpha1"
@@ -66,11 +68,14 @@ func init() {
 
 func main() {
 	var metricsAddr string
+	var secureMetrics bool
 	var enableLeaderElection bool
 	var probeAddr string
 	var ccRuntimeNamespace string
 	var enablePeerPodControllers bool
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
+	flag.BoolVar(&secureMetrics, "metrics-secure", false,
+		"Enable role based authentication/authorization for the metrics endpoint")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.StringVar(&ccRuntimeNamespace, "cc-runtime-namespace", metav1.NamespaceSystem, "The namespace where CcRuntime secondary resources are created")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -86,9 +91,33 @@ func main() {
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
+	// TODO: add enable-http2 boolean flag which is what the latest
+	// scaffolding gives to control http/2 enablement.
+	disableHTTP2 := func(cfg *tls.Config) {
+		cfg.NextProtos = []string{"http/1.1"}
+	}
+
+	// Metrics endpoint is enabled in 'config/default/kustomization.yaml'. The Metrics options configure the server.
+	// More info:
+	// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/metrics/server
+	// - https://book.kubebuilder.io/reference/metrics.html
+	metricsServerOptions := metricsserver.Options{
+		BindAddress:   metricsAddr,
+		SecureServing: secureMetrics,
+		TLSOpts: []func(cfg *tls.Config){
+			disableHTTP2,
+		},
+	}
+
+	if secureMetrics {
+		// More info:
+		// https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.19.1/pkg/metrics/filters#WithAuthenticationAndAuthorization
+		metricsServerOptions.FilterProvider = filters.WithAuthenticationAndAuthorization
+	}
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
-		Metrics:                metricsserver.Options{BindAddress: metricsAddr},
+		Metrics:                metricsServerOptions,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "69bf4d38.confidentialcontainers.org",
