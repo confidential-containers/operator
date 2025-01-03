@@ -34,6 +34,49 @@
                 state: absent
           when: bats_exist.rc != 0
     - block:
+      - name: Check skopeo is installed
+        shell: command -v skopeo >/dev/null 2>&1
+        register: skopeo_exist
+        ignore_errors: yes
+      - name: Install skopeo
+        shell: |
+          sudo apt-get install -y build-essential libgpgme-dev libassuan-dev libbtrfs-dev pkg-config go-md2man
+          git clone https://github.com/containers/skopeo
+          cd skopeo
+          git checkout {{ skopeo_version }}
+          DISABLE_DOCS=1 make
+          DISABLE_DOCS=1 sudo make install
+    - block:
+      - name: Install kbs test dependencies
+        shell: |
+          sudo apt-get install -y build-essential pkg-config libssl-dev
+    - block:
+      - name: Check rust is installed
+        shell: command -v rustc >/dev/null 2>&1
+        register: rustc_exist
+        ignore_errors: yes
+      - name: Install rust
+        shell: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain {{ rust_version }}
+    - block:
+      - name: Create temp trustee directory
+        shell: |
+              mkdir /tmp/trustee
+      - name: Clone trustee repository
+        git:
+          repo: https://github.com/confidential-containers/trustee.git
+          dest: /tmp/trustee
+          clone: yes
+          force: yes
+        retries: 3
+        delay: 10
+      - name: Build and install the kbs client
+        shell: |
+          export PATH="${PATH}:${HOME}/.cargo/bin"
+          cd /tmp/trustee/kbs
+          make CLI_FEATURES=sample_only cli
+          sudo make install-cli
+    - block:
       - name: Download Go tarball
         get_url:
           url: https://go.dev/dl/go{{ go_version }}.linux-{{ target_arch }}.tar.gz
@@ -52,6 +95,19 @@
           src: /usr/local/go/bin/go
           dest: /usr/local/bin/go
           state: link
+    - block:
+      - name: Check yq is installed
+        shell: command -v yq >/dev/null 2>&1
+        register: yq_exist
+        ignore_errors: yes
+      - name: Install yq
+        shell: |
+          export yq_pkg="github.com/mikefarah/yq"
+          export yq_version=v4.40.7
+          export yq_path="/usr/local/bin/yq"
+          yq_url="https://${yq_pkg}/releases/download/${yq_version}/yq_linux_{{ target_arch }}"
+          curl -o "${yq_path}" -LSsf "${yq_url}"
+          chmod +x "${yq_path}"
     - block:
       - name: Check kustomize is installed
         shell: command -v kustomize >/dev/null 2>&1
@@ -81,3 +137,14 @@
             - /usr/local/go
             - /usr/local/bin/bats
             - /usr/local/bin/kustomize
+        - name: Uninstall kbs-client
+          shell: |
+            cd /tmp/trustee/kbs
+            sudo make uninstall
+        - name: Remove temporary file
+          file:
+            path: "{{ item }}"
+            state: absent
+          with_items:
+            - /tmp/trustee
+
