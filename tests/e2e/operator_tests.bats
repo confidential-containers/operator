@@ -42,6 +42,9 @@ systemctl is-active "$container_runtime"
 ! is_operator_installed
 
 "${BATS_TEST_DIRNAME}/operator.sh" install
+
+# Wait for the deployment to be stable
+"${BATS_TEST_DIRNAME}/operator.sh" wait_for_stabilization
 }
 
 teardown() {
