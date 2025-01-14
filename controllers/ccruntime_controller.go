@@ -139,6 +139,9 @@ func (r *CcRuntimeReconciler) getNodeClient() (v1.NodeInterface, error) {
 	return nodeClient, err
 }
 
+// This function sets the StartUninstallLabel on all nodes that completed
+// the ccruntime install (have InstallDoneLabel set), which is used by
+// the uninstall DS
 func (r *CcRuntimeReconciler) setCleanupNodeLabels() (ctrl.Result, error) {
 	var nodesList = &corev1.NodeList{}
 	nodesClient, err := r.getNodeClient()
@@ -166,22 +169,18 @@ func (r *CcRuntimeReconciler) setCleanupNodeLabels() (ctrl.Result, error) {
 	}
 
 	for _, node := range nodesList.Items {
-		for k, v := range node.GetLabels() {
-			if k == installDoneLabel[0] && v == "true" {
-				nodeLabels := node.GetLabels()
-				nodeLabels[k] = "cleanup"
-				node.SetLabels(nodeLabels)
-				break
+		labels := node.GetLabels()
+		if val, exists := labels[installDoneLabel[0]]; exists && val == "true" {
+			labels[StartUninstallLabel[0]] = StartUninstallLabel[1]
+			_, err := nodesClient.Update(context.TODO(), &node, metav1.UpdateOptions{
+				TypeMeta:     metav1.TypeMeta{},
+				DryRun:       nil,
+				FieldManager: "",
+			})
+			if err != nil {
+				r.Log.Info("failed to update node labels")
+				return ctrl.Result{}, err
 			}
-		}
-		_, err := nodesClient.Update(context.TODO(), &node, metav1.UpdateOptions{
-			TypeMeta:     metav1.TypeMeta{},
-			DryRun:       nil,
-			FieldManager: "",
-		})
-		if err != nil {
-			r.Log.Info("failed to update node labels")
-			return ctrl.Result{}, err
 		}
 	}
 	return ctrl.Result{}, nil
@@ -235,20 +234,6 @@ func handleFinalizers(r *CcRuntimeReconciler) (ctrl.Result, error) {
 
 			return r.updateCcRuntime()
 		}
-
-		// FXIME: This should be treated in a better way, as just having the sleep
-		//        here won't do us any good in the future.
-		//
-		//        What's basically happening, and forcing us to do this, is the
-		//        fact that the Uninstall and postUninstall daemonsets are being
-		//        started at exactly the same time, leading to a race condition
-		//        when changing the containerd configuration.
-		//
-		//        When looking at the kata-containers payload code, we see that the
-		//        the label is only set after containerd is successfully reconfigured,
-		//        and looking at this function we see we shouldn't reach this part
-		//        before the label is set.  However, that's not what we're facing ...
-		time.Sleep(time.Second * 60)
 
 		result, err = handlePostUninstall(r)
 		if !result.Requeue {
@@ -372,6 +357,7 @@ func handlePostUninstall(r *CcRuntimeReconciler) (ctrl.Result, error) {
 
 func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, error) {
 	nodesList := &corev1.NodeList{}
+	r.Log.Info("processCcRuntimeInstallRequest")
 
 	if r.ccRuntime.Spec.CcNodeSelector == nil {
 		r.ccRuntime.Spec.CcNodeSelector = &metav1.LabelSelector{
@@ -607,7 +593,7 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 	if r.ccRuntime.Spec.CcNodeSelector != nil && operation == InstallOperation {
 		nodeSelector = r.ccRuntime.Spec.CcNodeSelector.MatchLabels
 	} else if operation == UninstallOperation {
-		nodeSelector = r.ccRuntime.Spec.Config.UninstallDoneLabel
+		nodeSelector = map[string]string{StartUninstallLabel[0]: StartUninstallLabel[1]}
 	} else {
 		nodeSelector = map[string]string{
 			"node.kubernetes.io/worker": "",
@@ -956,6 +942,14 @@ func (r *CcRuntimeReconciler) removeNodeLabels(nodesList *corev1.NodeList) (ctrl
 		return ctrl.Result{}, err
 	}
 
+	kataCleanupDoneLabel := make([]string, 0, len(r.ccRuntime.Spec.Config.UninstallDoneLabel))
+	for key := range r.ccRuntime.Spec.Config.UninstallDoneLabel {
+		kataCleanupDoneLabel = append(kataCleanupDoneLabel, key)
+	}
+	if len(kataCleanupDoneLabel) != 1 {
+		return ctrl.Result{}, fmt.Errorf("UninstallDoneLabel must only have one entry")
+	}
+
 	for _, node := range nodesList.Items {
 		nodeLabels := node.GetLabels()
 		if val, ok := nodeLabels[PreInstallDoneLabel[0]]; ok && val == PreInstallDoneLabel[1] {
@@ -966,8 +960,11 @@ func (r *CcRuntimeReconciler) removeNodeLabels(nodesList *corev1.NodeList) (ctrl
 			delete(nodeLabels, PostUninstallDoneLabel[0])
 		}
 
-		if val, ok := nodeLabels[KataRuntimeLabel[0]]; ok && val == KataRuntimeLabel[1] {
-			delete(nodeLabels, KataRuntimeLabel[0])
+		if val, ok := nodeLabels[kataCleanupDoneLabel[0]]; ok && val == "cleanup" {
+			delete(nodeLabels, kataCleanupDoneLabel[0])
+		}
+		if val, ok := nodeLabels[StartUninstallLabel[0]]; ok && val == StartUninstallLabel[1] {
+			delete(nodeLabels, StartUninstallLabel[0])
 		}
 		node.SetLabels(nodeLabels)
 		_, err := nodesClient.Update(context.TODO(), &node, metav1.UpdateOptions{

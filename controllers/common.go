@@ -10,7 +10,7 @@ type DaemonOperation string
 var (
 	PreInstallDoneLabel    = []string{"cc-preinstall/done", "true"}
 	PostUninstallDoneLabel = []string{"cc-postuninstall/done", "true"}
-	KataRuntimeLabel       = []string{"katacontainers.io/kata-runtime", "cleanup"}
+	StartUninstallLabel    = []string{"cc-startuninstall/done", "true"}
 )
 
 const (
