@@ -84,8 +84,6 @@ function install_nydus_snapshotter_artefacts() {
 	host_systemctl enable nydus-snapshotter.service
 
 	configure_nydus_snapshotter_for_containerd
-
-	restart_systemd_service
 }
 
 function install_artifacts() {
@@ -119,8 +117,6 @@ function uninstall_containerd_artefacts() {
 		rmdir --ignore-fail-on-non-empty "/etc/systemd/system/${container_engine}.service.d"
 	fi
 
-	restart_systemd_service
-
 	echo "Removing the containerd binary"
 	rm -f /opt/confidential-containers/bin/containerd
 	echo "Removing the /opt/confidential-containers/bin directory"
@@ -138,8 +134,6 @@ function uninstall_nydus_snapshotter_artefacts() {
 		remove_nydus_snapshotter_from_containerd
 		host_systemctl disable --now nydus-snapshotter.service
 		rm -rf /etc/systemd/system/nydus-snapshotter.service
-
-		restart_systemd_service
 	fi
 
 	echo "Removing nydus-snapshotter artifacts from host"
@@ -308,7 +302,6 @@ function main() {
 	case "${action}" in
 	install)
 		install_artifacts
-		restart_systemd_service
 		;;
 	uninstall)
 		# Adjustment for s390x (clefos:7)
@@ -325,6 +318,7 @@ function main() {
 		;;
 	esac
 
+	restart_systemd_service
 	label_node "${action}"
 
 
