@@ -195,8 +195,11 @@ function configure_nydus_snapshotter_for_containerd() {
 	address = "/run/containerd-nydus/containerd-nydus-grpc.sock"
 EOF
 		if grep -q "^imports = " "$tmp_containerd_config"; then
-			sed -i -e "s|^imports = \[\(.*\)\]|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\", \1]|g" "${tmp_containerd_config}"
-			sed -i -e "s|, ]|]|g" "${tmp_containerd_config}"
+			# Avoid adding the import twice
+			if ! grep "^imports = " "$tmp_containerd_config" | grep -q "\"${containerd_imports_path}/nydus-snapshotter.toml\""; then
+				sed -i -e "s|^imports = \[\(.*\)\]|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\", \1]|g" "${tmp_containerd_config}"
+				sed -i -e "s|, ]|]|g" "${tmp_containerd_config}"
+			fi
 		else
 			sed -i -e "1s|^|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\"]\n|" "${tmp_containerd_config}"
 		fi
