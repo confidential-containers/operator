@@ -66,8 +66,10 @@ jobs:
           cd tests/e2e
           export PATH="$PATH:/usr/local/bin"
           args="-u"
+          export pre_install_payload_archs="linux/amd64"
           if [ $RUNNING_INSTANCE = "s390x-large" ]; then
             args=""
+            export pre_install_payload_archs="linux/s390x"
           elif [ "$RUNNING_INSTANCE" == "ubuntu-20.04" ] || [ "$RUNNING_INSTANCE" == "ubuntu-22.04" ]; then
             # Remove the pre-installed docker/containerd
             sudo apt-get remove docker* containerd* -y
