@@ -270,6 +270,15 @@ label_node() {
 	esac
 }
 
+function wait_till_node_is_ready() {
+    local ready="False"
+
+    while ! [[ "${ready}" == "True" ]]; do
+        sleep 2s
+        ready=$(kubectl get node $NODE_NAME -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
+    done
+}
+
 function print_help() {
 	echo "Help: ${0} [install/uninstall]"
 }
@@ -319,6 +328,7 @@ function main() {
 	esac
 
 	restart_systemd_service
+	wait_till_node_is_ready
 	label_node "${action}"
 
 
