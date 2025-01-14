@@ -178,60 +178,86 @@ function configure_nydus_snapshotter_for_containerd() {
 	echo "configure nydus snapshotter for containerd"
 
 	local containerd_imports_path="/etc/containerd/config.toml.d"
+	local tmp_containerd_config="$(mktemp)"
 
-	echo "Create ${containerd_imports_path}"
-	mkdir -p "${containerd_imports_path}"
+	( for i in {{1..10}}; do
+		local containerd_config_pre="$(cat "${containerd_config}")"
+		echo "${containerd_config_pre}" > "$tmp_containerd_config"
 
-	echo "Drop-in the nydus configuration"
-	cat << EOF | tee "${containerd_imports_path}"/nydus-snapshotter.toml
+		echo "Create ${containerd_imports_path}"
+		mkdir -p "${containerd_imports_path}"
+
+		echo "Drop-in the nydus configuration"
+		cat << EOF | tee "${containerd_imports_path}"/nydus-snapshotter.toml
 [proxy_plugins]
   [proxy_plugins.nydus]
-    type = "snapshot"
-    address = "/run/containerd-nydus/containerd-nydus-grpc.sock"
+	type = "snapshot"
+	address = "/run/containerd-nydus/containerd-nydus-grpc.sock"
 EOF
-	if grep -q "^imports = " "$containerd_config"; then
-		sed -i -e "s|^imports = \[\(.*\)\]|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\", \1]|g" "${containerd_config}"
-		sed -i -e "s|, ]|]|g" "${containerd_config}"
-	else
-		sed -i -e "1s|^|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\"]\n|" "${containerd_config}"
-	fi
+		if grep -q "^imports = " "$tmp_containerd_config"; then
+			sed -i -e "s|^imports = \[\(.*\)\]|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\", \1]|g" "${tmp_containerd_config}"
+			sed -i -e "s|, ]|]|g" "${tmp_containerd_config}"
+		else
+			sed -i -e "1s|^|imports = [\"${containerd_imports_path}/nydus-snapshotter.toml\"]\n|" "${tmp_containerd_config}"
+		fi
 
-	# Annotations should be passed down to the remote snapshotter in order to
-	# make it work. This can be done by setting `disable_snapshot_annotations = false`
-	# in the containerd's config.toml.
-	if grep -q 'disable_snapshot_annotations' "$containerd_config"; then
-		sed -i -e "s|disable_snapshot_annotations = true|disable_snapshot_annotations = false|" \
-			"${containerd_config}"
-	else
-		# In case the property does not exist, let's append it to the
-		# [plugins."io.containerd.grpc.v1.cri".containerd] section.
-		sed -i '/\[plugins\..*\.containerd\]/a'"# ${snapshot_annotations_marker}"'\ndisable_snapshot_annotations = false' \
-			"${containerd_config}"
-	fi
+		# Annotations should be passed down to the remote snapshotter in order to
+		# make it work. This can be done by setting `disable_snapshot_annotations = false`
+		# in the containerd's config.toml.
+		if grep -q 'disable_snapshot_annotations' "$tmp_containerd_config"; then
+			sed -i -e "s|disable_snapshot_annotations = true|disable_snapshot_annotations = false|" \
+				"${tmp_containerd_config}"
+		else
+			# In case the property does not exist, let's append it to the
+			# [plugins."io.containerd.grpc.v1.cri".containerd] section.
+			sed -i '/\[plugins\..*\.containerd\]/a'"# ${snapshot_annotations_marker}"'\ndisable_snapshot_annotations = false' \
+				"${tmp_containerd_config}"
+		fi
 
-	# Finally if for some unknown reason the property is still not set, let's
-	# fail the installation.
-	grep -q 'disable_snapshot_annotations = false' "${containerd_config}"
+		# Finally if for some unknown reason the property is still not set, let's
+		# fail the installation.
+		grep -q 'disable_snapshot_annotations = false' "${tmp_containerd_config}"
 
+		# Only update the file when the original one did not change
+		if [ "$(cat "${containerd_config}")" == "$containerd_config_pre" ]; then
+			mv "$tmp_containerd_config" "$containerd_config"
+			exit 0
+		fi
+		sleep $(($RANDOM / 1000))
+	done ) || { echo "Failed to configure snapshotter in 10 iterations, is someone else modifying the config?"; exit -1; }
+	rm -f "$tmp_containerd_config"
 }
 
 function remove_nydus_snapshotter_from_containerd() {
 	echo "Remove nydus snapshotter from containerd"
 
+	local tmp_containerd_config="$(mktemp)"
 	local containerd_imports_path="/etc/containerd/config.toml.d"
 
-	rm -f "${containerd_imports_path}/nydus-snapshotter.toml"
-	sed -i -e "s|\"${containerd_imports_path}/nydus-snapshotter.toml\"||g" "${containerd_config}"
-	sed -i -e "s|, ]|]|g" "${containerd_config}"
+	( for i in {{1..10}}; do
+        local containerd_config_pre="$(cat "${containerd_config}")"
+        echo "${containerd_config_pre}" > "$tmp_containerd_config"
 
-	if grep -q "${snapshot_annotations_marker}" "${containerd_config}"; then
-		sed -i '/'"${snapshot_annotations_marker}"'/d' \
-			"${containerd_config}"
-		sed -i '/disable_snapshot_annotations = false/d' \
-			"${containerd_config}"
-	else
-		sed -i -e "s|disable_snapshot_annotations = false|disable_snapshot_annotations = true|" "${containerd_config}"
-	fi
+		rm -f "${containerd_imports_path}/nydus-snapshotter.toml"
+		sed -i -e "s|\"${containerd_imports_path}/nydus-snapshotter.toml\"||g" "${tmp_containerd_config}"
+		sed -i -e "s|, ]|]|g" "${tmp_containerd_config}"
+
+		if grep -q "${snapshot_annotations_marker}" "${tmp_containerd_config}"; then
+			sed -i '/'"${snapshot_annotations_marker}"'/d' \
+				"${tmp_containerd_config}"
+			sed -i '/disable_snapshot_annotations = false/d' \
+				"${tmp_containerd_config}"
+		else
+			sed -i -e "s|disable_snapshot_annotations = false|disable_snapshot_annotations = true|" "${tmp_containerd_config}"
+		fi
+
+        if [ "$(cat "${containerd_config}")" == "$containerd_config_pre" ]; then
+            mv "$tmp_containerd_config" "$containerd_config"
+            exit 0
+        fi
+		sleep $(($RANDOM / 1000))
+	done ) || { echo "Failed to unconfigure snapshotter in 10 iterations, is someone else modifying the config?"; exit -1; }
+	rm -f "$tmp_containerd_config"
 }
 
 label_node() {
