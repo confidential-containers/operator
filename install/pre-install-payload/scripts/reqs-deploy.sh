@@ -238,7 +238,6 @@ function remove_nydus_snapshotter_from_containerd() {
         local containerd_config_pre="$(cat "${containerd_config}")"
         echo "${containerd_config_pre}" > "$tmp_containerd_config"
 
-		rm -f "${containerd_imports_path}/nydus-snapshotter.toml"
 		sed -i -e "s|\"${containerd_imports_path}/nydus-snapshotter.toml\"||g" "${tmp_containerd_config}"
 		sed -i -e "s|, ]|]|g" "${tmp_containerd_config}"
 
@@ -258,6 +257,7 @@ function remove_nydus_snapshotter_from_containerd() {
 		sleep $(($RANDOM / 1000))
 	done ) || { echo "Failed to unconfigure snapshotter in 10 iterations, is someone else modifying the config?"; exit -1; }
 	rm -f "$tmp_containerd_config"
+	rm -f "${containerd_imports_path}/nydus-snapshotter.toml"
 }
 
 label_node() {
