@@ -331,7 +331,8 @@ func (r *CcRuntimeReconciler) updateUninstallationStatus(finishedNodes int) (ctr
 }
 
 func handlePostUninstall(r *CcRuntimeReconciler) (ctrl.Result, error) {
-	err, nodes := r.getNodesWithLabels(map[string]string{"cc-postuninstall/done": "true"})
+	postUninstallDoneLabel := map[string]string{PostUninstallDoneLabel[0]: PostUninstallDoneLabel[1]}
+	err, nodes := r.getNodesWithLabels(postUninstallDoneLabel)
 	if err != nil {
 		r.Log.Info("couldn't get nodes labeled with postuninstall done label")
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
@@ -342,7 +343,7 @@ func handlePostUninstall(r *CcRuntimeReconciler) (ctrl.Result, error) {
 		r.ccRuntime.Status.TotalNodesCount > 0 {
 		postUninstallDs := r.makeHookDaemonset(PostUninstallOperation)
 		// get daemonset
-		res, err := r.handlePrePostDs(postUninstallDs, map[string]string{"cc-postuninstall/done": "true"})
+		res, err := r.handlePrePostDs(postUninstallDs, postUninstallDoneLabel)
 		if res.Requeue {
 			if err != nil {
 				r.Log.Info("error from handlePrePostDs")
@@ -392,8 +393,10 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 		return ctrl.Result{}, err
 	}
 
+	preInstallDoneLabel := map[string]string{PreInstallDoneLabel[0]: PreInstallDoneLabel[1]}
+
 	// if ds exists, get all labels
-	err, nodes := r.getNodesWithLabels(map[string]string{"cc-preinstall/done": "true"})
+	err, nodes := r.getNodesWithLabels(preInstallDoneLabel)
 	if err != nil {
 		r.Log.Info("couldn't GET labelled nodes")
 		return ctrl.Result{}, err
@@ -402,7 +405,7 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 		len(nodes.Items) < r.ccRuntime.Status.TotalNodesCount {
 		preInstallDs := r.makeHookDaemonset(PreInstallOperation)
 		r.Log.Info("ds = ", "daemonset", preInstallDs)
-		res, err := r.handlePrePostDs(preInstallDs, map[string]string{"cc-preinstall/done": "true"})
+		res, err := r.handlePrePostDs(preInstallDs, preInstallDoneLabel)
 		if res.Requeue {
 			r.Log.Info("requeue request from handlePrePostDs")
 			return res, err
