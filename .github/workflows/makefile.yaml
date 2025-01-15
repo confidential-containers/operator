@@ -9,7 +9,12 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        instance:
+          - "ubuntu-22.04"
+          - "ubuntu-22.04-arm"
+    runs-on: ${{ matrix.instance }}
 
     steps:
     - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4
@@ -43,13 +48,16 @@ jobs:
 
   envtest:
     name: Test APIs using envtest
-    runs-on: ubuntu-22.04
     strategy:
       matrix:
+        instance:
+          - "ubuntu-22.04"
+          - "ubuntu-22.04-arm"
         version:
           - 1.30.x
           - 1.31.x
           - 1.32.x
+    runs-on: ${{ matrix.instance }}
     steps:
       - uses: actions/checkout@d632683dd7b4114ad314bca15554477dd762a938 # v4
       - uses: actions/setup-go@0a12ed9d6a96ab950c8f026ed9f722fe0da7ef32 # v5
