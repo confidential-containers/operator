@@ -132,29 +132,32 @@ install_ccruntime() {
 	kubectl create -k .
 	popd >/dev/null
 
-	local pod=""
-	local cmd=""
-	for pod in cc-operator-daemon-install cc-operator-pre-install-daemon; do
-		cmd="kubectl get pods -n '$op_ns' --no-headers |"
-		cmd+="egrep -q ${pod}.*'\<Running\>'"
-		if ! wait_for_process 600 30 "$cmd"; then
-			echo "::error:: $pod pod is not running"
-			local pod_id
-			pod_id="$(get_pods_regex "$pod" "$op_ns")"
-			echo "::debug:: Pod $pod_id"
-			debug_pod "$pod_id" "$op_ns"
+	# Wait for the operator to report installationStatus.completed on all nodes
+	local count=0
+	local nodes
 
+	while true; do
+		nodes="$(kubectl get ccruntime -o jsonpath='{range .items[*]}{.status.totalNodesCount}{end}')" || nodes=-1
+		if [ "$nodes" -gt 0 ] 2>/dev/null; then
+			[ "$(kubectl get ccruntime -o jsonpath='{range .items[*]}{.status.installationStatus.completed.completedNodesCount}{end}')" -eq "$nodes" ] 2>/dev/null && break || true
+		fi
+		((count+=1))
+		if [ $count -gt 600 ]; then
+			echo "::error:: cc runtime not installed in $count iterations ($nodes, $(kubectl get ccruntime -o jsonpath='{range .items[*]}{.status.installationStatus.completed.completedNodesCount}{end}'))"
+			kubectl describe ccruntime
 			return 1
 		fi
+		sleep 1
 	done
 
-	# Check if the runtime is up.
-	# There could be a case where it is not even if the pods above are running.
+	# Check if runtimeclass is available
 	local cmd="kubectl get runtimeclass | grep -q ${runtimeclass}"
-	if ! wait_for_process 300 30 "$cmd"; then
+	if ! wait_for_process 30 1 "$cmd"; then
 		echo "::error:: runtimeclass ${runtimeclass} is not up"
+		kubectl get runtimeclass
 		return 1
 	fi
+
 	# To keep operator running, we should resume registry stopped during containerd restart.
 	start_local_registry
 }
