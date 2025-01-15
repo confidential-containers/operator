@@ -28,6 +28,7 @@ jobs:
           - "tdx"
           - "sev"
           - "sev-snp"
+          - "ubuntu-22.04-arm"
         exclude:
           - runtimeclass: "kata-qemu"
             instance: "tdx"
@@ -70,7 +71,7 @@ jobs:
           if [ $RUNNING_INSTANCE = "s390x-large" ]; then
             args=""
             export pre_install_payload_archs="linux/s390x"
-          elif [ "$RUNNING_INSTANCE" == "ubuntu-20.04" ] || [ "$RUNNING_INSTANCE" == "ubuntu-22.04" ]; then
+          elif [[ "$RUNNING_INSTANCE" == "ubuntu-"* ]] || [[ "$RUNNING_INSTANCE" == "arm64-nvidia-gpu" ]]; then
             # Remove the pre-installed docker/containerd
             sudo apt-get remove docker* containerd* -y
             # Use /mnt to store images
