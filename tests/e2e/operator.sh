@@ -189,7 +189,7 @@ uninstall_ccruntime() {
 
 	echo "::debug:: labels in worker should be gone"
 	if kubectl get nodes "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}' | \
-		grep -q -e cc-preinstall -e katacontainers.io; then
+		grep -q -e confidentialcontainers.org -e katacontainers.io; then
 		echo "::error:: there are labels left behind"
 		kubectl get nodes "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}'
 

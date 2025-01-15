@@ -260,10 +260,10 @@ function remove_nydus_snapshotter_from_containerd() {
 label_node() {
 	case "${1}" in
 	install)
-		kubectl label node "${NODE_NAME}" cc-preinstall/done=true
+		kubectl label node "${NODE_NAME}" confidentialcontainers.org/preinstall=done
 		;;
 	uninstall)
-		kubectl label node "${NODE_NAME}" cc-postuninstall/done=true
+		kubectl label node "${NODE_NAME}" confidentialcontainers.org/postuninstall=done
 		;;
 	*)
 		;;
