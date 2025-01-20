@@ -77,6 +77,13 @@ jobs:
             sudo rm -Rf /var/lib/docker || true
             sudo mkdir /mnt/docker || true
             sudo ln -s /mnt/docker /var/lib/docker || true
+            # Use /mnt/go for GOPATH
+            sudo rm -Rf $HOME/go || true
+            sudo mkdir /mnt/go || true
+            sudo ln -s /mnt/go $HOME/go || true
+            if [ "$RUNNING_INSTANCE" == "ubuntu-22.04-arm" ] || [ "$RUNNING_INSTANCE" == "arm64-nvidia-gpu" ]; then
+              export pre_install_payload_archs="linux/arm64"
+            fi
           fi
           ./run-local.sh -t -r "${{ matrix.runtimeclass }}" "${args}"
         env:
