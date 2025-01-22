@@ -124,7 +124,7 @@ install_ccruntime() {
 	local overlay_dir="${ccruntime_overlay_basedir}/${ccruntime_overlay}"
 
 	# Use the built pre-install image
-	kustomization_set_image  "${ccruntime_overlay_basedir}/default" \
+	kustomization_set_image  "${ccruntime_overlay_basedir}/${ccruntime_overlay}" \
 		"quay.io/confidential-containers/reqs-payload" \
 		"${PRE_INSTALL_IMG}"
 
