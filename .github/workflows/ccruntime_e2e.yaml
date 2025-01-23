@@ -81,6 +81,8 @@ jobs:
             sudo rm -Rf $HOME/go || true
             sudo mkdir /mnt/go || true
             sudo ln -s /mnt/go $HOME/go || true
+            # Remove bunch of preinstalled things we don't use
+            sudo rm /usr/local/share/ -Rf || true
             if [ "$RUNNING_INSTANCE" == "ubuntu-22.04-arm" ] || [ "$RUNNING_INSTANCE" == "arm64-nvidia-gpu" ]; then
               export pre_install_payload_archs="linux/arm64"
             fi
