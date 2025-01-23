@@ -8,9 +8,9 @@ import (
 type DaemonOperation string
 
 var (
-	PreInstallDoneLabel    = []string{"cc-preinstall/done", "true"}
-	PostUninstallDoneLabel = []string{"cc-postuninstall/done", "true"}
-	KataRuntimeLabel       = []string{"katacontainers.io/kata-runtime", "cleanup"}
+	PreInstallDoneLabel    = []string{"confidentialcontainers.org/preinstall", "done"}
+	PostUninstallDoneLabel = []string{"confidentialcontainers.org/postuninstall", "done"}
+	StartUninstallLabel    = []string{"confidentialcontainers.org/startuninstall", "true"}
 )
 
 const (
