@@ -85,9 +85,9 @@ metadata:
                   "name": "host"
                 }
               ],
-              "payloadImage": "quay.io/kata-containers/kata-deploy:3.9.0",
+              "payloadImage": "quay.io/kata-containers/kata-deploy:3.13.0",
               "postUninstall": {
-                "image": "quay.io/confidential-containers/reqs-payload:12e8fbc72e927f9d684efe2e1214937f8b0544fc",
+                "image": "quay.io/confidential-containers/reqs-payload:b495f450fbcd5c199b8635a7dfefe1b5d763c378",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -149,7 +149,7 @@ metadata:
                 ]
               },
               "preInstall": {
-                "image": "quay.io/confidential-containers/reqs-payload:12e8fbc72e927f9d684efe2e1214937f8b0544fc",
+                "image": "quay.io/confidential-containers/reqs-payload:b495f450fbcd5c199b8635a7dfefe1b5d763c378",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -256,11 +256,11 @@ metadata:
       ]
     capabilities: Basic Install
     categories: Security
-    containerImage: quay.io/confidential-containers/operator:v0.10.0
-    createdAt: "2024-09-27T20:06:42Z"
+    containerImage: quay.io/confidential-containers/operator:v0.12.0
+    createdAt: "2025-01-24T10:04:27Z"
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
-  name: cc-operator.v0.10.0
+  name: cc-operator.v0.12.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -378,20 +378,8 @@ spec:
             spec:
               containers:
               - args:
-                - --secure-listen-address=0.0.0.0:8443
-                - --upstream=http://127.0.0.1:8080/
-                - --logtostderr=true
-                - --v=10
-                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.13.1
-                name: kube-rbac-proxy
-                ports:
-                - containerPort: 8443
-                  name: https
-                  protocol: TCP
-                resources: {}
-              - args:
-                - --health-probe-bind-address=:8081
-                - --metrics-bind-address=127.0.0.1:8080
+                - --metrics-secure
+                - --metrics-bind-address=:8443
                 - --leader-elect
                 command:
                 - /manager
@@ -400,7 +388,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-                image: quay.io/confidential-containers/operator:v0.10.0
+                image: quay.io/confidential-containers/operator:v0.12.0
                 livenessProbe:
                   httpGet:
                     path: /healthz
@@ -491,5 +479,5 @@ spec:
   provider:
     name: Confidential Containers Community
     url: https://github.com/confidential-containers
-  replaces: cc-operator.v0.9.0
-  version: 0.10.0
+  replaces: cc-operator.v0.10.0
+  version: 0.12.0
