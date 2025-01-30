@@ -28,6 +28,12 @@ resources:
 # [METRICS] Expose the controller manager metrics service.
 - metrics_service.yaml
 
+# The release config and manage kustomization points to the pinned release, so override this
+# dev config to latest for up to date testing
+images:
+- name: quay.io/confidential-containers/operator
+  newTag: latest
+
 patches:
 # [METRICS] The following patch will enable the metrics endpoint using HTTPS and the port :8443.
 # More info: https://book.kubebuilder.io/reference/metrics
