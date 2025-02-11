@@ -110,7 +110,7 @@ type CcInstallConfig struct {
 
 	// This specifies the registry secret to pull of the container images
 	// +optional
-	ImagePullSecret *corev1.LocalObjectReference `json:"ImagePullSecret,omitempty"`
+	ImagePullSecret *corev1.LocalObjectReference `json:"imagePullSecret,omitempty"`
 
 	// +optional
 	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty"`
