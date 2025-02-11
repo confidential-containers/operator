@@ -93,21 +93,6 @@ spec:
               config:
                 description: CcInstallConfig is a placeholder struct
                 properties:
-                  ImagePullSecret:
-                    description: This specifies the registry secret to pull of the
-                      container images
-                    properties:
-                      name:
-                        default: ""
-                        description: |-
-                          Name of the referent.
-                          This field is effectively required, but due to backwards compatibility is
-                          allowed to be empty. Instances of this type with an empty value here are
-                          almost certainly wrong.
-                          More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-                        type: string
-                    type: object
-                    x-kubernetes-map-type: atomic
                   cleanupCmd:
                     description: This specifies the command for cleanup on the nodes
                     items:
@@ -258,6 +243,21 @@ spec:
                     description: PullPolicy describes a policy for if/when to pull
                       a container image
                     type: string
+                  imagePullSecret:
+                    description: This specifies the registry secret to pull of the
+                      container images
+                    properties:
+                      name:
+                        default: ""
+                        description: |-
+                          Name of the referent.
+                          This field is effectively required, but due to backwards compatibility is
+                          allowed to be empty. Instances of this type with an empty value here are
+                          almost certainly wrong.
+                          More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                        type: string
+                    type: object
+                    x-kubernetes-map-type: atomic
                   installCmd:
                     description: This specifies the command for installation of the
                       runtime on the nodes
