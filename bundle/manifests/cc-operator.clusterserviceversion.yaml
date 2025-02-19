@@ -232,11 +232,6 @@ metadata:
                   "snapshotter": "nydus"
                 },
                 {
-                  "name": "kata-qemu-sev",
-                  "pulltype": "guest-pull",
-                  "snapshotter": "nydus"
-                },
-                {
                   "name": "kata-qemu-snp",
                   "pulltype": "guest-pull",
                   "snapshotter": "nydus"
