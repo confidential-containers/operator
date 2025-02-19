@@ -90,7 +90,7 @@ Kind version `v0.16.0` have been successfully tested on the following Linux dist
 
 In order to be merged your opened pull request (PR) should pass the static analysis checks and end-to-end (e2e) tests.
 
-The e2e tests jobs are executed on a variety of CcRuntime, configurations and platforms. These jobs that require confidential hardware (Intel TDX, AMD SEV, IBM SE, etc...) run on bare-metal machines and are often referred as "TEE tests". The remaining tests (a.k.a "Non-TEE") are executed on Virtual Machines (VM) deployed on-demand.
+The e2e tests jobs are executed on a variety of CcRuntime, configurations and platforms. These jobs that require confidential hardware (Intel TDX, AMD SEV-SNP, IBM SE, etc...) run on bare-metal machines and are often referred as "TEE tests". The remaining tests (a.k.a "Non-TEE") are executed on Virtual Machines (VM) deployed on-demand.
 
 This is a list of the bare-metal machines and VMs that are utilized by the project for CI testing:
 
@@ -99,7 +99,6 @@ This is a list of the bare-metal machines and VMs that are utilized by the proje
 | s390x-runner-01       | virtual    | Non-TEE        | s390x, s390x-large                       |
 | s390x-runner-02       | virtual    | Non-TEE        | s390x                                    |
 | tdx-ubuntu-24.04      | bare-metal | TDX            | self-hosted, Linux, X64, tdx             |
-| coco-ci-amd-rome-001  | bare-metal | SEV            | self-hosted, Linux, X64, sev-es, sev     |
 | coco-ci-amd-milan-001 | bare-metal | SNP            | self-hosted, Linux, X64, sev-snp, sev-es |
 
 The following jobs will check for regressions on the default CcRuntime:
@@ -110,7 +109,6 @@ The following jobs will check for regressions on the default CcRuntime:
 | e2e-pr / operator tests (kata-qemu, ubuntu-22.04) | Non-TEE | Ubuntu 22.04 | QEMU | ubuntu-22.04 |
 | e2e-pr / operator tests (kata-qemu, s390x-large)  | Non-TEE | Ubuntu 22.04 | QEMU | s390x-large  |
 | e2e-pr / operator tests (kata-qemu-tdx, tdx)      | TDX     | Ubuntu 24.04 | QEMU | tdx          |
-| e2e-pr / operator tests (kata-qemu-sev, sev)      | SEV     | Ubuntu 22.04 | QEMU | sev-es       |
 | e2e-pr / operator tests (kata-qemu-snp, sev-snp)  | SNP     | Ubuntu 22.04 | QEMU | sev-snp      |
 
 The 'runs-on' entries above define which machine a job will land on by matching the machine's assigned labels.

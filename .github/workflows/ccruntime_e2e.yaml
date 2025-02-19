@@ -26,20 +26,15 @@ jobs:
           - "ubuntu-22.04"
           - "s390x-large"
           - "tdx"
-          - "sev"
           - "sev-snp"
         exclude:
           - runtimeclass: "kata-qemu"
             instance: "tdx"
           - runtimeclass: "kata-qemu"
-            instance: "sev"
-          - runtimeclass: "kata-qemu"
             instance: "sev-snp"
         include:
           - runtimeclass: "kata-qemu-tdx"
             instance: "tdx"
-          - runtimeclass: "kata-qemu-sev"
-            instance: "sev"
           - runtimeclass: "kata-qemu-snp"
             instance: "sev-snp"
     runs-on: ${{ matrix.instance }}
