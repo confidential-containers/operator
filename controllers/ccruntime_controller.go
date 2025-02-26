@@ -651,6 +651,8 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		}
 	}
 
+	var usingNFD = strconv.FormatBool(r.ccRuntime.Spec.Config.UsingNFD)
+
 	var envVars = []corev1.EnvVar{
 		{
 			Name: "NODE_NAME",
@@ -687,6 +689,10 @@ func (r *CcRuntimeReconciler) processDaemonset(operation DaemonOperation) *appsv
 		{
 			Name:  "PULL_TYPE_MAPPING",
 			Value: strings.Join(pull_type_mapping, ","),
+		},
+		{
+			Name:  "USING_NFD",
+			Value: usingNFD,
 		},
 	}
 	envVars = append(envVars, r.ccRuntime.Spec.Config.EnvironmentVariables...)
