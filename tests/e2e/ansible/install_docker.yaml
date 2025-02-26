@@ -108,8 +108,8 @@
         - name: Copy fragment file to /etc/systemd/system/docker.service.d
           copy:
             src: "{{ fragment_path.stdout }}"
-            dest: "{{ fragment_path.stdout.replace('/lib', '/etc') }}"
-          when: fragment_path.stdout.find('/lib') != -1
+            dest: /etc/systemd/system/docker.service
+          when: fragment_path.stdout.startswith(('/lib', '/usr/lib'))
     - name: Configure `StartLimitBurst=0` in /etc/systemd/system/docker.service
       block:
         - name: Check if /etc/systemd/system/docker.service has StartLimitBurst=0
