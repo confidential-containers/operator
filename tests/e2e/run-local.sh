@@ -49,7 +49,7 @@ parse_args() {
 run() {
 	duration=$1; shift
 	if [ "$timeout" == "true" ]; then
-		timeout $duration "$@"
+		timeout -v -s 9 $duration "$@"
 	else
 		"$@"
 	fi
