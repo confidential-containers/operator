@@ -6,3 +6,8 @@ updates:
     schedule:
       # Check for updates to GitHub Actions monthly, on the first day of the month
       interval: "monthly"
+    groups:
+      # Group PRs
+      github-actions:
+        patterns:
+          - "*"
