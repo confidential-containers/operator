@@ -35,6 +35,8 @@ type CcRuntimeSpec struct {
 	// +nullable
 	CcNodeSelector *metav1.LabelSelector `json:"ccNodeSelector"`
 
+	CcTolerations []corev1.Toleration `json:"ccTolerations,omitempty"`
+
 	RuntimeName CcRuntimeName `json:"runtimeName"`
 
 	Config CcInstallConfig `json:"config"`
