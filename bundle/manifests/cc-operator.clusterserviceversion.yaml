@@ -85,9 +85,9 @@ metadata:
                   "name": "host"
                 }
               ],
-              "payloadImage": "quay.io/kata-containers/kata-deploy:3.13.0",
+              "payloadImage": "quay.io/kata-containers/kata-deploy-ci:kata-containers-latest",
               "postUninstall": {
-                "image": "quay.io/confidential-containers/reqs-payload:b495f450fbcd5c199b8635a7dfefe1b5d763c378",
+                "image": "quay.io/confidential-containers/reqs-payload:latest",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -149,7 +149,7 @@ metadata:
                 ]
               },
               "preInstall": {
-                "image": "quay.io/confidential-containers/reqs-payload:b495f450fbcd5c199b8635a7dfefe1b5d763c378",
+                "image": "quay.io/confidential-containers/reqs-payload:latest",
                 "volumeMounts": [
                   {
                     "mountPath": "/opt/confidential-containers/",
@@ -252,7 +252,7 @@ metadata:
     capabilities: Basic Install
     categories: Security
     containerImage: quay.io/confidential-containers/operator:v0.12.0
-    createdAt: "2025-01-24T10:04:27Z"
+    createdAt: "2025-03-11T10:45:13Z"
     operators.operatorframework.io/builder: operator-sdk-v1.36.1
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v3
   name: cc-operator.v0.12.0
@@ -383,7 +383,7 @@ spec:
                   valueFrom:
                     fieldRef:
                       fieldPath: metadata.namespace
-                image: quay.io/confidential-containers/operator:v0.12.0
+                image: controller:latest
                 livenessProbe:
                   httpGet:
                     path: /healthz
