@@ -199,11 +199,11 @@ func labelNamespace(ctx context.Context, mgr manager.Manager, nsName string) err
 	}
 
 	setupLog.Info("Labelling Namespace")
-	setupLog.Info("Labels: ", "Labels", ns.ObjectMeta.Labels)
+	setupLog.Info("Labels: ", "Labels", ns.Labels)
 	// Add namespace label to allow privilege pods via Pod Security Admission controller
-	ns.ObjectMeta.Labels["pod-security.kubernetes.io/enforce"] = "privileged"
-	ns.ObjectMeta.Labels["pod-security.kubernetes.io/audit"] = "privileged"
-	ns.ObjectMeta.Labels["pod-security.kubernetes.io/warn"] = "privileged"
+	ns.Labels["pod-security.kubernetes.io/enforce"] = "privileged"
+	ns.Labels["pod-security.kubernetes.io/audit"] = "privileged"
+	ns.Labels["pod-security.kubernetes.io/warn"] = "privileged"
 
 	return mgr.GetClient().Update(ctx, ns)
 }
