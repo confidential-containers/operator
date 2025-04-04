@@ -216,7 +216,7 @@ func handleFinalizers(r *CcRuntimeReconciler) (ctrl.Result, error) {
 
 	// Check for nodes with label set by install DS prestop hook.
 	// If no nodes exist then remove finalizer and reconcile
-	err, nodes := r.getNodesWithLabels(r.ccRuntime.Spec.Config.UninstallDoneLabel)
+	nodes, err := r.getNodesWithLabels(r.ccRuntime.Spec.Config.UninstallDoneLabel)
 	if err != nil {
 		r.Log.Error(err, "Error in getting list of nodes with uninstallDoneLabel")
 		return ctrl.Result{}, err
@@ -251,7 +251,7 @@ func handleFinalizers(r *CcRuntimeReconciler) (ctrl.Result, error) {
 				prepostLabels[PostUninstallDoneLabel[0]] = PostUninstallDoneLabel[1]
 
 			}
-			err, nodes := r.getNodesWithLabels(prepostLabels)
+			nodes, err := r.getNodesWithLabels(prepostLabels)
 			if err != nil {
 				r.Log.Error(err, "an error occured when getting the list of nodes from which we want to"+
 					"remove preinstall/postuninstall labels")
@@ -309,7 +309,7 @@ func allNodesDone(finishedNodes int, r *CcRuntimeReconciler) bool {
 func (r *CcRuntimeReconciler) updateUninstallationStatus(finishedNodes int) (ctrl.Result, error) {
 	var doneNodes []string
 
-	err, cleanupNodes := r.getNodesWithLabels(r.ccRuntime.Spec.Config.UninstallDoneLabel)
+	cleanupNodes, err := r.getNodesWithLabels(r.ccRuntime.Spec.Config.UninstallDoneLabel)
 	if err != nil {
 		r.Log.Error(err, "Error in getting list of nodes with UninstallDoneLabel")
 		return ctrl.Result{}, err
@@ -332,7 +332,7 @@ func (r *CcRuntimeReconciler) updateUninstallationStatus(finishedNodes int) (ctr
 
 func handlePostUninstall(r *CcRuntimeReconciler) (ctrl.Result, error) {
 	postUninstallDoneLabel := map[string]string{PostUninstallDoneLabel[0]: PostUninstallDoneLabel[1]}
-	err, nodes := r.getNodesWithLabels(postUninstallDoneLabel)
+	nodes, err := r.getNodesWithLabels(postUninstallDoneLabel)
 	if err != nil {
 		r.Log.Info("couldn't get nodes labeled with postuninstall done label")
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
@@ -396,7 +396,7 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 	preInstallDoneLabel := map[string]string{PreInstallDoneLabel[0]: PreInstallDoneLabel[1]}
 
 	// if ds exists, get all labels
-	err, nodes := r.getNodesWithLabels(preInstallDoneLabel)
+	nodes, err := r.getNodesWithLabels(preInstallDoneLabel)
 	if err != nil {
 		r.Log.Info("couldn't GET labelled nodes")
 		return ctrl.Result{}, err
@@ -461,7 +461,7 @@ func (r *CcRuntimeReconciler) handlePrePostDs(preInstallDs *appsv1.DaemonSet, do
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
 	}
 	// if ds exists, get all labels
-	err, nodes := r.getNodesWithLabels(doneLabel)
+	nodes, err := r.getNodesWithLabels(doneLabel)
 	if err != nil {
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
 	}
@@ -759,7 +759,7 @@ func (r *CcRuntimeReconciler) addFinalizer() error {
 }
 
 // Get Nodes container specific labels
-func (r *CcRuntimeReconciler) getNodesWithLabels(nodeLabels map[string]string) (error, *corev1.NodeList) {
+func (r *CcRuntimeReconciler) getNodesWithLabels(nodeLabels map[string]string) (*corev1.NodeList, error) {
 	nodes := &corev1.NodeList{}
 	labelSelector := labels.SelectorFromSet(nodeLabels)
 	listOpts := []client.ListOption{
@@ -768,9 +768,9 @@ func (r *CcRuntimeReconciler) getNodesWithLabels(nodeLabels map[string]string) (
 
 	if err := r.List(context.TODO(), nodes, listOpts...); err != nil {
 		r.Log.Error(err, "Getting list of nodes having specified labels failed")
-		return err, &corev1.NodeList{}
+		return &corev1.NodeList{}, err
 	}
-	return nil, nodes
+	return nodes, nil
 }
 
 func (r *CcRuntimeReconciler) mapCcRuntimeToRequests(ctx context.Context, ccRuntimeObj client.Object) []reconcile.Request {
