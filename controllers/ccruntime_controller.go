@@ -81,7 +81,7 @@ func (r *CcRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 	// Fetch the CcRuntime instance
 	r.ccRuntime = &ccv1beta1.CcRuntime{}
-	err := r.Client.Get(context.TODO(), req.NamespacedName, r.ccRuntime)
+	err := r.Get(context.TODO(), req.NamespacedName, r.ccRuntime)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// Request object not found, could have been deleted after reconcile request.
@@ -99,10 +99,10 @@ func (r *CcRuntimeReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, err
 	}
 	foundDs := &appsv1.DaemonSet{}
-	err = r.Client.Get(context.TODO(), types.NamespacedName{Name: ds.Name, Namespace: ds.Namespace}, foundDs)
+	err = r.Get(context.TODO(), types.NamespacedName{Name: ds.Name, Namespace: ds.Namespace}, foundDs)
 	if err != nil && errors.IsNotFound(err) {
 		r.Log.Info("Creating cleanup Daemonset", "ds.Namespace", ds.Namespace, "ds.Name", ds.Name)
-		err = r.Client.Create(context.TODO(), ds)
+		err = r.Create(context.TODO(), ds)
 		if err != nil {
 			return ctrl.Result{}, err
 		}
@@ -154,7 +154,7 @@ func (r *CcRuntimeReconciler) setCleanupNodeLabels() (ctrl.Result, error) {
 		client.MatchingLabels(r.ccRuntime.Spec.Config.InstallDoneLabel),
 	}
 
-	err = r.Client.List(context.TODO(), nodesList, listOpts...)
+	err = r.List(context.TODO(), nodesList, listOpts...)
 	if err != nil {
 		r.Log.Info("failed to list nodes during uninstallation status update")
 		return ctrl.Result{}, err
@@ -194,10 +194,10 @@ func (r *CcRuntimeReconciler) processCcRuntimeDeleteRequest() (ctrl.Result, erro
 		return ctrl.Result{}, err
 	}
 	foundDs := &appsv1.DaemonSet{}
-	err := r.Client.Get(context.TODO(), types.NamespacedName{Name: ds.Name, Namespace: ds.Namespace}, foundDs)
+	err := r.Get(context.TODO(), types.NamespacedName{Name: ds.Name, Namespace: ds.Namespace}, foundDs)
 	if err != nil && errors.IsNotFound(err) {
 		r.Log.Info("Creating cleanup Daemonset", "ds.Namespace", ds.Namespace, "ds.Name", ds.Name)
-		err = r.Client.Create(context.TODO(), ds)
+		err = r.Create(context.TODO(), ds)
 	}
 
 	if err != nil {
@@ -216,7 +216,7 @@ func handleFinalizers(r *CcRuntimeReconciler) (ctrl.Result, error) {
 
 	// Check for nodes with label set by install DS prestop hook.
 	// If no nodes exist then remove finalizer and reconcile
-	err, nodes := r.getNodesWithLabels(r.ccRuntime.Spec.Config.UninstallDoneLabel)
+	nodes, err := r.getNodesWithLabels(r.ccRuntime.Spec.Config.UninstallDoneLabel)
 	if err != nil {
 		r.Log.Error(err, "Error in getting list of nodes with uninstallDoneLabel")
 		return ctrl.Result{}, err
@@ -251,7 +251,7 @@ func handleFinalizers(r *CcRuntimeReconciler) (ctrl.Result, error) {
 				prepostLabels[PostUninstallDoneLabel[0]] = PostUninstallDoneLabel[1]
 
 			}
-			err, nodes := r.getNodesWithLabels(prepostLabels)
+			nodes, err := r.getNodesWithLabels(prepostLabels)
 			if err != nil {
 				r.Log.Error(err, "an error occured when getting the list of nodes from which we want to"+
 					"remove preinstall/postuninstall labels")
@@ -294,7 +294,7 @@ func handleFinalizers(r *CcRuntimeReconciler) (ctrl.Result, error) {
 }
 
 func (r *CcRuntimeReconciler) updateCcRuntime() (ctrl.Result, error) {
-	err := r.Client.Update(context.TODO(), r.ccRuntime)
+	err := r.Update(context.TODO(), r.ccRuntime)
 	if err != nil {
 		r.Log.Error(err, "failed to update ccRuntime")
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
@@ -309,7 +309,7 @@ func allNodesDone(finishedNodes int, r *CcRuntimeReconciler) bool {
 func (r *CcRuntimeReconciler) updateUninstallationStatus(finishedNodes int) (ctrl.Result, error) {
 	var doneNodes []string
 
-	err, cleanupNodes := r.getNodesWithLabels(r.ccRuntime.Spec.Config.UninstallDoneLabel)
+	cleanupNodes, err := r.getNodesWithLabels(r.ccRuntime.Spec.Config.UninstallDoneLabel)
 	if err != nil {
 		r.Log.Error(err, "Error in getting list of nodes with UninstallDoneLabel")
 		return ctrl.Result{}, err
@@ -322,7 +322,7 @@ func (r *CcRuntimeReconciler) updateUninstallationStatus(finishedNodes int) (ctr
 		doneNodes = append(doneNodes, cleanupNodes.Items[i].Name)
 	}
 	r.ccRuntime.Status.UnInstallationStatus.InProgress.BinariesUnInstalledNodesList = doneNodes
-	err = r.Client.Update(context.TODO(), r.ccRuntime)
+	err = r.Update(context.TODO(), r.ccRuntime)
 	if err != nil {
 		r.Log.Error(err, "failed to update ccRuntime with finalizer")
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 5}, err
@@ -332,7 +332,7 @@ func (r *CcRuntimeReconciler) updateUninstallationStatus(finishedNodes int) (ctr
 
 func handlePostUninstall(r *CcRuntimeReconciler) (ctrl.Result, error) {
 	postUninstallDoneLabel := map[string]string{PostUninstallDoneLabel[0]: PostUninstallDoneLabel[1]}
-	err, nodes := r.getNodesWithLabels(postUninstallDoneLabel)
+	nodes, err := r.getNodesWithLabels(postUninstallDoneLabel)
 	if err != nil {
 		r.Log.Info("couldn't get nodes labeled with postuninstall done label")
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
@@ -370,7 +370,7 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 		client.MatchingLabels(r.ccRuntime.Spec.CcNodeSelector.MatchLabels),
 	}
 
-	err := r.Client.List(context.TODO(), nodesList, listOpts...)
+	err := r.List(context.TODO(), nodesList, listOpts...)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -396,7 +396,7 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 	preInstallDoneLabel := map[string]string{PreInstallDoneLabel[0]: PreInstallDoneLabel[1]}
 
 	// if ds exists, get all labels
-	err, nodes := r.getNodesWithLabels(preInstallDoneLabel)
+	nodes, err := r.getNodesWithLabels(preInstallDoneLabel)
 	if err != nil {
 		r.Log.Info("couldn't GET labelled nodes")
 		return ctrl.Result{}, err
@@ -422,10 +422,10 @@ func (r *CcRuntimeReconciler) processCcRuntimeInstallRequest() (ctrl.Result, err
 			return ctrl.Result{}, err
 		}
 		foundDs := &appsv1.DaemonSet{}
-		err := r.Client.Get(context.TODO(), types.NamespacedName{Name: ds.Name, Namespace: ds.Namespace}, foundDs)
+		err := r.Get(context.TODO(), types.NamespacedName{Name: ds.Name, Namespace: ds.Namespace}, foundDs)
 		if err != nil && errors.IsNotFound(err) {
 			r.Log.Info("Creating a new installation Daemonset", "ds.Namespace", ds.Namespace, "ds.Name", ds.Name)
-			err = r.Client.Create(context.TODO(), ds)
+			err = r.Create(context.TODO(), ds)
 			if err != nil {
 				return ctrl.Result{}, err
 			}
@@ -448,10 +448,10 @@ func (r *CcRuntimeReconciler) handlePrePostDs(preInstallDs *appsv1.DaemonSet, do
 	ctrl.Result, error,
 ) {
 	foundPreinstallDs := &appsv1.DaemonSet{}
-	err := r.Client.Get(context.TODO(), types.NamespacedName{Name: preInstallDs.Name, Namespace: preInstallDs.Namespace}, foundPreinstallDs)
+	err := r.Get(context.TODO(), types.NamespacedName{Name: preInstallDs.Name, Namespace: preInstallDs.Namespace}, foundPreinstallDs)
 	r.Log.Info("create preinstall/postuninstall DS", "DS", preInstallDs)
 	if err != nil && errors.IsNotFound(err) {
-		err = r.Client.Create(context.TODO(), preInstallDs)
+		err = r.Create(context.TODO(), preInstallDs)
 		if err != nil {
 			r.Log.Info("failed to create preinstall/postuninstall DS", "DS", preInstallDs)
 			return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
@@ -461,7 +461,7 @@ func (r *CcRuntimeReconciler) handlePrePostDs(preInstallDs *appsv1.DaemonSet, do
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
 	}
 	// if ds exists, get all labels
-	err, nodes := r.getNodesWithLabels(doneLabel)
+	nodes, err := r.getNodesWithLabels(doneLabel)
 	if err != nil {
 		return ctrl.Result{Requeue: true, RequeueAfter: time.Second * 10}, err
 	}
@@ -485,7 +485,7 @@ func (r *CcRuntimeReconciler) monitorCcRuntimeInstallation() (ctrl.Result, error
 		runtimeClasses := r.ccRuntime.Spec.Config.RuntimeClasses
 		for _, runtimeClass := range runtimeClasses {
 			foundRc := &nodeapi.RuntimeClass{}
-			err := r.Client.Get(context.TODO(), types.NamespacedName{Name: runtimeClass.Name}, foundRc)
+			err := r.Get(context.TODO(), types.NamespacedName{Name: runtimeClass.Name}, foundRc)
 			if errors.IsNotFound(err) {
 				r.Log.Info("The runtime payload failed to create the runtime class", "runtimeClassName", runtimeClass.Name)
 				return ctrl.Result{}, err
@@ -570,7 +570,7 @@ func (r *CcRuntimeReconciler) getAllNodes() (*corev1.NodeList, ctrl.Result, erro
 		client.MatchingLabels(r.ccRuntime.Spec.CcNodeSelector.MatchLabels),
 	}
 
-	err := r.Client.List(context.TODO(), nodesList, listOpts...)
+	err := r.List(context.TODO(), nodesList, listOpts...)
 	if err != nil {
 		r.Log.Info("listing the nodes failed while monitoring the installation")
 		return nil, ctrl.Result{}, err
@@ -750,7 +750,7 @@ func (r *CcRuntimeReconciler) addFinalizer() error {
 	controllerutil.AddFinalizer(r.ccRuntime, RuntimeConfigFinalizer)
 
 	// Update CR
-	err := r.Client.Update(context.TODO(), r.ccRuntime)
+	err := r.Update(context.TODO(), r.ccRuntime)
 	if err != nil {
 		r.Log.Error(err, "Failed to update ccRuntime with finalizer")
 		return err
@@ -759,24 +759,24 @@ func (r *CcRuntimeReconciler) addFinalizer() error {
 }
 
 // Get Nodes container specific labels
-func (r *CcRuntimeReconciler) getNodesWithLabels(nodeLabels map[string]string) (error, *corev1.NodeList) {
+func (r *CcRuntimeReconciler) getNodesWithLabels(nodeLabels map[string]string) (*corev1.NodeList, error) {
 	nodes := &corev1.NodeList{}
 	labelSelector := labels.SelectorFromSet(nodeLabels)
 	listOpts := []client.ListOption{
 		client.MatchingLabelsSelector{Selector: labelSelector},
 	}
 
-	if err := r.Client.List(context.TODO(), nodes, listOpts...); err != nil {
+	if err := r.List(context.TODO(), nodes, listOpts...); err != nil {
 		r.Log.Error(err, "Getting list of nodes having specified labels failed")
-		return err, &corev1.NodeList{}
+		return &corev1.NodeList{}, err
 	}
-	return nil, nodes
+	return nodes, nil
 }
 
 func (r *CcRuntimeReconciler) mapCcRuntimeToRequests(ctx context.Context, ccRuntimeObj client.Object) []reconcile.Request {
 	ccRuntimeList := &ccv1beta1.CcRuntimeList{}
 
-	err := r.Client.List(ctx, ccRuntimeList)
+	err := r.List(ctx, ccRuntimeList)
 	if err != nil {
 		return []reconcile.Request{}
 	}
@@ -822,7 +822,7 @@ func (r *CcRuntimeReconciler) deleteUninstallDaemonsets() (ctrl.Result, error) {
 }
 
 func (r *CcRuntimeReconciler) deleteDaemonset(ds *appsv1.DaemonSet) (ctrl.Result, error) {
-	err := r.Client.Delete(context.TODO(), ds)
+	err := r.Delete(context.TODO(), ds)
 	if err != nil && !errors.IsNotFound(err) && !errors.IsGone(err) {
 		r.Log.Error(err, "Couldn't delete Daemonset ", "Name:", ds.Name)
 		return ctrl.Result{}, err
