@@ -22,8 +22,8 @@ jobs:
         runtimeclass:
           - "kata-qemu"
         instance:
-          - "ubuntu-20.04"
           - "ubuntu-22.04"
+          - "ubuntu-24.04"
           - "s390x-large"
           - "tdx"
           - "sev-snp"
