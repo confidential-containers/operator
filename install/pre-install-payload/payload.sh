@@ -11,7 +11,7 @@ official_containerd_repo=${official_containerd_repo:-"https://github.com/contain
 vfio_gpu_containerd_repo=${vfio_gpu_containerd_repo:-"https://github.com/confidential-containers/containerd"}
 nydus_snapshotter_repo=${nydus_snapshotter_repo:-"https://github.com/containerd/nydus-snapshotter"}
 extra_docker_manifest_flags="${extra_docker_manifest_flags:-}"
-archs=${pre_install_payload_archs:-"linux/amd64 linux/s390x linux/arm64"}
+archs=${pre_install_payload_archs:-"linux/amd64 linux/s390x linux/arm64 linux/ppc64le"}
 
 registry="${registry:-quay.io/confidential-containers/reqs-payload}"
 
@@ -28,6 +28,10 @@ function setup_env_for_arch() {
 		"linux/arm64")
 			kernel_arch="aarch64"
 			golang_arch="arm64"
+			;;
+		"linux/ppc64le")
+			kernel_arch="powerpc"
+			golang_arch="ppc64le"
 			;;
 		*) echo "$1 is not supported" >/dev/stderr && exit 1 ;;
 	esac
