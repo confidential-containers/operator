@@ -8,4 +8,4 @@ nameSuffix: -sgx-mode-hw
 
 images:
 - name: quay.io/confidential-containers/reqs-payload
-  newTag: latest
+  newTag: 4ad2b8ea64b919d977b1d3fab488333283ea05d9
