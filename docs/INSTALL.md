@@ -167,6 +167,15 @@ kubectl delete -k github.com/confidential-containers/operator/config/samples/ccr
 kubectl delete -k "github.com/confidential-containers/operator/config/release?ref=${RELEASE_VERSION}"
 ```
 
+## Troubleshooting
+Something not working? [Go here](https://confidentialcontainers.org/docs/troubleshooting/)
+
+
+## Next steps
+
+- [Take coco-dev, no confidential hardware required, for a spin](https://github.com/confidential-containers/confidential-containers/blob/main/guides/coco-dev.md)
+
+
 ## Advanced Topics
 
 - [How to install confidential containers with IBM Secure Execution](https://github.com/confidential-containers/confidential-containers/blob/main/guides/ibm-se.md)
