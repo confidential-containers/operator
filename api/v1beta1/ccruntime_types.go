@@ -174,6 +174,10 @@ type CcInstallConfig struct {
 	// +optional
 	Debug bool `json:"debug,omitempty"`
 
+	// This specified whether NodeFeatureDiscovery is being used or not, and relies on its feataures in case it is.
+	// +optional
+	UsingNFD bool `json:"usingNFD,omitempty"`
+
 	// This specifies the environment variables required by the daemon set
 	// +optional
 	EnvironmentVariables []corev1.EnvVar `json:"environmentVariables,omitempty"`
