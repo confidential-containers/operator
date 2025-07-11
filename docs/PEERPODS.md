@@ -75,6 +75,10 @@ stringData:
 kubectl create -k config/samples/ccruntime/peerpods
 ```
 
+> [!TIP] 
+> Some regions may not be able to access the `quay.io` repository. You can use the following path after `-k`
+> `config/mirror/samples/ccruntime/peerpods`
+
 ## Uninstalling Operator
 
 Ensure KUBECONFIG points to target Kubernetes cluster

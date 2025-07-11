@@ -18,6 +18,10 @@ export RELEASE_VERSION=<RELEASE_VERSION>
 kubectl apply -k "github.com/confidential-containers/operator/config/release?ref=${RELEASE_VERSION}"
 ```
 
+> [!TIP] 
+> Some regions may not be able to access the `quay.io` repository. You can use the following address after `-k`
+> `"github.com/confidential-containers/operator/config/mirror/release?ref=${RELEASE_VERSION}"`
+
 While also managing certain cluster-wide resources, the operator primarily deploys resources within the confidential-containers-system namespace.
 
 
@@ -95,6 +99,10 @@ desired [release tag](https://github.com/confidential-containers/operator/tags):
 ```
 kubectl apply -k github.com/confidential-containers/operator/config/samples/ccruntime/default?ref=${RELEASE_VERSION}
 ```
+
+> [!TIP] 
+> Some regions may not be able to access the `quay.io` repository. You can use the following address after `-k`
+> `"github.com/confidential-containers/operator/config/mirror/samples/ccruntime/default?ref=${RELEASE_VERSION}"`
 
 Wait until each pod has the `STATUS` as `Running`:
 
