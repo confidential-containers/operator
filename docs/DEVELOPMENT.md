@@ -98,17 +98,16 @@ This is a list of the bare-metal machines and VMs that are utilized by the proje
 | ---                   | ---        | ---            | ---                                      |
 | s390x-runner-01       | virtual    | Non-TEE        | s390x, s390x-large                       |
 | s390x-runner-02       | virtual    | Non-TEE        | s390x                                    |
-| tdx-ubuntu-24.04      | bare-metal | TDX            | self-hosted, Linux, X64, tdx             |
 | coco-ci-amd-milan-001 | bare-metal | SNP            | self-hosted, Linux, X64, sev-snp, sev-es |
 
 The following jobs will check for regressions on the default CcRuntime:
 
 | Job Name                                          | TEE     | OS           | VMM  | runs-on      |
 | ---                                               | ---     | ---          | ---  | ---          |
-| e2e-pr / operator tests (kata-qemu, ubuntu-20.04) | Non-TEE | Ubuntu 20.04 | QEMU | ubuntu-20.04 |
 | e2e-pr / operator tests (kata-qemu, ubuntu-22.04) | Non-TEE | Ubuntu 22.04 | QEMU | ubuntu-22.04 |
+| e2e-pr / operator tests (kata-qemu, ubuntu-24.04) | Non-TEE | Ubuntu 24.04 | QEMU | ubuntu-24.04 |
 | e2e-pr / operator tests (kata-qemu, s390x-large)  | Non-TEE | Ubuntu 22.04 | QEMU | s390x-large  |
-| e2e-pr / operator tests (kata-qemu-tdx, tdx)      | TDX     | Ubuntu 24.04 | QEMU | tdx          |
+| e2e-pr / operator tests (kata-qemu-tdx, ubuntu-24.04) | TDX     | Ubuntu 24.04 | QEMU | ubuntu-24.04 |
 | e2e-pr / operator tests (kata-qemu-snp, sev-snp)  | SNP     | Ubuntu 22.04 | QEMU | sev-snp      |
 
 The 'runs-on' entries above define which machine a job will land on by matching the machine's assigned labels.
