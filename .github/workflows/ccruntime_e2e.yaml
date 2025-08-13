@@ -25,11 +25,7 @@ jobs:
           - "ubuntu-22.04"
           - "ubuntu-24.04"
           - "s390x-large"
-          - "sev-snp"
           - "ubuntu-22.04-arm"
-        exclude:
-          - runtimeclass: "kata-qemu"
-            instance: "sev-snp"
         include:
           - runtimeclass: "kata-qemu-tdx"
             instance: "ubuntu-24.04"
