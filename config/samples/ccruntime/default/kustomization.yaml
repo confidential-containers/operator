@@ -10,8 +10,8 @@ images:
 - name: quay.io/confidential-containers/reqs-payload
   newTag: latest
 - name: quay.io/kata-containers/kata-deploy
-  newName: quay.io/kata-containers/kata-deploy-ci
-  newTag: kata-containers-latest
+  newName: ghcr.io/kata-containers/kata-deploy-ci
+  newTag: kata-containers-332914c3503b2356d6598fb5f600f90433b1f181-amd64
 
 patches:
 - patch: |-
