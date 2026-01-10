@@ -10,7 +10,7 @@ spec:
       node.kubernetes.io/worker: ""
   config:
     installType: bundle
-    payloadImage: quay.io/kata-containers/kata-deploy:stable
+    payloadImage: quay.io/kata-containers/kata-deploy:3.23.0
     installDoneLabel:
       katacontainers.io/kata-runtime: "true"
     uninstallDoneLabel:
