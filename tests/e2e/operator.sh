@@ -17,14 +17,20 @@ source "${script_dir}/lib.sh"
 readonly ccruntime_overlay_basedir="${project_dir}/config/samples/ccruntime"
 # The operator namespace.
 readonly op_ns="confidential-containers-system"
-# There should be a registry running locally on port 5000.
-export IMG=localhost:5000/cc-operator:latest
-export PRE_INSTALL_IMG=localhost:5000/reqs-payload
+# If $IMG nor $PRE_INSTALL_IMG aren't exported then there should be a registry
+# running locally on port 5000.
+export IMG=${IMG:-localhost:5000/cc-operator:latest}
+export PRE_INSTALL_IMG=${PRE_INSTALL_IMG:-localhost:5000/reqs-payload}
+# If $KATA_PAYLOAD_IMG isn't exported then use the image set on the
+# configuration files.
+export KATA_PAYLOAD_IMG=${KATA_PAYLOAD_IMG:-}
 
 # Build the operator and push images to a local registry.
 #
 build_operator () {
-	start_local_registry
+	if [[ "$IMG" =~ localhost ]];then
+		start_local_registry
+	fi
 
 	# Note: git config --global --add safe.directory will always
 	# append the target to .gitconfig without checking the
@@ -48,7 +54,9 @@ build_operator () {
 # Build the reqs-payload and push images to a local registry.
 #
 build_pre_install_img() {
-	start_local_registry
+	if [[ "$PRE_INSTALL_IMG" =~ localhost ]];then
+		start_local_registry
+	fi
 
 	pushd "${project_dir}/install/pre-install-payload" >/dev/null
 	make reqs-image registry="${PRE_INSTALL_IMG}" \
@@ -84,8 +92,10 @@ handle_older_containerd() {
 # Install the operator.
 #
 install_operator() {
-	start_local_registry
-
+	if [[ "$IMG" =~ localhost || \
+		"$PRE_INSTALL_IMG" =~ localhost ]];then
+		start_local_registry
+	fi
 	# The node should be 'worker' labeled
 	local label="node.kubernetes.io/worker"
 	if ! kubectl get node "$SAFE_HOST_NAME" -o jsonpath='{.metadata.labels}' \
@@ -128,6 +138,12 @@ install_ccruntime() {
 		"quay.io/confidential-containers/reqs-payload" \
 		"${PRE_INSTALL_IMG}"
 
+	if [ -n "$KATA_PAYLOAD_IMG" ];then
+		kustomization_set_image  "${ccruntime_overlay_basedir}/default" \
+		"quay.io/kata-containers/kata-deploy" \
+		"$KATA_PAYLOAD_IMG"
+	fi
+
 	pushd "$overlay_dir" >/dev/null
 	kubectl create -k .
 	popd >/dev/null
@@ -159,7 +175,10 @@ install_ccruntime() {
 	fi
 
 	# To keep operator running, we should resume registry stopped during containerd restart.
-	start_local_registry
+	if [[ "$IMG" =~ localhost || \
+		"$PRE_INSTALL_IMG" =~ localhost ]];then
+		start_local_registry
+	fi
 }
 
 # Uninstall the CC runtime.
@@ -309,6 +328,10 @@ usage() {
 	 "install": install only,
 	 "wait_for_stabilization": wait for CoCo pods to be stable
 	 "uninstall": uninstall the operator.
+	environment variables :
+	 IMG: the controller image (current: $IMG)
+	 PRE_INSTALL_IMG: the pre-reqs image (current: $PRE_INSTALL_IMG)
+	 KATA_PAYLOAD_IMG: the kata-payload image (current: the one set in configs)
 	EOF
 }
 
